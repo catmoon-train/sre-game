@@ -1,0 +1,75 @@
+package net.exmo.sreGame.chicken;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import net.exmo.sreGame.GameContext;
+import net.exmo.sreGame.gui.ChickenHorseSetupGui;
+import net.exmo.sreGame.room.GameRoom;
+import net.minecraft.server.level.ServerPlayer;
+
+public final class ChickenHorseMiniGame implements net.exmo.sreGame.game.MiniGame {
+   public static final String ID = "chicken_horse";
+   private final GameContext ctx;
+
+   public ChickenHorseMiniGame(GameContext ctx) {
+      this.ctx = ctx;
+   }
+
+   @Override
+   public String id() {
+      return ID;
+   }
+
+   @Override
+   public String displayName() {
+      return "超级鸡马";
+   }
+
+   @Override
+   public String icon() {
+      return "cooked_chicken";
+   }
+
+   @Override
+   public int minPlayers() {
+      return 2;
+   }
+
+   @Override
+   public int maxPlayers() {
+      return 30;
+   }
+
+   @Override
+   public void openSetup(ServerPlayer host, GameRoom room) {
+      ChickenHorseSetupGui.open(this.ctx, host, room);
+   }
+
+   @Override
+   public boolean canStart(GameRoom room, ServerPlayer actor) {
+      if (room.size() < this.minPlayers() || room.size() > this.maxPlayers()) {
+         this.ctx.send(actor, "&c超级鸡马需要 &f" + this.minPlayers() + "–" + this.maxPlayers() + " &c人（当前 &f" + room.size() + "&c）。");
+         return false;
+      }
+      if (!room.allReady()) {
+         List<String> waiting = new ArrayList<>();
+         for (UUID uuid : room.members()) {
+            if (!room.isReady(uuid)) {
+               waiting.add(this.ctx.name(uuid));
+            }
+         }
+         this.ctx.send(actor, "&c还有玩家未准备：&f" + String.join("&7, &f", waiting));
+         return false;
+      }
+      return true;
+   }
+
+   @Override
+   public void start(GameRoom room, ServerPlayer actor) {
+      UUID matchId = this.ctx.chickenHorse().start(room);
+      if (matchId == null) {
+         this.ctx.send(actor, "&c没有空闲的鸡马赛道。");
+      }
+   }
+}

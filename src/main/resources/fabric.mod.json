@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "sre-game",
+  "version": "${version}",
+  "name": "SRE-GAME",
+  "description": "Server-side room minigame framework",
+  "authors": [
+    "exmo"
+  ],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/sre-game/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "net.exmo.sreGame.SreGame"
+    ],
+    "voicechat": [
+      "net.exmo.sreGame.voice.SreVoicePlugin"
+    ]
+  },
+  "mixins": [
+    "sre-game.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.1",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}",
+    "mcrpvpduel": "*"
+  },
+  "suggests": {
+    "voicechat": "*",
+    "starrailexpress": "*"
+  }
+}

@@ -1,0 +1,405 @@
+package net.exmo.sreGame.room;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import net.exmo.sreGame.buildwar.BuildWarMiniGame;
+import net.exmo.sreGame.buildwar.BuildWarSettings;
+import net.exmo.sreGame.caveguess.CaveGuessersMiniGame;
+import net.exmo.sreGame.caveguess.CaveGuessersSettings;
+import net.exmo.sreGame.chicken.ChickenHorseMiniGame;
+import net.exmo.sreGame.chicken.ChickenHorseSettings;
+import net.exmo.sreGame.dontdo.DontDoMiniGame;
+import net.exmo.sreGame.dontdo.DontDoSettings;
+import net.exmo.sreGame.draw.DrawGuessMiniGame;
+import net.exmo.sreGame.draw.DrawWarMiniGame;
+import net.exmo.sreGame.fakehuman.FakeHumanMiniGame;
+import net.exmo.sreGame.fakehuman.FakeHumanSettings;
+import net.exmo.sreGame.fraud.FraudMasterMiniGame;
+import net.exmo.sreGame.fraud.FraudMasterSettings;
+import net.exmo.sreGame.game.DuelSettings;
+import net.exmo.sreGame.luckypillar.LuckyPillarMiniGame;
+import net.exmo.sreGame.luckypillar.LuckyPillarSettings;
+import net.exmo.sreGame.pillarpummel.PillarPummelMiniGame;
+import net.exmo.sreGame.pillarpummel.PillarPummelSettings;
+import net.exmo.sreGame.youguess.YouGuessMiniGame;
+import net.exmo.sreGame.youguess.YouGuessSettings;
+
+public final class GameRoom {
+   private final String id;
+   private final long createdAt = System.currentTimeMillis();
+   private String displayName;
+   private UUID host;
+   private final List<UUID> members = new CopyOnWriteArrayList<>();
+   private final Set<UUID> ready = ConcurrentHashMap.newKeySet();
+   private String password;
+   private boolean publicRoom = true;
+   private int maxPlayers = 2;
+   private String miniGameId = "mcrpvp_duel";
+   private final DuelSettings duelSettings = new DuelSettings();
+   private final BuildWarSettings buildWarSettings = new BuildWarSettings();
+   private final YouGuessSettings youGuessSettings = new YouGuessSettings();
+   private final FraudMasterSettings fraudSettings = new FraudMasterSettings();
+   private final FakeHumanSettings fakeHumanSettings = new FakeHumanSettings();
+   private final CaveGuessersSettings caveSettings = new CaveGuessersSettings();
+   private final ChickenHorseSettings chickenHorseSettings = new ChickenHorseSettings();
+   private final DontDoSettings dontDoSettings = new DontDoSettings();
+   private final LuckyPillarSettings luckyPillarSettings = new LuckyPillarSettings();
+   private final PillarPummelSettings pillarPummelSettings = new PillarPummelSettings();
+   private final List<String> activeWords = new CopyOnWriteArrayList<>();
+   private String wordPackLabel = "服务器默认";
+   private RoomState state = RoomState.WAITING;
+   private UUID activeMatchId;
+   private RoomChatMode chatMode = RoomChatMode.ROOM_ONLY;
+
+   public GameRoom(String id, String displayName, UUID host) {
+      this.id = id;
+      this.displayName = displayName;
+      this.host = host;
+      this.members.add(host);
+      this.ready.add(host);
+      this.duelSettings.assign(host, 1);
+   }
+
+   public String id() {
+      return this.id;
+   }
+
+   public long createdAt() {
+      return this.createdAt;
+   }
+
+   public String displayName() {
+      return this.displayName;
+   }
+
+   public void setDisplayName(String displayName) {
+      this.displayName = displayName;
+   }
+
+   public UUID host() {
+      return this.host;
+   }
+
+   public void setHost(UUID host) {
+      this.host = host;
+      this.ready.add(host);
+   }
+
+   public boolean isHost(UUID uuid) {
+      return this.host.equals(uuid);
+   }
+
+   public List<UUID> members() {
+      return this.members;
+   }
+
+   public int size() {
+      return this.members.size();
+   }
+
+   public boolean contains(UUID uuid) {
+      return this.members.contains(uuid);
+   }
+
+   public Set<UUID> ready() {
+      return this.ready;
+   }
+
+   public boolean isReady(UUID uuid) {
+      return this.ready.contains(uuid);
+   }
+
+   public boolean allReady() {
+      for (UUID member : this.members) {
+         if (!this.ready.contains(member)) {
+            return false;
+         }
+      }
+      return !this.members.isEmpty();
+   }
+
+   public void toggleReady(UUID uuid) {
+      if (this.isHost(uuid)) {
+         this.ready.add(uuid);
+         return;
+      }
+      if (!this.ready.add(uuid)) {
+         this.ready.remove(uuid);
+      }
+   }
+
+   public void clearReadyExceptHost() {
+      this.ready.clear();
+      this.ready.add(this.host);
+   }
+
+   public String password() {
+      return this.password;
+   }
+
+   public void setPassword(String password) {
+      this.password = password == null || password.isBlank() ? null : password;
+   }
+
+   public boolean hasPassword() {
+      return this.password != null;
+   }
+
+   public boolean publicRoom() {
+      return this.publicRoom;
+   }
+
+   public void setPublicRoom(boolean publicRoom) {
+      this.publicRoom = publicRoom;
+   }
+
+   public RoomChatMode chatMode() {
+      return this.chatMode;
+   }
+
+   public void setChatMode(RoomChatMode chatMode) {
+      this.chatMode = chatMode == null ? RoomChatMode.ROOM_ONLY : chatMode;
+   }
+
+   public int maxPlayers() {
+      return this.maxPlayers;
+   }
+
+   public void setMaxPlayers(int maxPlayers) {
+      this.maxPlayers = Math.max(2, Math.min(30, maxPlayers));
+   }
+
+   public String miniGameId() {
+      return this.miniGameId;
+   }
+
+   public boolean isBuildWar() {
+      return BuildWarMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isYouGuess() {
+      return YouGuessMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isDrawGuess() {
+      return DrawGuessMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isDrawWar() {
+      return DrawWarMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isYouGuessFamily() {
+      return this.isYouGuess() || this.isDrawGuess();
+   }
+
+   public boolean isBuildWarFamily() {
+      return this.isBuildWar() || this.isDrawWar();
+   }
+
+   public boolean isFraudMaster() {
+      return FraudMasterMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isFakeHuman() {
+      return FakeHumanMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isCaveGuess() {
+      return CaveGuessersMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isChickenHorse() {
+      return ChickenHorseMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isDontDo() {
+      return DontDoMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isLuckyPillar() {
+      return LuckyPillarMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isPillarPummel() {
+      return PillarPummelMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isBuildStyle() {
+      return this.isBuildWarFamily() || this.isYouGuessFamily() || this.isFraudMaster() || this.isFakeHuman()
+         || this.isCaveGuess() || this.isChickenHorse() || this.isDontDo() || this.isLuckyPillar()
+         || this.isPillarPummel();
+   }
+
+   public void setMiniGameId(String miniGameId) {
+      this.miniGameId = miniGameId;
+      if (this.isFraudMaster() || this.isFakeHuman()) {
+         if (this.maxPlayers < 4 || this.maxPlayers > 8) {
+            this.maxPlayers = 6;
+         }
+      } else if (this.isChickenHorse()) {
+         if (this.maxPlayers > 30) {
+            this.maxPlayers = 16;
+         }
+      } else if (this.isDontDo()) {
+         if (this.maxPlayers > 16) {
+            this.maxPlayers = 16;
+         }
+      } else if (this.isLuckyPillar()) {
+         if (this.maxPlayers > 16) {
+            this.maxPlayers = 16;
+         } else if (this.maxPlayers < 2) {
+            this.maxPlayers = 8;
+         }
+      } else if (this.isPillarPummel()) {
+         if (this.maxPlayers > 16) {
+            this.maxPlayers = 16;
+         } else if (this.maxPlayers < 4) {
+            this.maxPlayers = 8;
+         }
+      } else if (this.isCaveGuess()) {
+         if (this.maxPlayers < 3) {
+            this.maxPlayers = 8;
+         } else if (this.maxPlayers > 16) {
+            this.maxPlayers = 16;
+         }
+      } else if (this.isBuildStyle() && this.maxPlayers < 3) {
+         this.maxPlayers = 8;
+      }
+   }
+
+   public DuelSettings duelSettings() {
+      return this.duelSettings;
+   }
+
+   public BuildWarSettings buildWarSettings() {
+      return this.buildWarSettings;
+   }
+
+   public YouGuessSettings youGuessSettings() {
+      return this.youGuessSettings;
+   }
+
+   public FraudMasterSettings fraudSettings() {
+      return this.fraudSettings;
+   }
+
+   public FakeHumanSettings fakeHumanSettings() {
+      return this.fakeHumanSettings;
+   }
+
+   public CaveGuessersSettings caveSettings() {
+      return this.caveSettings;
+   }
+
+   public ChickenHorseSettings chickenHorseSettings() {
+      return this.chickenHorseSettings;
+   }
+
+   public DontDoSettings dontDoSettings() {
+      return this.dontDoSettings;
+   }
+
+   public LuckyPillarSettings luckyPillarSettings() {
+      return this.luckyPillarSettings;
+   }
+
+   public PillarPummelSettings pillarPummelSettings() {
+      return this.pillarPummelSettings;
+   }
+
+   public boolean hasCustomWords() {
+      return !this.activeWords.isEmpty();
+   }
+
+   public List<String> customWords() {
+      return List.copyOf(this.activeWords);
+   }
+
+   public String wordPackLabel() {
+      return this.wordPackLabel;
+   }
+
+   public List<String> resolvedWords(net.exmo.sreGame.GameContext ctx) {
+      if (this.activeWords.isEmpty()) {
+         return ctx.words().all();
+      }
+      return List.copyOf(this.activeWords);
+   }
+
+   public List<String> editableWords(net.exmo.sreGame.GameContext ctx) {
+      if (this.activeWords.isEmpty()) {
+         if (this.isCaveGuess()) {
+            this.activeWords.addAll(ctx.caveWords().plainTexts());
+         } else {
+            this.activeWords.addAll(ctx.words().all());
+         }
+         this.wordPackLabel = "房间自定义";
+      }
+      return this.activeWords;
+   }
+
+   public void importWords(List<String> words, String label) {
+      this.activeWords.clear();
+      if (words != null) {
+         for (String word : words) {
+            if (word != null && !word.isBlank() && !this.activeWords.contains(word.trim())) {
+               this.activeWords.add(word.trim());
+            }
+         }
+      }
+      this.wordPackLabel = label == null || label.isBlank() ? "自定义" : label;
+   }
+
+   public boolean addWord(String word) {
+      String cleaned = word == null ? "" : word.trim();
+      if (cleaned.isEmpty() || cleaned.length() > 32 || this.activeWords.contains(cleaned)) {
+         return false;
+      }
+      this.activeWords.add(cleaned);
+      this.wordPackLabel = "房间自定义";
+      return true;
+   }
+
+   public boolean removeWord(String word) {
+      boolean removed = this.activeWords.remove(word);
+      if (removed) {
+         this.wordPackLabel = "房间自定义";
+      }
+      return removed;
+   }
+
+   public RoomState state() {
+      return this.state;
+   }
+
+   public void setState(RoomState state) {
+      this.state = state;
+   }
+
+   public UUID activeMatchId() {
+      return this.activeMatchId;
+   }
+
+   public void setActiveMatchId(UUID activeMatchId) {
+      this.activeMatchId = activeMatchId;
+   }
+
+   public boolean isJoinable() {
+      return this.state == RoomState.WAITING && this.members.size() < this.maxPlayers;
+   }
+
+   public List<UUID> unassigned() {
+      List<UUID> out = new ArrayList<>();
+      for (UUID member : this.members) {
+         if (this.duelSettings.teamOf(member) == 0) {
+            out.add(member);
+         }
+      }
+      return out;
+   }
+}

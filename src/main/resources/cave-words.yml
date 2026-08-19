@@ -1,0 +1,108 @@
+# 洞穴猜猜乐词库
+# 格式: 词|banned:禁用1,禁用2|cat:分类|diff:easy/normal/hard|decoys:干扰1,干扰2,干扰3
+
+# MC物品
+钻石剑|banned:钻石,剑,武器,装备|cat:mc_item|diff:easy
+附魔金苹果|banned:附魔,金苹果,苹果,金|cat:mc_item|diff:easy
+红石|banned:红,石,电路,粉|cat:mc_item|diff:easy
+末影珍珠|banned:末影,珍珠,传送,扔|cat:mc_item|diff:easy
+下界合金锭|banned:下界,合金,锭,装备|cat:mc_item|diff:normal
+鞘翅|banned:翅膀,飞,滑翔,膜|cat:mc_item|diff:normal
+活塞|banned:推,红石,机械,方块|cat:mc_item|diff:easy
+TNT|banned:炸药,爆炸,白,红|cat:mc_item|diff:easy
+火焰弹|banned:火,弹,燃烧,打火|cat:mc_item|diff:normal
+刷怪笼|banned:刷怪,笼子,刷,怪|cat:mc_item|diff:hard
+信标|banned:光柱,金字塔,矿块,光|cat:mc_item|diff:normal
+潜影盒|banned:潜影,盒子,背包,末地|cat:mc_item|diff:normal
+三叉戟|banned:叉,水,扔,武器|cat:mc_item|diff:normal
+不死图腾|banned:不死,图腾,复活,图|cat:mc_item|diff:normal
+
+# MC生物
+苦力怕|banned:苦力,怕,爆炸,绿色|cat:mc_mob|diff:easy
+末影人|banned:末影,高,黑,瞬移|cat:mc_mob|diff:easy
+凋零|banned:凋,头,黑,骷髅|cat:mc_mob|diff:normal
+村民|banned:村,绿袍,交易,鼻子|cat:mc_mob|diff:easy
+僵尸|banned:尸,绿,亡灵,咬|cat:mc_mob|diff:easy
+史莱姆|banned:史莱,粘液,跳,绿|cat:mc_mob|diff:easy
+守卫者|banned:守卫,激光,海底,鱼|cat:mc_mob|diff:normal
+凋灵骷髅|banned:凋灵,骷髅,下界,石剑|cat:mc_mob|diff:normal
+狐狸|banned:狐,红,浆果,蹲|cat:mc_mob|diff:easy
+悦灵|banned:悦,飞,收纳,尘|cat:mc_mob|diff:hard
+监守者|banned:监守,深暗,声波,盲|cat:mc_mob|diff:hard
+熊猫|banned:熊,竹,黑白,滚|cat:mc_mob|diff:easy
+
+# MC地点
+地狱|banned:下界,火,岩浆,门|cat:mc_place|diff:easy
+末地|banned:末,龙,虚空,门|cat:mc_place|diff:easy
+丛林神庙|banned:丛林,神庙,机关,谜题|cat:mc_place|diff:normal
+海底神殿|banned:海底,神殿,守卫,棱柱|cat:mc_place|diff:normal
+古城|banned:深暗,城市,幽匿,监守|cat:mc_place|diff:hard
+沙漠神殿|banned:沙漠,神殿,TNT,宝藏|cat:mc_place|diff:normal
+村庄|banned:村,房子,村民,田|cat:mc_place|diff:easy
+蘑菇岛|banned:蘑菇,岛,牛,红|cat:mc_place|diff:normal
+
+# 日常物品
+雨伞|banned:雨,伞,遮,淋|cat:daily|diff:easy
+眼镜|banned:眼,镜,近视,框|cat:daily|diff:easy
+牙刷|banned:牙,刷,牙膏,口|cat:daily|diff:easy
+钥匙|banned:锁,开,门,串|cat:daily|diff:easy
+闹钟|banned:钟,闹,时间,响|cat:daily|diff:easy
+书包|banned:书,包,背,学生|cat:daily|diff:easy
+剪刀|banned:剪,刀,剪纸,锋利|cat:daily|diff:easy
+枕头|banned:枕,睡,床,软|cat:daily|diff:easy
+
+# 动物
+企鹅|banned:企,鹅,南极,黑白|cat:animal|diff:easy
+长颈鹿|banned:长颈,鹿,脖子,斑点|cat:animal|diff:easy
+章鱼|banned:章,鱼,八爪,墨|cat:animal|diff:easy
+袋鼠|banned:袋,鼠,跳,澳洲|cat:animal|diff:easy
+考拉|banned:考,拉,桉树,澳洲|cat:animal|diff:easy
+北极熊|banned:北极,熊,白,冰|cat:animal|diff:easy
+变色龙|banned:变色,龙,伪装,爬|cat:animal|diff:normal
+穿山甲|banned:穿山,甲,鳞,卷|cat:animal|diff:hard
+
+# 食物
+汉堡|banned:汉,堡,面包,肉|cat:food|diff:easy
+寿司|banned:寿,司,醋饭,鱼生|cat:food|diff:easy
+糖葫芦|banned:糖,葫芦,山楂,签|cat:food|diff:easy
+披萨|banned:披,萨,芝士,饼|cat:food|diff:easy
+火锅|banned:火,锅,辣,烫|cat:food|diff:easy
+冰淇淋|banned:冰,淇淋,冷,甜|cat:food|diff:easy
+饺子|banned:饺,子,馅,煮|cat:food|diff:easy
+蛋炒饭|banned:蛋,炒,饭,锅|cat:food|diff:easy
+
+# 影视动漫
+海贼王|banned:海贼,航海,草帽,路飞|cat:media|diff:easy
+火影|banned:火,影,忍者,鸣人|cat:media|diff:easy
+蜘蛛侠|banned:蜘蛛,侠,蛛丝,英雄|cat:media|diff:easy
+哆啦A梦|banned:哆啦,A梦,机器猫,口袋|cat:media|diff:easy
+奥特曼|banned:奥特,曼,光,怪兽|cat:media|diff:easy
+喜羊羊|banned:喜,羊,灰太狼,青青|cat:media|diff:easy
+熊出没|banned:熊,出没,光头强,森林|cat:media|diff:easy
+名侦探柯南|banned:柯南,侦探,小兰,推理|cat:media|diff:normal
+
+# 网络热梗
+鸡你太美|banned:鸡,太美,篮球,坤|cat:meme|diff:easy
+退退退|banned:退,法师,吟唱,后|cat:meme|diff:normal
+挖呀挖|banned:挖,呀,小朋友,坑|cat:meme|diff:easy
+电子木鱼|banned:电子,木鱼,功德,敲|cat:meme|diff:easy
+遥遥领先|banned:遥遥,领先,华为,遥|cat:meme|diff:normal
+绝绝子|banned:绝,子,夸,网络|cat:meme|diff:hard
+栓Q|banned:栓,Q,谢谢,谐音|cat:meme|diff:hard
+芭比Q|banned:芭比,Q,完了,烧烤|cat:meme|diff:normal
+
+# 曲调 / 歌名（词条需唯一，勿与上方普通词重复）
+两只老虎|banned:老虎,两只,跑|cat:tune|diff:easy|decoys:小星星,生日快乐,世上只有妈妈好
+小星星|banned:星星,一闪,天空|cat:tune|diff:easy|decoys:两只老虎,生日快乐,祝你平安
+生日快乐|banned:生日,快乐,蛋糕|cat:tune|diff:easy|decoys:小星星,两只老虎,世上只有妈妈好
+世上只有妈妈好|banned:世上,妈妈,好|cat:tune|diff:easy|decoys:小星星,生日快乐,两只老虎
+义勇军进行曲|banned:义勇,国歌,起来|cat:tune|diff:normal|decoys:生日快乐,小星星,祝你平安
+超级玛丽|banned:玛丽,马里奥,水管|cat:tune|diff:easy|decoys:塞尔达,宝可梦,俄罗斯方块
+祝你平安|banned:祝你,平安,歌|cat:tune|diff:easy|decoys:小星星,生日快乐,两只老虎
+茉莉花|banned:茉莉,花,好一朵|cat:tune|diff:easy|decoys:小星星,世上只有妈妈好,生日快乐
+让我们荡起双桨|banned:荡起,双桨,湖|cat:tune|diff:normal|decoys:两只老虎,小星星,茉莉花
+最炫民族风|banned:最炫,民族,风|cat:tune|diff:easy|decoys:小苹果,江南,月亮代表我的心
+小苹果|banned:苹果,筷子,小|cat:tune|diff:easy|decoys:最炫民族风,江南,小星星
+江南|banned:江,南,周杰伦|cat:tune|diff:normal|decoys:小苹果,月亮代表我的心,青花瓷
+月亮代表我的心|banned:月亮,代表,心|cat:tune|diff:easy|decoys:江南,小星星,生日快乐
+青花瓷|banned:青花,瓷,周杰伦|cat:tune|diff:normal|decoys:江南,月亮代表我的心,小苹果

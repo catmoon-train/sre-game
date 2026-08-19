@@ -1,0 +1,32 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.exmo.sreGame.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "net.exmo.sreGame.mixin.SreGameMixinPlugin",
+  "mixins": [
+    "ChunkMapAccessor",
+    "HiddenRacerTrackingMixin",
+    "FogZoneBlockEntityMixin",
+    "HurricaneEntityMixin",
+    "LivingJumpAccessor",
+    "DontDoJumpMixin",
+    "DontDoDropMixin",
+    "LuckyPillarFishingMixin",
+    "MatchContainerDropMixin",
+    "MatchCreativeDropMixin",
+    "MatchDropLockMixin",
+    "RoomChatMixin",
+    "RoomChatSendMixin",
+    "SreForceKillMixin",
+    "TrackedEntityAccessor"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
