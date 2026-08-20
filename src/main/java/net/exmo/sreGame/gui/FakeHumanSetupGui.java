@@ -2,7 +2,7 @@ package net.exmo.sreGame.gui;
 
 import java.util.List;
 import net.exmo.sreGame.GameContext;
-import net.exmo.sreGame.fakehuman.FakeHumanSettings;
+import net.exmo.sreGame.games.fakehuman.FakeHumanSettings;
 import net.exmo.sreGame.room.GameRoom;
 import net.exmo.sreGame.util.TextUtil;
 import net.minecraft.server.level.ServerPlayer;

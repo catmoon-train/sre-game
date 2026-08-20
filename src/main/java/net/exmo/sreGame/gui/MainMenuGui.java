@@ -36,7 +36,10 @@ public final class MainMenuGui {
          || ctx.fraudMaster().openIfPlaying(player) || ctx.fakeHuman().openIfPlaying(player)
          || ctx.caveGuess().openIfPlaying(player) || ctx.chickenHorse().openIfPlaying(player)
          || ctx.dontDo().openIfPlaying(player) || ctx.luckyPillar().openIfPlaying(player)
-         || ctx.pillarPummel().openIfPlaying(player)) {
+         || ctx.pillarPummel().openIfPlaying(player) || ctx.dodgeball().openIfPlaying(player)
+         || ctx.digToDeath().openIfPlaying(player)          || ctx.youBuildRun().openIfPlaying(player)
+         || ctx.pushTheButton().openIfPlaying(player)
+         || ctx.parkour().openIfPlaying(player)) {
          return;
       }
       Tab safe = tab == null ? Tab.GAMES : tab;
@@ -66,8 +69,14 @@ public final class MainMenuGui {
       } else {
          container.setItem(15, GuiItems.named("barrier", "&8我的房间", List.of("&7你还不在任何房间")));
       }
+      container.setItem(29, GuiItems.action("feather", "&a&l无限跑酷", List.of(
+         "&7无需进房间即可游玩",
+         "&7等待中也可玩，对局开始自动退出",
+         "&e点击加入 · /parkour"
+      ), "parkour"));
       container.setItem(49, GuiItems.named("compass", "&f指令", List.of(
          "&e/sregame &7打开本菜单",
+         "&e/parkour &7无限跑酷",
          "&e/room create &7快速开房",
          "&e/room join <码> [密码]",
          "&e/room leave"
@@ -121,6 +130,10 @@ public final class MainMenuGui {
                if (room != null) {
                   RoomPanelGui.open(this.ctx, player);
                }
+            }
+            case "parkour" -> {
+               player.closeContainer();
+               this.ctx.parkour().join(player);
             }
             case "ranked" -> {
                if (duel != null) {

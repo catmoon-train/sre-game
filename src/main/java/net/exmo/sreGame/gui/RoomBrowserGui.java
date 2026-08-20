@@ -66,6 +66,13 @@ public final class RoomBrowserGui {
          } else if (room.isPillarPummel()) {
             lore.add("&7柱联壁合 &8| &f" + room.pillarPummelSettings().teamCount() + " 队 "
                + room.pillarPummelSettings().durationMinutes() + " 分钟");
+         } else if (room.isDodgeball()) {
+            lore.add("&7躲避球 &8| &f" + room.dodgeballSettings().roundSeconds() + "s × "
+               + room.dodgeballSettings().winsNeeded() + " 胜");
+         } else if (room.isDigToDeath()) {
+            lore.add("&7掘一死战 &8| &f" + room.digToDeathSettings().variant().label());
+         } else if (room.isYouBuildRun()) {
+            lore.add("&7你建我跑 &8| &f" + room.youBuildRunSettings().scene().label());
          } else if (room.duelSettings().gamemode() != null) {
             lore.add("&7模式： &f" + room.duelSettings().gamemode());
          }

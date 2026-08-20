@@ -2,7 +2,7 @@ package net.exmo.sreGame.gui;
 
 import java.util.List;
 import net.exmo.sreGame.GameContext;
-import net.exmo.sreGame.luckypillar.LuckyItemPool;
+import net.exmo.sreGame.games.luckypillar.LuckyItemPool;
 import net.exmo.sreGame.util.TextUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;

@@ -18,7 +18,10 @@ public final class MatchGuard {
          || ctx.fraudMaster().isPlaying(sp) || ctx.fakeHuman().isPlaying(sp)
          || ctx.caveGuess().isPlaying(sp) || ctx.chickenHorse().isPlaying(sp)
          || ctx.dontDo().isPlaying(sp) || ctx.luckyPillar().isPlaying(sp)
-         || ctx.pillarPummel().isPlaying(sp));
+         || ctx.pillarPummel().isPlaying(sp) || ctx.dodgeball().isPlaying(sp)
+         || ctx.digToDeath().isPlaying(sp) || ctx.youBuildRun().isPlaying(sp)
+         || ctx.pushTheButton().isPlaying(sp)
+         || ctx.parkour().isPlaying(sp));
    }
 
    public static boolean lockItemDrops(Player player) {
@@ -28,7 +31,10 @@ public final class MatchGuard {
       GameContext ctx = SreGame.getContext();
       return ctx != null && (ctx.buildWar().isPlaying(sp) || ctx.youGuess().isPlaying(sp)
          || ctx.fraudMaster().isPlaying(sp) || ctx.fakeHuman().isPlaying(sp)
-         || ctx.caveGuess().isPlaying(sp) || ctx.chickenHorse().isPlaying(sp));
+         || ctx.caveGuess().isPlaying(sp) || ctx.chickenHorse().isPlaying(sp)
+         || ctx.dodgeball().isPlaying(sp) || ctx.digToDeath().isPlaying(sp)
+         || ctx.youBuildRun().isPlaying(sp) || ctx.pushTheButton().isPlaying(sp)
+         || ctx.parkour().isPlaying(sp));
    }
 
    public static boolean lockCreativeInventory(Player player) {

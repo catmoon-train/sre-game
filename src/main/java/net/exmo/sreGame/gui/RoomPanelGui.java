@@ -129,12 +129,38 @@ public final class RoomPanelGui {
             + " &8| &7" + pp.winMode().label());
          info.add("&7铺桥成台 · 产分 &f" + pp.scorePerPlot() + "/" + pp.scoreInterval() + "s"
             + " &8| &7死亡 &f" + pp.deathScore());
+      } else if (room.isDodgeball()) {
+         var db = room.dodgeballSettings();
+         info.add("&7每局 &f" + db.roundSeconds() + "s"
+            + " &8| &7先赢 &f" + db.winsNeeded()
+            + " &8| &7道具 &f" + db.onOff(db.powerups())
+            + " &8| &7绝杀 &f" + db.onOff(db.frenzy()));
+         info.add("&72–16 人 · 红蓝雪球对战 · 接球反杀");
+      } else if (room.isDigToDeath()) {
+         var dg = room.digToDeathSettings();
+         info.add("&7变体 &f" + dg.variant().label() + " &8| &7层数 &f" + dg.layers());
+         info.add("&72–16 人 · 雪台混战 · 掉岩浆淘汰");
+      } else if (room.isYouBuildRun()) {
+         var yb = room.youBuildRunSettings();
+         info.add("&7场景 &f" + yb.scene().label()
+            + " &8| &7建造 &f" + yb.buildSeconds() + "s"
+            + " &8| &7自测 &f" + yb.selfSeconds() + "s");
+         info.add("&7方块 &f" + yb.blockLimit() + " &8| &7交换生命 &f" + yb.lives()
+            + " &8| &72–8 人");
+      } else if (room.isPushTheButton()) {
+         var pb = room.pushTheButtonSettings();
+         info.add("&7外星人 &f" + pb.alienCountLabel()
+            + " &8| &7小丑 &f" + pb.jesterChanceLabel()
+            + " &8| &7绘画 &f" + pb.onOff(pb.drawing())
+            + " &8| &7扫描 &f" + pb.onOff(pb.bio()));
+         info.add("&74–10 人 · 飞船社交推理 · 拍按钮送气闸");
       } else if (room.duelSettings().gamemode() != null) {
          info.add("&7决斗模式： &f" + room.duelSettings().gamemode()
             + " &8| &7" + room.duelSettings().queueType().name()
             + " FT" + room.duelSettings().rounds());
       }
       info.add(room.publicRoom() ? "&a公开" : "&8私密");
+      info.add("&7自动准备： &f" + (room.autoReady() ? "&a开" : "&c关"));
       info.add("&7聊天： &f" + room.chatMode().label());
       if (room.hasPassword()) {
          info.add("&c已设密码");
@@ -159,7 +185,7 @@ public final class RoomPanelGui {
             List.of("&7当前： &f" + (game != null ? game.displayName() : room.miniGameId()),
                room.state() == RoomState.WAITING ? "&e点击选择其他小游戏" : "&c对局中无法更换"),
             "minigame"));
-         container.setItem(38, GuiItems.action("comparator", "&e房间设置", List.of("&7改名 / 密码 / 公开 / 聊天范围"), "settings"));
+         container.setItem(38, GuiItems.action("comparator", "&e房间设置", List.of("&7改名 / 密码 / 公开 / 聊天 / 自动准备"), "settings"));
          container.setItem(39, GuiItems.action(game != null ? game.icon() : "chest", "&6小游戏设置", List.of("&7选择模式与回合"), "setup"));
          container.setItem(40, GuiItems.action("emerald_block", "&a&l开始对局",
             List.of(room.isBuildStyle() ? "&7需全员准备" : "&7需全员准备且分队正确"), "start"));
@@ -168,7 +194,9 @@ public final class RoomPanelGui {
          container.setItem(42, GuiItems.action("player_head", "&f人数上限 &e" + room.maxPlayers(),
             List.of(room.isChickenHorse() ? "&e点击切换 2/4/8/12/16/20/24/30"
                : room.isDontDo() ? "&e点击切换 2/4/8/12/16"
-               : room.isLuckyPillar() ? "&e点击切换 2/4/8/12/16"
+               : room.isLuckyPillar() || room.isDodgeball() || room.isDigToDeath() ? "&e点击切换 2/4/8/12/16"
+               : room.isYouBuildRun() ? "&e点击切换 2/4/6/8"
+               : room.isPushTheButton() ? "&e点击切换 4–10"
                : room.isPillarPummel() ? "&e点击切换 4/8/12/16"
                : room.isFraudMaster() || room.isFakeHuman() ? "&e点击切换 4–8"
                : room.isCaveGuess() ? "&e点击切换 2/3/8/12/16"
@@ -271,6 +299,22 @@ public final class RoomPanelGui {
                      if (pp != null) {
                         pp.endNow();
                      }
+                     var db = this.ctx.dodgeball().getById(room.activeMatchId());
+                     if (db != null) {
+                        db.endNow();
+                     }
+                     var dg = this.ctx.digToDeath().getById(room.activeMatchId());
+                     if (dg != null) {
+                        dg.endNow();
+                     }
+                     var yb = this.ctx.youBuildRun().getById(room.activeMatchId());
+                     if (yb != null) {
+                        yb.endNow();
+                     }
+                     var pb = this.ctx.pushTheButton().getById(room.activeMatchId());
+                     if (pb != null) {
+                        pb.endNow();
+                     }
                   }
                   this.ctx.rooms().disband(room, "&c房主解散了房间。");
                   MainMenuGui.open(this.ctx, player);
@@ -318,7 +362,9 @@ public final class RoomPanelGui {
                   int[] cycle = (room.isFraudMaster() || room.isFakeHuman())
                      ? new int[] {4, 5, 6, 7, 8}
                      : room.isChickenHorse() ? new int[] {2, 4, 8, 12, 16, 20, 24, 30}
-                     : room.isDontDo() || room.isLuckyPillar() ? new int[] {2, 4, 8, 12, 16}
+                     : room.isDontDo() || room.isLuckyPillar() || room.isDodgeball() || room.isDigToDeath() ? new int[] {2, 4, 8, 12, 16}
+                     : room.isYouBuildRun() ? new int[] {2, 4, 6, 8}
+                     : room.isPushTheButton() ? new int[] {4, 5, 6, 7, 8, 9, 10}
                      : room.isPillarPummel() ? new int[] {4, 8, 12, 16}
                      : room.isCaveGuess() ? new int[] {2, 3, 8, 12, 16} : new int[] {2, 3, 8, 12, 16, 20};
                   int next = 2;

@@ -2,8 +2,8 @@ package net.exmo.sreGame.gui;
 
 import java.util.List;
 import net.exmo.sreGame.GameContext;
-import net.exmo.sreGame.chicken.ChickenHorseSettings;
-import net.exmo.sreGame.chicken.SreSceneBlocks;
+import net.exmo.sreGame.games.chicken.ChickenHorseSettings;
+import net.exmo.sreGame.games.chicken.SreSceneBlocks;
 import net.exmo.sreGame.room.GameRoom;
 import net.exmo.sreGame.util.TextUtil;
 import net.minecraft.server.level.ServerPlayer;

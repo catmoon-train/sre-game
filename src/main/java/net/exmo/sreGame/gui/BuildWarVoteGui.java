@@ -2,8 +2,8 @@ package net.exmo.sreGame.gui;
 
 import java.util.List;
 import net.exmo.sreGame.GameContext;
-import net.exmo.sreGame.buildwar.BuildGroup;
-import net.exmo.sreGame.buildwar.BuildWarMatch;
+import net.exmo.sreGame.games.buildwar.BuildGroup;
+import net.exmo.sreGame.games.buildwar.BuildWarMatch;
 import net.exmo.sreGame.util.TextUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;

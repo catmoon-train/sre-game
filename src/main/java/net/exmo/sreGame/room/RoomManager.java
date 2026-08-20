@@ -128,6 +128,9 @@ public final class RoomManager {
          }
       }
       room.members().add(player.getUUID());
+      if (room.autoReady()) {
+         room.ready().add(player.getUUID());
+      }
       room.duelSettings().assignToSmaller(player.getUUID());
       this.playerRoom.put(player.getUUID(), room.id());
       this.ctx.broadcast(room, "&e" + player.getGameProfile().getName() + " &7加入了房间 &8[&f" + room.id() + "&8]");
@@ -164,6 +167,14 @@ public final class RoomManager {
                this.ctx.luckyPillar().onLeave(player);
             } else if (room.isPillarPummel()) {
                this.ctx.pillarPummel().onLeave(player);
+            } else if (room.isDodgeball()) {
+               this.ctx.dodgeball().onLeave(player);
+            } else if (room.isDigToDeath()) {
+               this.ctx.digToDeath().onLeave(player);
+            } else if (room.isYouBuildRun()) {
+               this.ctx.youBuildRun().onLeave(player);
+            } else if (room.isPushTheButton()) {
+               this.ctx.pushTheButton().onLeave(player);
             } else {
                com.mcrpvp.duel.fabric.api.DuelApi.forceLeave(player);
             }
@@ -242,7 +253,15 @@ public final class RoomManager {
       boolean inDontDo = this.ctx.dontDo().isPlaying(player);
       boolean inLucky = this.ctx.luckyPillar().isPlaying(player);
       boolean inPummel = this.ctx.pillarPummel().isPlaying(player);
-      if (inRoom || inBuildWar || inYouGuess || inFraud || inFake || inCave || inChicken || inDontDo || inLucky || inPummel) {
+      boolean inDodgeball = this.ctx.dodgeball().isPlaying(player);
+      boolean inDig = this.ctx.digToDeath().isPlaying(player);
+      boolean inBuildRun = this.ctx.youBuildRun().isPlaying(player);
+      boolean inPtb = this.ctx.pushTheButton().isPlaying(player);
+      boolean inParkour = this.ctx.parkour().isPlaying(player);
+      if (inParkour) {
+         this.ctx.parkour().leave(player, false);
+      }
+      if (inRoom || inBuildWar || inYouGuess || inFraud || inFake || inCave || inChicken || inDontDo || inLucky || inPummel || inDodgeball || inDig || inBuildRun || inPtb) {
          this.leave(player.getUUID(), false);
          this.resetLobbyState(player);
          this.ctx.send(player, "&7已退出房间并回到出生点。");
@@ -286,6 +305,7 @@ public final class RoomManager {
       if (!game.canStart(room, host)) {
          return false;
       }
+      this.ctx.parkour().leaveAllRoomMembers(room);
       room.setState(RoomState.STARTING);
       this.ctx.broadcast(room, "&a房主开始了 &f" + game.displayName() + " &a对局…");
       try {

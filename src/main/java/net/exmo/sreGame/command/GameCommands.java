@@ -109,6 +109,49 @@ public final class GameCommands {
             return 1;
          }));
       dispatcher.register(room);
+
+      var parkour = Commands.literal("parkour")
+         .executes(c -> {
+            ServerPlayer player = player(c.getSource());
+            if (player == null) {
+               return 0;
+            }
+            if (ctx.parkour().isPlaying(player)) {
+               net.exmo.sreGame.gui.ParkourMenuGui.open(ctx, player);
+            } else {
+               ctx.parkour().join(player);
+            }
+            return 1;
+         })
+         .then(Commands.literal("join").executes(c -> {
+            ServerPlayer player = player(c.getSource());
+            if (player == null) {
+               return 0;
+            }
+            ctx.parkour().join(player);
+            return 1;
+         }))
+         .then(Commands.literal("leave").executes(c -> {
+            ServerPlayer player = player(c.getSource());
+            if (player == null) {
+               return 0;
+            }
+            if (!ctx.parkour().isPlaying(player)) {
+               ctx.send(player, "&c你不在无限跑酷中。");
+               return 0;
+            }
+            ctx.parkour().leave(player, true);
+            return 1;
+         }));
+      dispatcher.register(parkour);
+      dispatcher.register(Commands.literal("ip").executes(c -> {
+         ServerPlayer player = player(c.getSource());
+         if (player == null) {
+            return 0;
+         }
+         ctx.parkour().join(player);
+         return 1;
+      }));
    }
 
    private static int join(GameContext ctx, CommandSourceStack source, String code, String password) {

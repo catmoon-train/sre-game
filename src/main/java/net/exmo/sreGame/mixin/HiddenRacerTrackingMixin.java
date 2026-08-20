@@ -1,6 +1,6 @@
 package net.exmo.sreGame.mixin;
 
-import net.exmo.sreGame.chicken.ChickenHorseVisibility;
+import net.exmo.sreGame.games.chicken.ChickenHorseVisibility;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Final;

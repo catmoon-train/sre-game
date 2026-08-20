@@ -74,7 +74,7 @@ public final class WordPackGui {
       if ("build_war".equals(backTo) || "draw_war".equals(backTo)) {
          BuildWarSetupGui.open(ctx, player, room);
       } else if ("cave_guess".equals(backTo)) {
-         net.exmo.sreGame.caveguess.gui.CaveSetupGui.open(ctx, player, room);
+         net.exmo.sreGame.games.caveguess.gui.CaveSetupGui.open(ctx, player, room);
       } else {
          YouGuessSetupGui.open(ctx, player, room);
       }

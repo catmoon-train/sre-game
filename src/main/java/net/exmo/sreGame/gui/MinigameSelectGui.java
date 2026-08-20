@@ -103,6 +103,18 @@ public final class MinigameSelectGui {
                if ("pillar_pummel".equals(game.id()) && (draft.maxPlayers < 4 || draft.maxPlayers > 16)) {
                   draft.maxPlayers = 8;
                }
+               if ("dodgeball".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 16)) {
+                  draft.maxPlayers = 8;
+               }
+               if ("dig_to_death".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 16)) {
+                  draft.maxPlayers = 8;
+               }
+               if ("you_build_run".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 8)) {
+                  draft.maxPlayers = 8;
+               }
+               if ("push_the_button".equals(game.id()) && (draft.maxPlayers < 4 || draft.maxPlayers > 10)) {
+                  draft.maxPlayers = 8;
+               }
                CreateRoomGui.open(this.ctx, player);
             } else {
                GameRoom room = this.ctx.rooms().getByPlayer(player.getUUID());

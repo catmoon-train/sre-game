@@ -6,27 +6,35 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import net.exmo.sreGame.buildwar.BuildWarMiniGame;
-import net.exmo.sreGame.buildwar.BuildWarSettings;
-import net.exmo.sreGame.caveguess.CaveGuessersMiniGame;
-import net.exmo.sreGame.caveguess.CaveGuessersSettings;
-import net.exmo.sreGame.chicken.ChickenHorseMiniGame;
-import net.exmo.sreGame.chicken.ChickenHorseSettings;
-import net.exmo.sreGame.dontdo.DontDoMiniGame;
-import net.exmo.sreGame.dontdo.DontDoSettings;
-import net.exmo.sreGame.draw.DrawGuessMiniGame;
-import net.exmo.sreGame.draw.DrawWarMiniGame;
-import net.exmo.sreGame.fakehuman.FakeHumanMiniGame;
-import net.exmo.sreGame.fakehuman.FakeHumanSettings;
-import net.exmo.sreGame.fraud.FraudMasterMiniGame;
-import net.exmo.sreGame.fraud.FraudMasterSettings;
+import net.exmo.sreGame.games.buildrun.YouBuildRunMiniGame;
+import net.exmo.sreGame.games.buildrun.YouBuildRunSettings;
+import net.exmo.sreGame.games.buildwar.BuildWarMiniGame;
+import net.exmo.sreGame.games.buildwar.BuildWarSettings;
+import net.exmo.sreGame.games.caveguess.CaveGuessersMiniGame;
+import net.exmo.sreGame.games.caveguess.CaveGuessersSettings;
+import net.exmo.sreGame.games.chicken.ChickenHorseMiniGame;
+import net.exmo.sreGame.games.chicken.ChickenHorseSettings;
+import net.exmo.sreGame.games.dontdo.DontDoMiniGame;
+import net.exmo.sreGame.games.dontdo.DontDoSettings;
+import net.exmo.sreGame.games.dig.DigToDeathMiniGame;
+import net.exmo.sreGame.games.dig.DigToDeathSettings;
+import net.exmo.sreGame.games.dodgeball.DodgeballMiniGame;
+import net.exmo.sreGame.games.dodgeball.DodgeballSettings;
+import net.exmo.sreGame.games.draw.DrawGuessMiniGame;
+import net.exmo.sreGame.games.draw.DrawWarMiniGame;
+import net.exmo.sreGame.games.fakehuman.FakeHumanMiniGame;
+import net.exmo.sreGame.games.fakehuman.FakeHumanSettings;
+import net.exmo.sreGame.games.fraud.FraudMasterMiniGame;
+import net.exmo.sreGame.games.fraud.FraudMasterSettings;
 import net.exmo.sreGame.game.DuelSettings;
-import net.exmo.sreGame.luckypillar.LuckyPillarMiniGame;
-import net.exmo.sreGame.luckypillar.LuckyPillarSettings;
-import net.exmo.sreGame.pillarpummel.PillarPummelMiniGame;
-import net.exmo.sreGame.pillarpummel.PillarPummelSettings;
-import net.exmo.sreGame.youguess.YouGuessMiniGame;
-import net.exmo.sreGame.youguess.YouGuessSettings;
+import net.exmo.sreGame.games.luckypillar.LuckyPillarMiniGame;
+import net.exmo.sreGame.games.luckypillar.LuckyPillarSettings;
+import net.exmo.sreGame.games.pillarpummel.PillarPummelMiniGame;
+import net.exmo.sreGame.games.pillarpummel.PillarPummelSettings;
+import net.exmo.sreGame.games.pushthebutton.PushTheButtonMiniGame;
+import net.exmo.sreGame.games.pushthebutton.PushTheButtonSettings;
+import net.exmo.sreGame.games.youguess.YouGuessMiniGame;
+import net.exmo.sreGame.games.youguess.YouGuessSettings;
 
 public final class GameRoom {
    private final String id;
@@ -37,6 +45,7 @@ public final class GameRoom {
    private final Set<UUID> ready = ConcurrentHashMap.newKeySet();
    private String password;
    private boolean publicRoom = true;
+   private boolean autoReady = true;
    private int maxPlayers = 2;
    private String miniGameId = "mcrpvp_duel";
    private final DuelSettings duelSettings = new DuelSettings();
@@ -49,6 +58,10 @@ public final class GameRoom {
    private final DontDoSettings dontDoSettings = new DontDoSettings();
    private final LuckyPillarSettings luckyPillarSettings = new LuckyPillarSettings();
    private final PillarPummelSettings pillarPummelSettings = new PillarPummelSettings();
+   private final DodgeballSettings dodgeballSettings = new DodgeballSettings();
+   private final DigToDeathSettings digToDeathSettings = new DigToDeathSettings();
+   private final YouBuildRunSettings youBuildRunSettings = new YouBuildRunSettings();
+   private final PushTheButtonSettings pushTheButtonSettings = new PushTheButtonSettings();
    private final List<String> activeWords = new CopyOnWriteArrayList<>();
    private String wordPackLabel = "服务器默认";
    private RoomState state = RoomState.WAITING;
@@ -134,7 +147,22 @@ public final class GameRoom {
 
    public void clearReadyExceptHost() {
       this.ready.clear();
-      this.ready.add(this.host);
+      if (this.autoReady) {
+         this.ready.addAll(this.members);
+      } else {
+         this.ready.add(this.host);
+      }
+   }
+
+   public boolean autoReady() {
+      return this.autoReady;
+   }
+
+   public void setAutoReady(boolean autoReady) {
+      this.autoReady = autoReady;
+      if (autoReady) {
+         this.ready.addAll(this.members);
+      }
    }
 
    public String password() {
@@ -229,10 +257,27 @@ public final class GameRoom {
       return PillarPummelMiniGame.ID.equals(this.miniGameId);
    }
 
+   public boolean isDodgeball() {
+      return DodgeballMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isDigToDeath() {
+      return DigToDeathMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isYouBuildRun() {
+      return YouBuildRunMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isPushTheButton() {
+      return PushTheButtonMiniGame.ID.equals(this.miniGameId);
+   }
+
    public boolean isBuildStyle() {
       return this.isBuildWarFamily() || this.isYouGuessFamily() || this.isFraudMaster() || this.isFakeHuman()
          || this.isCaveGuess() || this.isChickenHorse() || this.isDontDo() || this.isLuckyPillar()
-         || this.isPillarPummel();
+         || this.isPillarPummel() || this.isDodgeball() || this.isDigToDeath() || this.isYouBuildRun()
+         || this.isPushTheButton();
    }
 
    public void setMiniGameId(String miniGameId) {
@@ -249,10 +294,20 @@ public final class GameRoom {
          if (this.maxPlayers > 16) {
             this.maxPlayers = 16;
          }
-      } else if (this.isLuckyPillar()) {
+      } else if (this.isLuckyPillar() || this.isDodgeball() || this.isDigToDeath()) {
          if (this.maxPlayers > 16) {
             this.maxPlayers = 16;
          } else if (this.maxPlayers < 2) {
+            this.maxPlayers = 8;
+         }
+      } else if (this.isYouBuildRun()) {
+         if (this.maxPlayers > 8) {
+            this.maxPlayers = 8;
+         } else if (this.maxPlayers < 2) {
+            this.maxPlayers = 8;
+         }
+      } else if (this.isPushTheButton()) {
+         if (this.maxPlayers < 4 || this.maxPlayers > 10) {
             this.maxPlayers = 8;
          }
       } else if (this.isPillarPummel()) {
@@ -310,6 +365,22 @@ public final class GameRoom {
 
    public PillarPummelSettings pillarPummelSettings() {
       return this.pillarPummelSettings;
+   }
+
+   public DodgeballSettings dodgeballSettings() {
+      return this.dodgeballSettings;
+   }
+
+   public DigToDeathSettings digToDeathSettings() {
+      return this.digToDeathSettings;
+   }
+
+   public YouBuildRunSettings youBuildRunSettings() {
+      return this.youBuildRunSettings;
+   }
+
+   public PushTheButtonSettings pushTheButtonSettings() {
+      return this.pushTheButtonSettings;
    }
 
    public boolean hasCustomWords() {

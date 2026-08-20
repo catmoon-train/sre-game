@@ -2,24 +2,29 @@ package net.exmo.sreGame;
 
 import java.nio.file.Path;
 import java.util.UUID;
-import net.exmo.sreGame.buildwar.BuildWarManager;
-import net.exmo.sreGame.buildwar.PlotManager;
-import net.exmo.sreGame.buildwar.WordBank;
-import net.exmo.sreGame.caveguess.CaveGuessersManager;
-import net.exmo.sreGame.caveguess.CaveWordBank;
-import net.exmo.sreGame.chicken.ChickenHorseManager;
+import net.exmo.sreGame.games.buildwar.BuildWarManager;
+import net.exmo.sreGame.games.buildwar.PlotManager;
+import net.exmo.sreGame.games.buildwar.WordBank;
+import net.exmo.sreGame.games.caveguess.CaveGuessersManager;
+import net.exmo.sreGame.games.caveguess.CaveWordBank;
+import net.exmo.sreGame.games.chicken.ChickenHorseManager;
 import net.exmo.sreGame.config.GameConfig;
-import net.exmo.sreGame.dontdo.DontDoManager;
-import net.exmo.sreGame.fakehuman.FakeHumanManager;
-import net.exmo.sreGame.fraud.FraudMasterManager;
+import net.exmo.sreGame.games.dontdo.DontDoManager;
+import net.exmo.sreGame.games.buildrun.YouBuildRunManager;
+import net.exmo.sreGame.games.dig.DigToDeathManager;
+import net.exmo.sreGame.games.dodgeball.DodgeballManager;
+import net.exmo.sreGame.games.fakehuman.FakeHumanManager;
+import net.exmo.sreGame.games.fraud.FraudMasterManager;
 import net.exmo.sreGame.game.MiniGameRegistry;
-import net.exmo.sreGame.luckypillar.LuckyPillarManager;
-import net.exmo.sreGame.pillarpummel.PillarPummelManager;
+import net.exmo.sreGame.games.luckypillar.LuckyPillarManager;
+import net.exmo.sreGame.games.parkour.ParkourManager;
+import net.exmo.sreGame.games.pillarpummel.PillarPummelManager;
 import net.exmo.sreGame.profile.SettingsProfiles;
+import net.exmo.sreGame.games.pushthebutton.PushTheButtonManager;
 import net.exmo.sreGame.room.RoomManager;
 import net.exmo.sreGame.util.TextUtil;
 import net.exmo.sreGame.words.WordLibrary;
-import net.exmo.sreGame.youguess.YouGuessManager;
+import net.exmo.sreGame.games.youguess.YouGuessManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -41,6 +46,11 @@ public final class GameContext {
    private final DontDoManager dontDo = new DontDoManager(this);
    private final LuckyPillarManager luckyPillar = new LuckyPillarManager(this);
    private final PillarPummelManager pillarPummel = new PillarPummelManager(this);
+   private final DodgeballManager dodgeball = new DodgeballManager(this);
+   private final DigToDeathManager digToDeath = new DigToDeathManager(this);
+   private final YouBuildRunManager youBuildRun = new YouBuildRunManager(this);
+   private final PushTheButtonManager pushTheButton = new PushTheButtonManager(this);
+   private final ParkourManager parkour = new ParkourManager(this);
    private final SettingsProfiles profiles = new SettingsProfiles(this.configDir);
    private MinecraftServer server;
 
@@ -108,6 +118,26 @@ public final class GameContext {
       return this.pillarPummel;
    }
 
+   public DodgeballManager dodgeball() {
+      return this.dodgeball;
+   }
+
+   public DigToDeathManager digToDeath() {
+      return this.digToDeath;
+   }
+
+   public YouBuildRunManager youBuildRun() {
+      return this.youBuildRun;
+   }
+
+   public PushTheButtonManager pushTheButton() {
+      return this.pushTheButton;
+   }
+
+   public ParkourManager parkour() {
+      return this.parkour;
+   }
+
    public SettingsProfiles profiles() {
       return this.profiles;
    }
@@ -128,6 +158,11 @@ public final class GameContext {
       this.chickenHorse.tracks().pregen();
       this.luckyPillar.arenas().pregen();
       this.pillarPummel.arenas().pregen();
+      this.dodgeball.arenas().pregen();
+      this.digToDeath.arenas().pregen();
+      this.youBuildRun.tracks().pregen();
+      this.pushTheButton.ships().pregen();
+      this.parkour.load();
    }
 
    public void onServerStopping() {
@@ -140,6 +175,11 @@ public final class GameContext {
       this.dontDo.endAll();
       this.luckyPillar.endAll();
       this.pillarPummel.endAll();
+      this.dodgeball.endAll();
+      this.digToDeath.endAll();
+      this.youBuildRun.endAll();
+      this.pushTheButton.endAll();
+      this.parkour.endAll();
       this.rooms.disbandAll();
       this.server = null;
    }
@@ -155,7 +195,12 @@ public final class GameContext {
       this.dontDo.tick();
       this.luckyPillar.tick();
       this.pillarPummel.tick();
-      net.exmo.sreGame.draw.DrawKit.tick(this);
+      this.dodgeball.tick();
+      this.digToDeath.tick();
+      this.youBuildRun.tick();
+      this.pushTheButton.tick();
+      this.parkour.tick();
+      net.exmo.sreGame.games.draw.DrawKit.tick(this);
    }
 
    public ServerPlayer player(UUID uuid) {

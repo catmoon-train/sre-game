@@ -47,6 +47,9 @@ public final class RoomSettingsGui {
          chat.lore2(),
          "&e点击切换 只收房间 / 不外放 / 全部"
       ), "chat"));
+      container.setItem(22, GuiItems.action(room.autoReady() ? "lime_dye" : "gray_dye",
+         room.autoReady() ? "&a自动准备：开" : "&8自动准备：关",
+         List.of("&7加入房间时自动准备", "&7默认开启，仍可手动取消准备", "&e点击切换"), "autoready"));
       container.setItem(31, GuiItems.action("arrow", "&7返回房间", List.of(), "back"));
    }
 
@@ -87,6 +90,13 @@ public final class RoomSettingsGui {
                room.setChatMode(room.chatMode().next());
                this.ctx.broadcast(room, "&7聊天范围改为 &e" + room.chatMode().label());
                fill(this.container, room);
+            }
+            case "autoready" -> {
+               if (room.state() == RoomState.WAITING) {
+                  room.setAutoReady(!room.autoReady());
+                  this.ctx.broadcast(room, room.autoReady() ? "&a已开启自动准备。" : "&7已关闭自动准备。");
+                  fill(this.container, room);
+               }
             }
             default -> {
             }

@@ -11,18 +11,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.exmo.sreGame.SreGame;
-import net.exmo.sreGame.buildwar.BuildWarMiniGame;
-import net.exmo.sreGame.caveguess.CaveGuessersMiniGame;
-import net.exmo.sreGame.chicken.ChickenHorseMiniGame;
-import net.exmo.sreGame.dontdo.DontDoMiniGame;
-import net.exmo.sreGame.draw.DrawGuessMiniGame;
-import net.exmo.sreGame.draw.DrawWarMiniGame;
-import net.exmo.sreGame.fakehuman.FakeHumanMiniGame;
-import net.exmo.sreGame.fraud.FraudMasterMiniGame;
-import net.exmo.sreGame.luckypillar.LuckyPillarMiniGame;
-import net.exmo.sreGame.pillarpummel.PillarPummelMiniGame;
+import net.exmo.sreGame.games.buildrun.YouBuildRunMiniGame;
+import net.exmo.sreGame.games.buildwar.BuildWarMiniGame;
+import net.exmo.sreGame.games.caveguess.CaveGuessersMiniGame;
+import net.exmo.sreGame.games.chicken.ChickenHorseMiniGame;
+import net.exmo.sreGame.games.dontdo.DontDoMiniGame;
+import net.exmo.sreGame.games.dig.DigToDeathMiniGame;
+import net.exmo.sreGame.games.dodgeball.DodgeballMiniGame;
+import net.exmo.sreGame.games.draw.DrawGuessMiniGame;
+import net.exmo.sreGame.games.draw.DrawWarMiniGame;
+import net.exmo.sreGame.games.fakehuman.FakeHumanMiniGame;
+import net.exmo.sreGame.games.fraud.FraudMasterMiniGame;
+import net.exmo.sreGame.games.luckypillar.LuckyPillarMiniGame;
+import net.exmo.sreGame.games.pillarpummel.PillarPummelMiniGame;
+import net.exmo.sreGame.games.pushthebutton.PushTheButtonMiniGame;
 import net.exmo.sreGame.room.GameRoom;
-import net.exmo.sreGame.youguess.YouGuessMiniGame;
+import net.exmo.sreGame.games.youguess.YouGuessMiniGame;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class SettingsProfiles {
@@ -130,6 +134,18 @@ public final class SettingsProfiles {
       if (PillarPummelMiniGame.ID.equals(id)) {
          return room.pillarPummelSettings().snapshot();
       }
+      if (DodgeballMiniGame.ID.equals(id)) {
+         return room.dodgeballSettings().snapshot();
+      }
+      if (DigToDeathMiniGame.ID.equals(id)) {
+         return room.digToDeathSettings().snapshot();
+      }
+      if (YouBuildRunMiniGame.ID.equals(id)) {
+         return room.youBuildRunSettings().snapshot();
+      }
+      if (PushTheButtonMiniGame.ID.equals(id)) {
+         return room.pushTheButtonSettings().snapshot();
+      }
       return room.duelSettings().snapshot();
    }
 
@@ -153,6 +169,14 @@ public final class SettingsProfiles {
          room.luckyPillarSettings().apply(data);
       } else if (PillarPummelMiniGame.ID.equals(id)) {
          room.pillarPummelSettings().apply(data);
+      } else if (DodgeballMiniGame.ID.equals(id)) {
+         room.dodgeballSettings().apply(data);
+      } else if (DigToDeathMiniGame.ID.equals(id)) {
+         room.digToDeathSettings().apply(data);
+      } else if (YouBuildRunMiniGame.ID.equals(id)) {
+         room.youBuildRunSettings().apply(data);
+      } else if (PushTheButtonMiniGame.ID.equals(id)) {
+         room.pushTheButtonSettings().apply(data);
       } else {
          room.duelSettings().apply(data);
       }

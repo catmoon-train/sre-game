@@ -14,10 +14,10 @@ import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
 import java.util.UUID;
 import net.exmo.sreGame.GameContext;
 import net.exmo.sreGame.SreGame;
-import net.exmo.sreGame.caveguess.CaveGuessersMatch;
-import net.exmo.sreGame.fakehuman.FakeHumanMatch;
-import net.exmo.sreGame.fakehuman.Zone;
-import net.exmo.sreGame.fraud.voice.FraudVoicePlugin;
+import net.exmo.sreGame.games.caveguess.CaveGuessersMatch;
+import net.exmo.sreGame.games.fakehuman.FakeHumanMatch;
+import net.exmo.sreGame.games.fakehuman.Zone;
+import net.exmo.sreGame.games.fraud.voice.FraudVoicePlugin;
 
 /**
  * 统一 SVC 入口：谁是伪人分区组 + 诈骗大师电话隔离。

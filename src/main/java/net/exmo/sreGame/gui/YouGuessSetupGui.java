@@ -4,7 +4,7 @@ import java.util.List;
 import net.exmo.sreGame.GameContext;
 import net.exmo.sreGame.room.GameRoom;
 import net.exmo.sreGame.util.TextUtil;
-import net.exmo.sreGame.youguess.YouGuessSettings;
+import net.exmo.sreGame.games.youguess.YouGuessSettings;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;

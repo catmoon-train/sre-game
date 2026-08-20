@@ -52,8 +52,10 @@ public final class CreateRoomGui {
    private static int nextMax(int current, String miniGameId) {
       int[] cycle = "chicken_horse".equals(miniGameId)
          ? new int[] {2, 4, 8, 12, 16, 20, 24, 30}
-         : ("dont_do".equals(miniGameId) || "lucky_pillar".equals(miniGameId) || "pillar_pummel".equals(miniGameId))
+         : ("dont_do".equals(miniGameId) || "lucky_pillar".equals(miniGameId) || "pillar_pummel".equals(miniGameId)
+            || "dodgeball".equals(miniGameId) || "dig_to_death".equals(miniGameId))
             ? new int[] {2, 4, 8, 12, 16}
+         : "you_build_run".equals(miniGameId) ? new int[] {2, 4, 6, 8}
          : ("fraud_master".equals(miniGameId) || "who_is_fake".equals(miniGameId))
             ? new int[] {4, 5, 6, 7, 8}
             : "cave_guess".equals(miniGameId) ? new int[] {2, 3, 8, 12, 16}

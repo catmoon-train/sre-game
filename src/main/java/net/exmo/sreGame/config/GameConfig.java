@@ -75,6 +75,20 @@ public final class GameConfig {
       this.values.put("pillar-pummel.origin-x", "20000");
       this.values.put("pillar-pummel.origin-z", "40000");
       this.values.put("pillar-pummel.pregen", "4");
+      this.values.put("dodgeball.origin-x", "20000");
+      this.values.put("dodgeball.origin-z", "48000");
+      this.values.put("dodgeball.pregen", "4");
+      this.values.put("dig-to-death.origin-x", "20000");
+      this.values.put("dig-to-death.origin-z", "56000");
+      this.values.put("dig-to-death.pregen", "4");
+      this.values.put("you-build-run.origin-x", "20000");
+      this.values.put("you-build-run.origin-z", "64000");
+      this.values.put("you-build-run.pregen", "4");
+      this.values.put("parkour.origin-x", "20000");
+      this.values.put("parkour.origin-z", "72000");
+      this.values.put("push-the-button.origin-x", "20000");
+      this.values.put("push-the-button.origin-z", "80000");
+      this.values.put("push-the-button.pregen", "2");
    }
 
    private String dump() {
@@ -214,5 +228,61 @@ public final class GameConfig {
 
    public int pillarPummelPregen() {
       return Math.max(1, Math.min(8, this.getInt("pillar-pummel.pregen", 4)));
+   }
+
+   public int dodgeballOriginX() {
+      return this.getInt("dodgeball.origin-x", 20000);
+   }
+
+   public int dodgeballOriginZ() {
+      return this.getInt("dodgeball.origin-z", 48000);
+   }
+
+   public int dodgeballPregen() {
+      return Math.max(1, Math.min(8, this.getInt("dodgeball.pregen", 4)));
+   }
+
+   public int digToDeathOriginX() {
+      return this.getInt("dig-to-death.origin-x", 20000);
+   }
+
+   public int digToDeathOriginZ() {
+      return this.getInt("dig-to-death.origin-z", 56000);
+   }
+
+   public int digToDeathPregen() {
+      return Math.max(1, Math.min(8, this.getInt("dig-to-death.pregen", 4)));
+   }
+
+   public int youBuildRunOriginX() {
+      return this.getInt("you-build-run.origin-x", 20000);
+   }
+
+   public int youBuildRunOriginZ() {
+      return this.getInt("you-build-run.origin-z", 64000);
+   }
+
+   public int youBuildRunPregen() {
+      return Math.max(1, Math.min(8, this.getInt("you-build-run.pregen", 4)));
+   }
+
+   public int parkourOriginX() {
+      return this.getInt("parkour.origin-x", 20000);
+   }
+
+   public int parkourOriginZ() {
+      return this.getInt("parkour.origin-z", 72000);
+   }
+
+   public int pushTheButtonOriginX() {
+      return this.getInt("push-the-button.origin-x", 20000);
+   }
+
+   public int pushTheButtonOriginZ() {
+      return this.getInt("push-the-button.origin-z", 80000);
+   }
+
+   public int pushTheButtonPregen() {
+      return Math.max(1, Math.min(8, this.getInt("push-the-button.pregen", 2)));
    }
 }

@@ -1,17 +1,21 @@
 package net.exmo.sreGame;
 
-import net.exmo.sreGame.buildwar.BuildWarMiniGame;
-import net.exmo.sreGame.buildwar.BuildSafety;
-import net.exmo.sreGame.caveguess.CaveGuessersMiniGame;
-import net.exmo.sreGame.chicken.ChickenHorseMiniGame;
-import net.exmo.sreGame.dontdo.DontDoMiniGame;
-import net.exmo.sreGame.draw.DrawGuessMiniGame;
-import net.exmo.sreGame.draw.DrawWarMiniGame;
-import net.exmo.sreGame.fakehuman.FakeHumanMiniGame;
-import net.exmo.sreGame.fraud.FraudMasterMiniGame;
-import net.exmo.sreGame.luckypillar.LuckyPillarMiniGame;
-import net.exmo.sreGame.pillarpummel.PillarPummelMiniGame;
-import net.exmo.sreGame.youguess.YouGuessMiniGame;
+import net.exmo.sreGame.games.buildrun.YouBuildRunMiniGame;
+import net.exmo.sreGame.games.buildwar.BuildWarMiniGame;
+import net.exmo.sreGame.games.buildwar.BuildSafety;
+import net.exmo.sreGame.games.caveguess.CaveGuessersMiniGame;
+import net.exmo.sreGame.games.chicken.ChickenHorseMiniGame;
+import net.exmo.sreGame.games.dontdo.DontDoMiniGame;
+import net.exmo.sreGame.games.dig.DigToDeathMiniGame;
+import net.exmo.sreGame.games.dodgeball.DodgeballMiniGame;
+import net.exmo.sreGame.games.draw.DrawGuessMiniGame;
+import net.exmo.sreGame.games.draw.DrawWarMiniGame;
+import net.exmo.sreGame.games.fakehuman.FakeHumanMiniGame;
+import net.exmo.sreGame.games.fraud.FraudMasterMiniGame;
+import net.exmo.sreGame.games.luckypillar.LuckyPillarMiniGame;
+import net.exmo.sreGame.games.pillarpummel.PillarPummelMiniGame;
+import net.exmo.sreGame.games.pushthebutton.PushTheButtonMiniGame;
+import net.exmo.sreGame.games.youguess.YouGuessMiniGame;
 import net.exmo.sreGame.command.GameCommands;
 import net.exmo.sreGame.game.DuelMiniGame;
 import net.exmo.sreGame.input.ChatPrompt;
@@ -48,6 +52,10 @@ public class SreGame implements ModInitializer {
       context.games().register(new DontDoMiniGame(context));
       context.games().register(new LuckyPillarMiniGame(context));
       context.games().register(new PillarPummelMiniGame(context));
+      context.games().register(new DodgeballMiniGame(context));
+      context.games().register(new DigToDeathMiniGame(context));
+      context.games().register(new YouBuildRunMiniGame(context));
+      context.games().register(new PushTheButtonMiniGame(context));
       BuildSafety.register(context);
       DuelApi.addLobbyProtectionBypass(player -> context != null && (
          context.buildWar().isPlaying(player)
@@ -58,7 +66,12 @@ public class SreGame implements ModInitializer {
             || context.chickenHorse().isPlaying(player)
             || context.dontDo().isPlaying(player)
             || context.luckyPillar().isPlaying(player)
-            || context.pillarPummel().isPlaying(player)));
+            || context.pillarPummel().isPlaying(player)
+            || context.dodgeball().isPlaying(player)
+            || context.digToDeath().isPlaying(player)
+            || context.youBuildRun().isPlaying(player)
+            || context.pushTheButton().isPlaying(player)
+            || context.parkour().isPlaying(player)));
       ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
          if (!(entity instanceof ServerPlayer player) || context == null) {
             return true;
@@ -66,7 +79,12 @@ public class SreGame implements ModInitializer {
          return !context.chickenHorse().handleDamage(player, source)
             && !context.dontDo().handleDamage(player, source, amount)
             && !context.luckyPillar().handleDamage(player, source)
-            && !context.pillarPummel().handleDamage(player, source);
+            && !context.pillarPummel().handleDamage(player, source)
+            && !context.dodgeball().handleDamage(player, source)
+            && !context.digToDeath().handleDamage(player, source)
+            && !context.youBuildRun().handleDamage(player, source)
+            && !context.pushTheButton().handleDamage(player, source)
+            && !context.parkour().handleDamage(player, source);
       });
       ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
          if (!(entity instanceof ServerPlayer player) || context == null) {
@@ -75,11 +93,19 @@ public class SreGame implements ModInitializer {
          return !context.chickenHorse().handleDeath(player)
             && !context.dontDo().handleDeath(player)
             && !context.luckyPillar().handleDeath(player, source)
-            && !context.pillarPummel().handleDeath(player);
+            && !context.pillarPummel().handleDeath(player)
+            && !context.dodgeball().handleDeath(player)
+            && !context.digToDeath().handleDeath(player)
+            && !context.youBuildRun().handleDeath(player)
+            && !context.pushTheButton().handleDeath(player)
+            && !context.parkour().handleDeath(player);
       });
       AttackEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
          if (!world.isClientSide() && player instanceof ServerPlayer sp && context != null) {
             context.dontDo().handleAttack(sp, entity);
+            if (context.digToDeath().isPlaying(sp)) {
+               return net.minecraft.world.InteractionResult.FAIL;
+            }
          }
          return net.minecraft.world.InteractionResult.PASS;
       });
@@ -90,6 +116,7 @@ public class SreGame implements ModInitializer {
          GameCommands.register(dispatcher, context));
       ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
          if (handler.getPlayer() != null) {
+            context.parkour().leave(handler.getPlayer(), false);
             context.rooms().onDisconnect(handler.getPlayer());
          }
       });
@@ -104,6 +131,7 @@ public class SreGame implements ModInitializer {
             && !context.fraudMaster().handleChat(sender, message.decoratedContent().getString())
             && !context.fakeHuman().handleChat(sender, message.decoratedContent().getString())
             && !context.caveGuess().handleChat(sender, message.decoratedContent().getString())
+            && !context.pushTheButton().handleChat(sender, message.decoratedContent().getString())
             && !ChatPrompt.handle(context, sender, message.decoratedContent().getString()));
       LOGGER.info("SRE-GAME initialized — /sregame to open the room menu.");
    }
