@@ -298,7 +298,7 @@ public final class PillarArenaManager {
       }
 
       private boolean isPillarColumn() {
-         for (BlockPos base : this.arena.pillarBases(this.layout.players(), this.layout.borderSize())) {
+         for (BlockPos base : this.arena.pillarBases(this.layout.players(), this.layout.borderSize(), this.layout.pillarSpacing())) {
             if (base.getX() == this.x && base.getZ() == this.z) {
                return true;
             }

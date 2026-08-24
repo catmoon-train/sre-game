@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 public final class BuildRunTrackManager {
-   public static final int MAX = 8;
+   public static final int MAX = 32;
    private static final int BLOCKS_PER_TICK = 9000;
    private static final int STRIDE = BuildRunTrack.SIZE_Z + 16;
 

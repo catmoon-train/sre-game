@@ -328,13 +328,13 @@ public final class YouGuessMatch {
          this.ensureTeam(player);
          this.board.create(player, this.title());
          if (uuid.equals(this.builder)) {
-            player.setGameMode(GameType.ADVENTURE);
             if (this.drawing) {
                this.plot.teleportCanvas(player, level);
                DrawKit.startFlying(player);
             } else {
                this.plot.teleport(player, level);
             }
+            player.setGameMode(GameType.ADVENTURE);
             if (three) {
                this.givePickItems(player, this.pickChoices);
                this.ctx.send(player, "&a请三选一（聊天 &f1/2/3 &a或右键）：");
@@ -635,6 +635,15 @@ public final class YouGuessMatch {
          if (watcher && player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
             player.setGameMode(GameType.SPECTATOR);
          }
+         if (!watcher) {
+            GameType want = this.phase == Phase.PLAYING && !this.drawing ? GameType.CREATIVE : GameType.ADVENTURE;
+            if (this.phase == Phase.REVEAL) {
+               want = GameType.ADVENTURE;
+            }
+            if (player.gameMode.getGameModeForPlayer() != want) {
+               player.setGameMode(want);
+            }
+         }
          boolean inside = player.serverLevel() == level && (watcher
             ? this.plot.containsWatch(player.getX(), player.getY(), player.getZ())
             : this.plot.contains(player.getX(), player.getY(), player.getZ()));
@@ -649,6 +658,13 @@ public final class YouGuessMatch {
                this.plot.teleportCanvas(player, level);
             } else {
                this.plot.teleport(player, level);
+            }
+            GameType want = this.phase == Phase.PLAYING && !this.drawing ? GameType.CREATIVE : GameType.ADVENTURE;
+            if (this.phase == Phase.REVEAL) {
+               want = GameType.ADVENTURE;
+            }
+            if (player.gameMode.getGameModeForPlayer() != want) {
+               player.setGameMode(want);
             }
          } else if (this.drawing) {
             this.plot.teleportCanvasWatch(player, level, watchIndex++, watchers);

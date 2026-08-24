@@ -3,13 +3,15 @@ package net.exmo.sreGame.games.parkour;
 import net.minecraft.core.BlockPos;
 
 public final class ParkourDirector {
-   private static final int SAFE = 5;
+   private static final int SAFE = 8;
    private final int minX;
    private final int maxX;
    private final int minY;
    private final int maxY;
    private final int minZ;
    private final int maxZ;
+   private final int midX;
+   private final int midZ;
 
    public ParkourDirector(BlockPos center, int border, int minY, int maxY) {
       int half = border / 2;
@@ -19,22 +21,24 @@ public final class ParkourDirector {
       this.maxZ = center.getZ() + half;
       this.minY = minY;
       this.maxY = maxY;
+      this.midX = center.getX();
+      this.midZ = center.getZ();
    }
 
    public int[] heading(BlockPos latest, int hx, int hz) {
       int x = latest.getX();
       int z = latest.getZ();
-      if (x <= this.minX + SAFE) {
-         return new int[] {1, 0};
+      if (hx > 0 && x >= this.maxX - SAFE) {
+         return new int[] {0, z >= this.midZ ? -1 : 1};
       }
-      if (x >= this.maxX - SAFE) {
-         return new int[] {-1, 0};
+      if (hx < 0 && x <= this.minX + SAFE) {
+         return new int[] {0, z >= this.midZ ? -1 : 1};
       }
-      if (z <= this.minZ + SAFE) {
-         return new int[] {0, 1};
+      if (hz > 0 && z >= this.maxZ - SAFE) {
+         return new int[] {x >= this.midX ? -1 : 1, 0};
       }
-      if (z >= this.maxZ - SAFE) {
-         return new int[] {0, -1};
+      if (hz < 0 && z <= this.minZ + SAFE) {
+         return new int[] {x >= this.midX ? -1 : 1, 0};
       }
       return new int[] {hx, hz};
    }

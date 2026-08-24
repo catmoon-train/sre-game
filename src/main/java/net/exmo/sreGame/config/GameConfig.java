@@ -89,6 +89,15 @@ public final class GameConfig {
       this.values.put("push-the-button.origin-x", "20000");
       this.values.put("push-the-button.origin-z", "80000");
       this.values.put("push-the-button.pregen", "2");
+      this.values.put("skyworld.origin-x", "20000");
+      this.values.put("skyworld.origin-z", "88000");
+      this.values.put("skyworld.pregen", "4");
+      this.values.put("name-tag-war.origin-x", "20000");
+      this.values.put("name-tag-war.origin-z", "96000");
+      this.values.put("name-tag-war.pregen", "4");
+      this.values.put("fill-in-the-wall.origin-x", "20000");
+      this.values.put("fill-in-the-wall.origin-z", "104000");
+      this.values.put("fill-in-the-wall.pregen", "4");
    }
 
    private String dump() {
@@ -284,5 +293,41 @@ public final class GameConfig {
 
    public int pushTheButtonPregen() {
       return Math.max(1, Math.min(8, this.getInt("push-the-button.pregen", 2)));
+   }
+
+   public int skyWorldOriginX() {
+      return this.getInt("skyworld.origin-x", 20000);
+   }
+
+   public int skyWorldOriginZ() {
+      return this.getInt("skyworld.origin-z", 88000);
+   }
+
+   public int skyWorldPregen() {
+      return Math.max(1, Math.min(8, this.getInt("skyworld.pregen", 4)));
+   }
+
+   public int nameTagWarOriginX() {
+      return this.getInt("name-tag-war.origin-x", 20000);
+   }
+
+   public int nameTagWarOriginZ() {
+      return this.getInt("name-tag-war.origin-z", 96000);
+   }
+
+   public int nameTagWarPregen() {
+      return Math.max(1, Math.min(8, this.getInt("name-tag-war.pregen", 4)));
+   }
+
+   public int fillInTheWallOriginX() {
+      return this.getInt("fill-in-the-wall.origin-x", 20000);
+   }
+
+   public int fillInTheWallOriginZ() {
+      return this.getInt("fill-in-the-wall.origin-z", 104000);
+   }
+
+   public int fillInTheWallPregen() {
+      return Math.max(1, Math.min(8, this.getInt("fill-in-the-wall.pregen", 4)));
    }
 }

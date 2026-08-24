@@ -19,6 +19,8 @@ public final class BuildRunTrack {
    public static final int PIT = 8;
    public static final int LANE_Z = 4;
    public static final int LANE_W = 5;
+   public static final int PAD = 2;
+   public static final int SPAWN_LX = 4;
 
    private final int slot;
    private final BlockPos origin;
@@ -74,7 +76,22 @@ public final class BuildRunTrack {
       int lz = pos.getZ() - this.origin.getZ();
       return lx >= 1 && lx < SIZE_X - 1
          && lz >= 1 && lz < SIZE_Z - 1
-         && ly >= 2 && ly < HEIGHT - 1;
+         && ly >= 1 && ly < HEIGHT - 1
+         && !this.isSpawnPad(lx, ly, lz);
+   }
+
+   public boolean isSpawnPad(BlockPos pos) {
+      return this.isSpawnPad(
+         pos.getX() - this.origin.getX(),
+         pos.getY() - this.origin.getY(),
+         pos.getZ() - this.origin.getZ()
+      );
+   }
+
+   public boolean isSpawnPad(int lx, int ly, int lz) {
+      return ly == 1
+         && Math.abs(lx - SPAWN_LX) <= PAD
+         && Math.abs(lz - SIZE_Z / 2) <= PAD;
    }
 
    public boolean onDeathFloor(double y) {
@@ -97,9 +114,6 @@ public final class BuildRunTrack {
       if (ly < -PIT || ly >= HEIGHT || lx < 0 || lx >= SIZE_X || lz < 0 || lz >= SIZE_Z) {
          return Blocks.AIR.defaultBlockState();
       }
-      if (ly == -PIT) {
-         return Blocks.BLACK_CONCRETE.defaultBlockState();
-      }
       if (ly < 0) {
          if (lx == 0 || lx == SIZE_X - 1 || lz == 0 || lz == SIZE_Z - 1) {
             return Blocks.GRAY_STAINED_GLASS.defaultBlockState();
@@ -113,7 +127,7 @@ public final class BuildRunTrack {
          return Blocks.GRAY_STAINED_GLASS.defaultBlockState();
       }
       if (ly == 1) {
-         return Blocks.SMOOTH_STONE.defaultBlockState();
+         return Blocks.SMOOTH_QUARTZ.defaultBlockState();
       }
       return Blocks.AIR.defaultBlockState();
    }

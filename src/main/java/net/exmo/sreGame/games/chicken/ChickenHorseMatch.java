@@ -64,7 +64,7 @@ public final class ChickenHorseMatch {
    private static final int SCORE_SECONDS = 8;
    private static final int[] PLACE_POINTS = {5, 3, 2};
    private static final DustParticleOptions KILL_DUST = new DustParticleOptions(new Vector3f(1.0F, 0.12F, 0.12F), 1.15F);
-   private static final double MAGNET_RANGE = 8.0;
+   private static final double MAGNET_RANGE = 3.2;
 
    private final UUID id = UUID.randomUUID();
    private final GameContext ctx;
@@ -372,6 +372,9 @@ public final class ChickenHorseMatch {
       if (this.phase != Phase.RACE || racer.finishedRound || racer.outThisRound) {
          return true;
       }
+      if (source.getEntity() instanceof ServerPlayer attacker && !attacker.getUUID().equals(player.getUUID())) {
+         return true;
+      }
       if (source.is(DamageTypeTags.IS_FALL) || source.is(DamageTypes.FALL)) {
          player.fallDistance = 0.0F;
          return true;
@@ -418,6 +421,7 @@ public final class ChickenHorseMatch {
       }
       this.title(player, title, "&7旁观，等待下一轮");
       this.ctx.broadcast(this.room, "&c" + player.getGameProfile().getName() + " 出局了。");
+      this.revealOthers(player);
    }
 
    public void onLeave(UUID uuid) {
@@ -573,6 +577,7 @@ public final class ChickenHorseMatch {
             this.track.teleport(player, level, this.track.spawn(i, this.seats.size()));
          }
          this.title(player, "&a冲关！", this.settings.goldEgg() ? "&e侧路金蛋过线 +2" : "&7先到终点得分");
+         ChickenHorseVisibility.sync(player, racer.hideOthers, this.seatedPlayers());
          i++;
       }
    }
@@ -593,6 +598,7 @@ public final class ChickenHorseMatch {
          if (level != null) {
             this.track.teleport(player, level, this.track.watch());
          }
+         this.revealOthers(player);
       }
    }
 
@@ -689,7 +695,9 @@ public final class ChickenHorseMatch {
          if (racer.hideSwitchCool > 0) {
             racer.hideSwitchCool--;
          }
-         this.giveHideItem(player, racer);
+         if (!this.spectating(racer)) {
+            this.giveHideItem(player, racer);
+         }
          if (racer.iFrames > 0) {
             racer.iFrames--;
          }
@@ -1025,6 +1033,7 @@ public final class ChickenHorseMatch {
       int place = this.finishOrder.size();
       this.ctx.broadcast(this.room, "&a" + player.getGameProfile().getName() + " 完赛！&7第 " + place + " 名");
       this.title(player, "&a完赛", "&e第 " + place + " 名");
+      this.revealOthers(player);
    }
 
    private void placeEgg() {
@@ -1107,7 +1116,7 @@ public final class ChickenHorseMatch {
 
    private void toggleHideOthers(ServerPlayer player) {
       Racer racer = this.racer(player.getUUID());
-      if (racer == null || racer.hideSwitchCool > 0) {
+      if (racer == null || racer.hideSwitchCool > 0 || this.spectating(racer)) {
          return;
       }
       racer.hideSwitchCool = 8;
@@ -1121,7 +1130,21 @@ public final class ChickenHorseMatch {
 
    public boolean hidesOthers(UUID uuid) {
       Racer racer = this.racer(uuid);
-      return racer != null && racer.hideOthers;
+      return racer != null && racer.hideOthers && !this.spectating(racer);
+   }
+
+   private boolean spectating(Racer racer) {
+      if (racer == null) {
+         return false;
+      }
+      if (this.phase == Phase.SCORE) {
+         return true;
+      }
+      return this.phase == Phase.RACE && (racer.finishedRound || racer.outThisRound);
+   }
+
+   private void revealOthers(ServerPlayer player) {
+      ChickenHorseVisibility.sync(player, false, this.seatedPlayers());
    }
 
    private List<ServerPlayer> seatedPlayers() {

@@ -24,15 +24,23 @@ import net.exmo.sreGame.games.draw.DrawGuessMiniGame;
 import net.exmo.sreGame.games.draw.DrawWarMiniGame;
 import net.exmo.sreGame.games.fakehuman.FakeHumanMiniGame;
 import net.exmo.sreGame.games.fakehuman.FakeHumanSettings;
+import net.exmo.sreGame.games.fillinthewall.FillInTheWallMiniGame;
+import net.exmo.sreGame.games.fillinthewall.FillInTheWallSettings;
 import net.exmo.sreGame.games.fraud.FraudMasterMiniGame;
 import net.exmo.sreGame.games.fraud.FraudMasterSettings;
 import net.exmo.sreGame.game.DuelSettings;
 import net.exmo.sreGame.games.luckypillar.LuckyPillarMiniGame;
 import net.exmo.sreGame.games.luckypillar.LuckyPillarSettings;
+import net.exmo.sreGame.games.nametagwar.NameTagWarMiniGame;
+import net.exmo.sreGame.games.nametagwar.NameTagWarSettings;
 import net.exmo.sreGame.games.pillarpummel.PillarPummelMiniGame;
 import net.exmo.sreGame.games.pillarpummel.PillarPummelSettings;
 import net.exmo.sreGame.games.pushthebutton.PushTheButtonMiniGame;
 import net.exmo.sreGame.games.pushthebutton.PushTheButtonSettings;
+import net.exmo.sreGame.games.skyworld.SkyWorldMiniGame;
+import net.exmo.sreGame.games.skyworld.SkyWorldSettings;
+import net.exmo.sreGame.games.situationpuzzle.SituationPuzzleMiniGame;
+import net.exmo.sreGame.games.situationpuzzle.SituationPuzzleSettings;
 import net.exmo.sreGame.games.youguess.YouGuessMiniGame;
 import net.exmo.sreGame.games.youguess.YouGuessSettings;
 
@@ -62,6 +70,10 @@ public final class GameRoom {
    private final DigToDeathSettings digToDeathSettings = new DigToDeathSettings();
    private final YouBuildRunSettings youBuildRunSettings = new YouBuildRunSettings();
    private final PushTheButtonSettings pushTheButtonSettings = new PushTheButtonSettings();
+   private final SkyWorldSettings skyWorldSettings = new SkyWorldSettings();
+   private final SituationPuzzleSettings situationPuzzleSettings = new SituationPuzzleSettings();
+   private final NameTagWarSettings nameTagWarSettings = new NameTagWarSettings();
+   private final FillInTheWallSettings fillInTheWallSettings = new FillInTheWallSettings();
    private final List<String> activeWords = new CopyOnWriteArrayList<>();
    private String wordPackLabel = "服务器默认";
    private RoomState state = RoomState.WAITING;
@@ -198,7 +210,7 @@ public final class GameRoom {
    }
 
    public void setMaxPlayers(int maxPlayers) {
-      this.maxPlayers = Math.max(2, Math.min(30, maxPlayers));
+      this.maxPlayers = Math.max(2, Math.min(120, maxPlayers));
    }
 
    public String miniGameId() {
@@ -273,54 +285,99 @@ public final class GameRoom {
       return PushTheButtonMiniGame.ID.equals(this.miniGameId);
    }
 
+   public boolean isSkyWorld() {
+      return SkyWorldMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isSituationPuzzle() {
+      return SituationPuzzleMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isNameTagWar() {
+      return NameTagWarMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isFillInTheWall() {
+      return FillInTheWallMiniGame.ID.equals(this.miniGameId);
+   }
+
    public boolean isBuildStyle() {
       return this.isBuildWarFamily() || this.isYouGuessFamily() || this.isFraudMaster() || this.isFakeHuman()
          || this.isCaveGuess() || this.isChickenHorse() || this.isDontDo() || this.isLuckyPillar()
          || this.isPillarPummel() || this.isDodgeball() || this.isDigToDeath() || this.isYouBuildRun()
-         || this.isPushTheButton();
+         || this.isPushTheButton() || this.isSkyWorld() || this.isSituationPuzzle() || this.isNameTagWar()
+         || this.isFillInTheWall();
    }
 
    public void setMiniGameId(String miniGameId) {
       this.miniGameId = miniGameId;
       if (this.isFraudMaster() || this.isFakeHuman()) {
-         if (this.maxPlayers < 4 || this.maxPlayers > 8) {
-            this.maxPlayers = 6;
+         if (this.maxPlayers < 4 || this.maxPlayers > 32) {
+            this.maxPlayers = 24;
          }
       } else if (this.isChickenHorse()) {
-         if (this.maxPlayers > 30) {
-            this.maxPlayers = 16;
+         if (this.maxPlayers > 120) {
+            this.maxPlayers = 64;
          }
       } else if (this.isDontDo()) {
-         if (this.maxPlayers > 16) {
-            this.maxPlayers = 16;
+         if (this.maxPlayers > 64) {
+            this.maxPlayers = 64;
          }
       } else if (this.isLuckyPillar() || this.isDodgeball() || this.isDigToDeath()) {
-         if (this.maxPlayers > 16) {
-            this.maxPlayers = 16;
+         if (this.maxPlayers > 64) {
+            this.maxPlayers = 64;
+         } else if (this.maxPlayers < 2) {
+            this.maxPlayers = 8;
+         }
+      } else if (this.isSkyWorld()) {
+         if (this.maxPlayers > 32) {
+            this.maxPlayers = 32;
          } else if (this.maxPlayers < 2) {
             this.maxPlayers = 8;
          }
       } else if (this.isYouBuildRun()) {
-         if (this.maxPlayers > 8) {
-            this.maxPlayers = 8;
+         if (this.maxPlayers > 32) {
+            this.maxPlayers = 32;
          } else if (this.maxPlayers < 2) {
             this.maxPlayers = 8;
+         }
+      } else if (this.isSituationPuzzle()) {
+         if (this.situationPuzzleSettings.soloMode()) {
+            this.maxPlayers = 1;
+         } else {
+            if (this.maxPlayers > 64) {
+               this.maxPlayers = 64;
+            } else if (this.maxPlayers < 2) {
+               this.maxPlayers = 8;
+            }
          }
       } else if (this.isPushTheButton()) {
          if (this.maxPlayers < 4 || this.maxPlayers > 10) {
             this.maxPlayers = 8;
          }
+      } else if (this.isNameTagWar()) {
+         if (this.maxPlayers > 64) {
+            this.maxPlayers = 64;
+         } else if (this.maxPlayers < 2) {
+            this.maxPlayers = 8;
+         }
       } else if (this.isPillarPummel()) {
-         if (this.maxPlayers > 16) {
-            this.maxPlayers = 16;
+         if (this.maxPlayers > 64) {
+            this.maxPlayers = 64;
          } else if (this.maxPlayers < 4) {
             this.maxPlayers = 8;
+         }
+      } else if (this.isFillInTheWall()) {
+         if (this.maxPlayers > 32) {
+            this.maxPlayers = 32;
+         } else if (this.maxPlayers < 1) {
+            this.maxPlayers = 4;
          }
       } else if (this.isCaveGuess()) {
          if (this.maxPlayers < 3) {
             this.maxPlayers = 8;
-         } else if (this.maxPlayers > 16) {
-            this.maxPlayers = 16;
+         } else if (this.maxPlayers > 64) {
+            this.maxPlayers = 64;
          }
       } else if (this.isBuildStyle() && this.maxPlayers < 3) {
          this.maxPlayers = 8;
@@ -381,6 +438,22 @@ public final class GameRoom {
 
    public PushTheButtonSettings pushTheButtonSettings() {
       return this.pushTheButtonSettings;
+   }
+
+   public SkyWorldSettings skyWorldSettings() {
+      return this.skyWorldSettings;
+   }
+
+   public SituationPuzzleSettings situationPuzzleSettings() {
+      return this.situationPuzzleSettings;
+   }
+
+   public NameTagWarSettings nameTagWarSettings() {
+      return this.nameTagWarSettings;
+   }
+
+   public FillInTheWallSettings fillInTheWallSettings() {
+      return this.fillInTheWallSettings;
    }
 
    public boolean hasCustomWords() {

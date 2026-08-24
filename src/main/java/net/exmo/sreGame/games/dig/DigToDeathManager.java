@@ -10,8 +10,10 @@ import net.exmo.sreGame.room.GameRoom;
 import net.exmo.sreGame.room.RoomState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraft.world.item.ItemStack;
 
 public final class DigToDeathManager {
    private final GameContext ctx;
@@ -103,6 +105,18 @@ public final class DigToDeathManager {
    public boolean handleDamage(ServerPlayer player, DamageSource source) {
       DigToDeathMatch match = this.get(player.getUUID());
       return match != null && match.handleDamage(player, source);
+   }
+
+   public InteractionResult handleUseItem(ServerPlayer player, ItemStack stack) {
+      DigToDeathMatch match = this.get(player.getUUID());
+      return match == null ? InteractionResult.PASS : match.handleUseItem(player, stack);
+   }
+
+   public void onSnowballThrown(ServerPlayer player) {
+      DigToDeathMatch match = this.get(player.getUUID());
+      if (match != null) {
+         match.onSnowballThrown(player);
+      }
    }
 
    public void handleSnowballBlock(Snowball ball, BlockPos pos) {

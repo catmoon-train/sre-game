@@ -79,6 +79,35 @@ public final class ParkourTemplate {
       return cell.kind != Kind.LADDER;
    }
 
+   public boolean jumpsReachable() {
+      int px = 0;
+      int py = 0;
+      int pz = 0;
+      ParkourJumps.Special from = null;
+      boolean any = false;
+      for (Cell cell : this.cells) {
+         if (!this.walkable(cell)) {
+            continue;
+         }
+         if (!ParkourJumps.reachable(cell.dx - px, cell.dy - py, cell.dz - pz, from)) {
+            return false;
+         }
+         px = cell.dx;
+         py = cell.dy;
+         pz = cell.dz;
+         from = switch (cell.kind) {
+            case ICE -> ParkourJumps.Special.ICE;
+            case SLAB -> ParkourJumps.Special.SLAB;
+            case PANE -> ParkourJumps.Special.PANE;
+            case FENCE -> ParkourJumps.Special.FENCE;
+            case SLIME -> ParkourJumps.Special.SLIME;
+            default -> null;
+         };
+         any = true;
+      }
+      return any;
+   }
+
    private static BlockState facingLadder(int hx, int hz, Cell cell) {
       int fx;
       int fz;

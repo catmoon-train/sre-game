@@ -38,7 +38,7 @@ public final class LuckyPillarMiniGame implements net.exmo.sreGame.game.MiniGame
 
    @Override
    public int maxPlayers() {
-      return 16;
+      return 64;
    }
 
    @Override

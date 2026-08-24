@@ -30,7 +30,7 @@ public enum DigVariant {
    }
 
    public int snowRadius() {
-      return this == BOTH ? 2 : 1;
+      return this == BOTH ? 1 : 0;
    }
 
    public DigVariant next() {

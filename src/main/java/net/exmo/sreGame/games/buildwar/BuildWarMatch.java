@@ -479,13 +479,13 @@ public final class BuildWarMatch {
          player.setInvisible(true);
          this.ensureTeam(player, false);
          if (this.isBuilder(uuid)) {
-            player.setGameMode(GameType.ADVENTURE);
             if (this.drawing) {
                group.plot().teleportCanvas(player, level);
                DrawKit.startFlying(player);
             } else {
                group.plot().teleport(player, level);
             }
+            player.setGameMode(GameType.ADVENTURE);
             List<String> options = this.pickChoices.get(group.id());
             if (options != null && !options.isEmpty()) {
                this.givePickItems(player, options);
@@ -1405,6 +1405,10 @@ public final class BuildWarMatch {
             }
          }
          if (building) {
+            GameType want = this.phase == Phase.BUILDING && !this.drawing ? GameType.CREATIVE : GameType.ADVENTURE;
+            if (player.gameMode.getGameModeForPlayer() != want) {
+               player.setGameMode(want);
+            }
             player.setInvisible(true);
          }
       }

@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -42,6 +43,8 @@ public final class DigToDeathMatch {
    }
 
    private static final int INTRO_SECONDS = 5;
+   /** 0.1s at 20 tps. */
+   private static final int SNOWBALL_COOLDOWN_TICKS = 2;
 
    private final UUID id = UUID.randomUUID();
    private final GameContext ctx;
@@ -157,6 +160,31 @@ public final class DigToDeathMatch {
          return false;
       }
       return this.arena.isBreakableSnow(pos, this.layers(), level.getBlockState(pos));
+   }
+
+   public InteractionResult handleUseItem(ServerPlayer player, ItemStack stack) {
+      if (!this.settings.variant().snowballs() || stack == null || !stack.is(Items.SNOWBALL)) {
+         return InteractionResult.PASS;
+      }
+      Fighter fighter = this.fighter(player.getUUID());
+      if (fighter == null || !fighter.alive || this.phase != Phase.FIGHT) {
+         return InteractionResult.FAIL;
+      }
+      if (player.getCooldowns().isOnCooldown(Items.SNOWBALL)) {
+         return InteractionResult.FAIL;
+      }
+      return InteractionResult.PASS;
+   }
+
+   public void onSnowballThrown(ServerPlayer player) {
+      if (!this.settings.variant().snowballs() || this.phase != Phase.FIGHT) {
+         return;
+      }
+      Fighter fighter = this.fighter(player.getUUID());
+      if (fighter == null || !fighter.alive) {
+         return;
+      }
+      player.getCooldowns().addCooldown(Items.SNOWBALL, SNOWBALL_COOLDOWN_TICKS);
    }
 
    public void onSnowballHitBlock(ServerPlayer thrower, BlockPos pos) {

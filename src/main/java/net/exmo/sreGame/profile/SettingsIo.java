@@ -52,6 +52,24 @@ public final class SettingsIo {
       return value == null ? def : String.valueOf(value);
    }
 
+   public static double asDouble(Map<String, ?> data, String key, double def) {
+      if (data == null) {
+         return def;
+      }
+      Object value = data.get(key);
+      if (value instanceof Number number) {
+         return number.doubleValue();
+      }
+      if (value instanceof String text) {
+         try {
+            return Double.parseDouble(text.trim());
+         } catch (NumberFormatException ignored) {
+            return def;
+         }
+      }
+      return def;
+   }
+
    @SuppressWarnings("unchecked")
    public static Map<String, Object> asMap(Map<String, ?> data, String key) {
       if (data == null) {

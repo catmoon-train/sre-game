@@ -38,7 +38,7 @@ public final class YouBuildRunMiniGame implements net.exmo.sreGame.game.MiniGame
 
    @Override
    public int maxPlayers() {
-      return 8;
+      return 32;
    }
 
    @Override
@@ -70,7 +70,8 @@ public final class YouBuildRunMiniGame implements net.exmo.sreGame.game.MiniGame
    public void start(GameRoom room, ServerPlayer actor) {
       UUID matchId = this.ctx.youBuildRun().start(room);
       if (matchId == null) {
-         this.ctx.send(actor, "&c没有空闲的你建我跑场地。");
+         this.ctx.send(actor, "&c没有足够的你建我跑场地（赛道最多 "
+            + BuildRunTrackManager.MAX + "）。");
       }
    }
 }

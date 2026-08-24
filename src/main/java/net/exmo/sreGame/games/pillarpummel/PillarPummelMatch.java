@@ -837,35 +837,37 @@ public final class PillarPummelMatch {
          this.ctx.send(player, "&c只能建在己方平台上。");
          return;
       }
-      if (cell.spawn) {
-         this.ctx.send(player, "&c出生台不能改建。");
+      if (cell.spawn && !"fort".equals(kind) && !"turret".equals(kind)) {
+         this.ctx.send(player, "&c出生台已有刷新点。");
          return;
       }
-      if (cell.fort || cell.turret || cell.blockgen) {
-         this.ctx.send(player, "&c这座平台已经有建筑了。");
+      if ("fort".equals(kind) && cell.fort
+         || "turret".equals(kind) && cell.turret
+         || "blockgen".equals(kind) && cell.blockgen) {
+         this.ctx.send(player, "&c这座平台已经有这个建筑了。");
          return;
       }
       stack.shrink(1);
       switch (kind) {
          case "fort" -> {
             cell.fort = true;
-            cell.maxHp = PlotCell.FORT_HP;
-            cell.hp = PlotCell.FORT_HP;
+            cell.maxHp = Math.max(cell.maxHp, PlotCell.FORT_HP);
+            cell.hp = Math.max(cell.hp, PlotCell.FORT_HP);
             this.buildFort(cell);
             this.ctx.send(player, "&a堡垒已建成。");
          }
          case "turret" -> {
             cell.turret = true;
-            cell.maxHp = PlotCell.TURRET_HP;
-            cell.hp = PlotCell.TURRET_HP;
+            cell.maxHp = Math.max(cell.maxHp, PlotCell.TURRET_HP);
+            cell.hp = Math.max(cell.hp, PlotCell.TURRET_HP);
             cell.turretTicks = TURRET_TICKS;
             this.buildTurret(cell);
             this.ctx.send(player, "&a防御塔已建成。");
          }
          case "blockgen" -> {
             cell.blockgen = true;
-            cell.maxHp = PlotCell.BLOCKGEN_HP;
-            cell.hp = PlotCell.BLOCKGEN_HP;
+            cell.maxHp = Math.max(cell.maxHp, PlotCell.BLOCKGEN_HP);
+            cell.hp = Math.max(cell.hp, PlotCell.BLOCKGEN_HP);
             this.buildBlockgen(cell);
             this.ctx.send(player, "&a方块生成器已建成。");
          }
@@ -890,8 +892,8 @@ public final class PillarPummelMatch {
                continue;
             }
             BlockPos base = new BlockPos(c.getX() + dx, y, c.getZ() + dz);
-            this.placeFortBlock(level, base, wall);
-            this.placeFortBlock(level, base.above(), wall);
+            this.placeFortBlock(level, cell, base, wall);
+            this.placeFortBlock(level, cell, base.above(), wall);
          }
       }
       this.restoreSpawnFurniture();
@@ -916,7 +918,7 @@ public final class PillarPummelMatch {
       if (level == null || !cell.owned()) {
          return;
       }
-      BlockPos c = cell.center(this.arena, this.pillars()).above();
+      BlockPos c = cell.center(this.arena, this.pillars()).offset(1, 1, 1);
       level.setBlock(c, PummelColor.of(cell.owner).generatorBlock().defaultBlockState(), 3);
       cell.generator = c;
       this.generators.add(c);
@@ -936,10 +938,10 @@ public final class PillarPummelMatch {
                   continue;
                }
                BlockPos base = new BlockPos(c.getX() + dx, y, c.getZ() + dz);
-               if (!this.blockedForFort(base)) {
+               if (!this.blockedForFort(cell, base)) {
                   level.setBlock(base, Blocks.AIR.defaultBlockState(), 3);
                }
-               if (!this.blockedForFort(base.above())) {
+               if (!this.blockedForFort(cell, base.above())) {
                   level.setBlock(base.above(), Blocks.AIR.defaultBlockState(), 3);
                }
             }
@@ -1655,18 +1657,27 @@ public final class PillarPummelMatch {
       return true;
    }
 
-   private boolean blockedForFort(BlockPos pos) {
+   private boolean blockedForFort(PlotCell cell, BlockPos pos) {
       for (int t = 0; t < this.teams.length; t++) {
          if (pos.equals(this.shopOf(t)) || pos.equals(this.chestOf(t)) || pos.equals(this.genOf(t))) {
             return true;
          }
       }
-      PlotCell cell = this.cellAtBlock(pos);
-      return cell != null && cell.spawn;
+      if (cell != null && cell.generator != null && pos.equals(cell.generator)) {
+         return true;
+      }
+      if (cell != null && cell.turret) {
+         BlockPos c = cell.center(this.arena, this.pillars());
+         int y = this.arena.platformY() + 1;
+         if (pos.getX() == c.getX() && pos.getZ() == c.getZ() && pos.getY() >= y && pos.getY() <= y + 5) {
+            return true;
+         }
+      }
+      return false;
    }
 
-   private void placeFortBlock(ServerLevel level, BlockPos pos, BlockState wall) {
-      if (this.blockedForFort(pos)) {
+   private void placeFortBlock(ServerLevel level, PlotCell cell, BlockPos pos, BlockState wall) {
+      if (this.blockedForFort(cell, pos)) {
          return;
       }
       level.setBlock(pos, wall, 3);

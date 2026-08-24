@@ -98,7 +98,7 @@ public final class LuckyPillarMatch {
       this.boss = new ServerBossEvent(TextUtil.color("&6幸运之柱"), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
       this.boss.setVisible(true);
       List<UUID> ordered = this.assignTeams(this.seats);
-      this.pillarBases = arena.pillarBases(this.pillarCount(), this.settings.borderSize());
+      this.pillarBases = arena.pillarBases(this.pillarCount(), this.settings.borderSize(), this.settings.pillarSpacing());
       int ffaIndex = 0;
       for (UUID uuid : ordered) {
          Fighter fighter = this.fighters.get(uuid);
@@ -141,7 +141,8 @@ public final class LuckyPillarMatch {
          this.settings.fishingMode() ? Blocks.WATER.defaultBlockState() : this.settings.floor().state(),
          this.settings.pillar().state(),
          this.settings.fishingMode(),
-         this.pillarBases.size()
+         this.pillarBases.size(),
+         this.settings.pillarSpacing()
       );
    }
 

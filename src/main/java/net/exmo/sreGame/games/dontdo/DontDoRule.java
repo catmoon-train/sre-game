@@ -51,7 +51,29 @@ public enum DontDoRule {
    PLAYERS_NEAR("恐人症", "5格内不能有其他玩家", 10),
    STAND_GRASS("绿色恐惧", "不能站在草地上", 8),
    HOSTILES_NEAR("贪生怕死", "周围不能有敌对生物", 10),
-   HEALTH_CHANGE("贪死贪生", "原版血量不能变动", 10);
+   HEALTH_CHANGE("贪死贪生", "原版血量不能变动", 10),
+   SLEEP("睡什么睡", "不能睡觉", 10),
+   EAT_ANY("禁食者", "不能吃任何食物", 10),
+   USE_FLINT("玩火自焚", "不能用打火石或火焰弹", 8),
+   THROW_POTION("药水过敏", "不能投掷药水", 10),
+   USE_BUCKET("桶禁", "不能用桶", 8),
+   MOUNT("独立宣言", "不能骑乘任何实体", 10),
+   ELYTRA("恐飞症", "不能使用鞘翅滑翔", 10),
+   HEAL("吸血鬼", "不能恢复生命值", 10),
+   MOVE("木头人", "不能水平移动", 5),
+   LOOK_UP("不要抬头", "不能看向天空", 10),
+   LOOK_DOWN("不要低头", "不能看向地面", 10),
+   FISHING("休渔期", "不能使用钓鱼竿", 10),
+   BREAK_ORE("矿工罢工", "不能挖掘矿石", 10),
+   DRINK_MILK("乳糖不耐", "不能喝牛奶", 10),
+   USE_TNT("爆破管制", "不能使用TNT或火药", 8),
+   SHEAR("羊毛保护协会", "不能使用剪刀", 8),
+   PLACE_DIRT("洁癖二世", "不能放置泥土或沙子", 10),
+   CROUCH_JUMP("兔子跳", "不能同时蹲跳", 8),
+   HOLD_BLOCK("空手道", "主手不能拿方块", 10),
+   STAND_STONE("脚踏实地", "不能站在石头上", 8),
+   UNDERGROUND("阳光缺失症", "不能待在y<0的地方", 10),
+   ABOVEGROUND("幽闭恐惧", "不能待在y>=10的地方", 8);
 
    public final String title;
    public final String describe;

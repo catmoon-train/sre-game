@@ -16,7 +16,7 @@ public final class PillarArena {
    }
 
    public static final int MAX_SIZE = 192;
-   public static final int WALL_EXTRA = 16;
+   public static final int WALL_EXTRA = 26;
    public static final int MIN_LIVE_SIZE = 8;
    public static final BlockState WALL = Blocks.BLACK_CONCRETE.defaultBlockState();
    public static final BlockState BASIN = Blocks.STONE.defaultBlockState();
@@ -116,7 +116,7 @@ public final class PillarArena {
       int z0 = this.minZ(border) + inset;
       return x >= x0 && x < x0 + live
          && z >= z0 && z < z0 + live
-         && y >= this.basinY() - 1.5 && y <= this.wallTop(pillarHeight) + 2;
+         && y >= this.basinY() - 1.5 && y <= this.wallTop(pillarHeight) + 12;
    }
 
    public boolean isFloor(BlockPos pos) {
@@ -156,12 +156,19 @@ public final class PillarArena {
          && pos.getY() < this.wallTop(pillarHeight);
    }
 
-   public List<BlockPos> pillarBases(int players, int border) {
+   public List<BlockPos> pillarBases(int players, int border, int spacing) {
       int n = Math.max(1, players);
-      double radius = Math.max(4.0, border / 4.0);
       double cx = this.centerX();
       double cz = this.centerZ();
       List<BlockPos> out = new ArrayList<>(n);
+      if (n == 1) {
+         out.add(new BlockPos((int) Math.floor(cx), this.floorY(), (int) Math.floor(cz)));
+         return out;
+      }
+      double chord = Math.max(2.0, spacing);
+      double radius = chord / (2.0 * Math.sin(Math.PI / n));
+      double maxRadius = Math.max(4.0, border / 2.0 - 6.0);
+      radius = Math.min(radius, maxRadius);
       for (int i = 0; i < n; i++) {
          double angle = (Math.PI * 2.0 * i) / n - Math.PI / 2.0;
          int x = (int) Math.floor(cx + Math.cos(angle) * radius);
@@ -195,6 +202,6 @@ public final class PillarArena {
       player.teleportTo(level, pos.x, pos.y, pos.z, player.getYRot(), player.getXRot());
    }
 
-   public record Layout(int borderSize, int pillarHeight, BlockState floor, BlockState pillar, boolean fishing, int players) {
+   public record Layout(int borderSize, int pillarHeight, BlockState floor, BlockState pillar, boolean fishing, int players, int pillarSpacing) {
    }
 }

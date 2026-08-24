@@ -193,8 +193,8 @@ public final class PillarPummelSettings {
    }
 
    private static final int[] DURATIONS = {1, 2, 3, 5, 8, 10, 12, 15};
-   private static final int[] TEAM_COUNTS = {2, 3, 4};
-   private static final int[] TEAM_SIZES = {1, 2, 3, 4};
+   private static final int[] TEAM_COUNTS = {2, 3, 4, 5, 6, 7, 8};
+   private static final int[] TEAM_SIZES = {1, 2, 3, 4, 5, 6, 8, 10, 12, 16};
    private static final int[] GRIDS = {4, 5, 6, 7, 8, 9, 10, 11};
    private static final int[] OCCUPY = {1, 2, 3, 4, 5, 6, 8, 10};
    private static final int[] STEAL = {2, 3, 5, 8, 10, 12, 15};
@@ -306,7 +306,7 @@ public final class PillarPummelSettings {
    }
 
    public int maxPlayers() {
-      return this.teamCount * this.teamSize;
+      return Math.min(64, this.teamCount * this.teamSize);
    }
 
    public int grid() {

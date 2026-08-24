@@ -61,7 +61,7 @@ public final class ParkourManager {
          this.ctx.send(player, "&c当前已在其他小游戏中。");
          return false;
       }
-      ServerLevel level = this.ctx.config().world(this.ctx.server());
+      ServerLevel level = this.parkourWorld();
       if (level == null) {
          this.ctx.send(player, "&c世界未就绪。");
          return false;
@@ -74,7 +74,7 @@ public final class ParkourManager {
       this.sessions.put(player.getUUID(), session);
       player.closeContainer();
       session.begin(level);
-      this.ctx.send(player, "&a已进入无限跑酷。掉落会重置分数。用热键栏退出或打开设置。");
+      this.ctx.send(player, "&a已进入无限跑酷。掉下去会重新开始。用热键栏退出或打开设置。");
       return true;
    }
 
@@ -87,7 +87,10 @@ public final class ParkourManager {
          return;
       }
       this.usedSlots.remove(session.slot);
-      ServerLevel level = player.serverLevel();
+      ServerLevel level = this.parkourWorld();
+      if (level == null) {
+         level = player.serverLevel();
+      }
       session.destroy(level);
       if (session.score() > 0) {
          this.scores.record(player, session.score(), session.elapsedMs());
@@ -112,7 +115,7 @@ public final class ParkourManager {
    }
 
    public void tick() {
-      ServerLevel level = this.ctx.config().world(this.ctx.server());
+      ServerLevel level = this.parkourWorld();
       if (level == null) {
          return;
       }
@@ -143,8 +146,7 @@ public final class ParkourManager {
       if (session == null) {
          return false;
       }
-      player.setHealth(player.getMaxHealth());
-      player.fallDistance = 0.0F;
+      session.fall(this.ctx, player.serverLevel());
       return true;
    }
 
@@ -179,24 +181,40 @@ public final class ParkourManager {
          || this.ctx.dontDo().isPlaying(player) || this.ctx.luckyPillar().isPlaying(player)
          || this.ctx.pillarPummel().isPlaying(player) || this.ctx.digToDeath().isPlaying(player)
          || this.ctx.youBuildRun().isPlaying(player) || this.ctx.dodgeball().isPlaying(player)
-         || this.ctx.pushTheButton().isPlaying(player);
+         || this.ctx.pushTheButton().isPlaying(player) || this.ctx.skyWorld().isPlaying(player);
+   }
+
+   private ServerLevel parkourWorld() {
+      return this.ctx.config().world(this.ctx.server());
    }
 
    private int nextSlot() {
       int slot = 0;
-      while (this.usedSlots.contains(slot)) {
+      while (this.slotTaken(slot)) {
          slot++;
       }
       return slot;
+   }
+
+   private boolean slotTaken(int slot) {
+      if (this.usedSlots.contains(slot)) {
+         return true;
+      }
+      for (ParkourSession session : this.sessions.values()) {
+         if (session.slot == slot) {
+            return true;
+         }
+      }
+      return false;
    }
 
    private BlockPos centerOf(int slot) {
       int[] spiral = spiral(slot);
       int y = (ParkourSession.MIN_Y + ParkourSession.MAX_Y) / 2;
       return new BlockPos(
-         this.ctx.config().parkourOriginX() + spiral[0] * ParkourSession.BORDER,
+         this.ctx.config().parkourOriginX() + spiral[0] * ParkourSession.SLOT_GAP,
          y,
-         this.ctx.config().parkourOriginZ() + spiral[1] * ParkourSession.BORDER
+         this.ctx.config().parkourOriginZ() + spiral[1] * ParkourSession.SLOT_GAP
       );
    }
 

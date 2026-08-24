@@ -39,6 +39,7 @@ public final class MainMenuGui {
          || ctx.pillarPummel().openIfPlaying(player) || ctx.dodgeball().openIfPlaying(player)
          || ctx.digToDeath().openIfPlaying(player)          || ctx.youBuildRun().openIfPlaying(player)
          || ctx.pushTheButton().openIfPlaying(player)
+         || ctx.skyWorld().openIfPlaying(player)
          || ctx.parkour().openIfPlaying(player)) {
          return;
       }

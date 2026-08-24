@@ -121,6 +121,22 @@ public final class DodgeballArena {
          && z >= this.floorMinZ() && z < this.floorMaxZ() + 1;
    }
 
+   public boolean onOwnSide(DodgeballTeam team, double x) {
+      return team == DodgeballTeam.RED ? x < this.midX() : x > this.midX() + 1.0;
+   }
+
+   public double clampX(DodgeballTeam team, double x) {
+      if (team == DodgeballTeam.RED) {
+         return Math.min(x, this.midX() - 0.31);
+      }
+      return Math.max(x, this.midX() + 1.31);
+   }
+
+   public Vec3 ballPad(DodgeballTeam team) {
+      double x = team == DodgeballTeam.RED ? this.midX() - 4.5 : this.midX() + 5.5;
+      return new Vec3(x, this.floorY() + 1.1, this.floorMinZ() + 15.5);
+   }
+
    public boolean inLava(double x, double y, double z) {
       if (y > this.floorY() + 0.2) {
          return false;
@@ -197,6 +213,12 @@ public final class DodgeballArena {
          return Blocks.GLASS.defaultBlockState();
       }
       if (inFloor && ly == 1) {
+         if (fx == 15 && fz == 15) {
+            return Blocks.RED_CONCRETE.defaultBlockState();
+         }
+         if (fx == 25 && fz == 15) {
+            return Blocks.BLUE_CONCRETE.defaultBlockState();
+         }
          if (fx == 20) {
             return Blocks.WHITE_STAINED_GLASS.defaultBlockState();
          }
@@ -223,7 +245,7 @@ public final class DodgeballArena {
 
    private boolean matchesCover(int[][] covers, int fx, int fz) {
       for (int[] cover : covers) {
-         if (fx >= cover[0] && fx < cover[0] + 3 && fz >= cover[1] && fz < cover[1] + 3) {
+         if (fx == cover[0] && fz == cover[1]) {
             return true;
          }
       }

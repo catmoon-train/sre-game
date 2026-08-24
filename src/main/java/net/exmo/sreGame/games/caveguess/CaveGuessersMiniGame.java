@@ -38,7 +38,7 @@ public final class CaveGuessersMiniGame implements net.exmo.sreGame.game.MiniGam
 
    @Override
    public int maxPlayers() {
-      return 16;
+      return 64;
    }
 
    @Override

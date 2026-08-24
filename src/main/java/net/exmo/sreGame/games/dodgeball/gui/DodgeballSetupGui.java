@@ -48,10 +48,10 @@ public final class DodgeballSetupGui {
          "&f逆境加成 &e" + s.onOff(s.catchUp()),
          List.of("&7落后队伍移动速度 +10%", "&e点击开关"), "catchUp"));
       container.setItem(22, GuiItems.named("snowball", "&f规则摘要", List.of(
-         "&72–16 人，自动均分红蓝",
-         "&7雪球击中淘汰，空手右键接球反杀",
-         "&7每局不复活，三局两胜",
-         "&7掩体可挡球，掉出场地淘汰"
+         "&72–16 人，自动均分红蓝，不能越中线",
+         "&7前线中点每 2 秒补 1 个雪球",
+         "&7投掷冷却 0.2 秒，空手左键接球反弹",
+         "&7每局不复活，三局两胜"
       )));
       SettingsArchive.paint(container);
       container.setItem(49, GuiItems.action("barrier", "&c返回房间", List.of(), "back"));

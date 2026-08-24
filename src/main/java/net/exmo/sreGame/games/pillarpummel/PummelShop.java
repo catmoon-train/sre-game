@@ -35,10 +35,10 @@ public final class PummelShop {
    public static final String GAPPLE = "gapple";
    public static final String PEARL = "pearl";
    public static final String WEB = "web";
-   public static final String POWDER = "powder";
    public static final String SNOWBALL = "snowball";
    public static final String ARROWS = "arrows";
    public static final String ROD = "rod";
+   public static final String AXE = "axe";
    public static final String WATER = "water";
    public static final String MILK = "milk";
    public static final String WIND = "wind";
@@ -126,7 +126,7 @@ public final class PummelShop {
          case REPAIR -> gadgetStack(REPAIR, "&6维修工具盒", new ItemStack(Items.SNOW_BLOCK),
             List.of("&7右键损坏的己方平台，恢复 1 点耐久"));
          case FORT -> gadgetStack(FORT, "&d堡垒", new ItemStack(Items.STONE_BRICKS),
-            List.of("&7右键己方平台：耐久改为 6", "&7墙在 5×5 台上，不会盖住商店"));
+            List.of("&7右键己方平台：耐久改为 6", "&7可与防御塔、刷新点同台", "&7墙在 5×5 台上，不会盖住商店"));
          case STONE -> named(new ItemStack(Items.COBBLESTONE, 16), "&7圆石 ×16");
          case IRON -> named(new ItemStack(Items.IRON_BLOCK, 2), "&f铁块 ×2");
          case DIAMOND -> named(new ItemStack(Items.OBSIDIAN, 4), "&5黑曜石 ×4");
@@ -137,9 +137,9 @@ public final class PummelShop {
          case TNTPACK -> gadgetStack(TNT, "&cTNT ×3", new ItemStack(Items.TNT, 3),
             List.of("&7放到已占领的桥或平台上炸毁"));
          case TURRET -> gadgetStack(TURRET, "&d防御塔", new ItemStack(Items.IRON_BLOCK),
-            List.of("&7右键己方平台：耐久 4，自动射击附近敌人"));
+            List.of("&7右键己方平台：耐久 4，自动射击附近敌人", "&7可与堡垒、刷新点同台"));
          case BLOCKGEN -> gadgetStack(BLOCKGEN, "&a方块生成器", new ItemStack(c.generatorBlock().asItem()),
-            List.of("&7右键己方平台：持续产出队色混凝土粉末"));
+            List.of("&7右键己方平台：持续产出队色混凝土粉末", "&7可与堡垒、防御塔同台"));
          case NUKE -> gadgetStack(NUKE, "&4☢ 核弹 ☢", new ItemStack(Items.CARROT_ON_A_STICK),
             List.of("&7右键把场地中央炸光（出生台除外）"));
          case SHIELD -> {
@@ -153,13 +153,17 @@ public final class PummelShop {
          case GAPPLE -> named(new ItemStack(Items.GOLDEN_APPLE), "&6金苹果");
          case PEARL -> named(new ItemStack(Items.ENDER_PEARL, 2), "&5末影珍珠 ×2");
          case WEB -> named(new ItemStack(Items.COBWEB, 4), "&f蜘蛛网 ×4");
-         case POWDER -> named(new ItemStack(c.powderItem(), 8), "&f队色粉末 ×8");
          case SNOWBALL -> named(new ItemStack(Items.SNOWBALL, 8), "&f雪球 ×8");
          case ARROWS -> named(new ItemStack(Items.ARROW, 8), "&f箭 ×8");
          case ROD -> {
             ItemStack rod = named(new ItemStack(Items.FISHING_ROD), "&b钓鱼竿");
             rod.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
             yield rod;
+         }
+         case AXE -> {
+            ItemStack axe = named(new ItemStack(Items.IRON_AXE), "&f铁斧");
+            axe.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+            yield axe;
          }
          default -> ItemStack.EMPTY;
       };
@@ -185,10 +189,10 @@ public final class PummelShop {
          case GAPPLE -> 8;
          case PEARL -> 12;
          case WEB -> 4;
-         case POWDER -> 6;
          case SNOWBALL -> 3;
          case ARROWS -> 4;
          case ROD -> 10;
+         case AXE -> 8;
          case STONE -> settings.priceStone();
          case IRON -> settings.priceIron();
          case DIAMOND -> settings.priceDiamond();

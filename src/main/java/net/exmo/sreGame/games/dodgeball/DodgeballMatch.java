@@ -61,6 +61,9 @@ public final class DodgeballMatch {
    private static final int SETTLE_SECONDS = 8;
    private static final int CATCH_RANGE = 3;
    private static final int CATCH_COOLDOWN = 10;
+   private static final int THROW_COOLDOWN = 4;
+   private static final int SUPPLY_INTERVAL = 40;
+   private static final int SUPPLY_CAP = 16;
    private static final int POWERUP_INTERVAL = 30 * 20;
    private static final double MAX_RANGE = 25.0;
    private static final float THROW_POWER = 1.5F;
@@ -87,6 +90,7 @@ public final class DodgeballMatch {
    private int phaseMaxTicks;
    private int boardTicks;
    private int powerupTicks;
+   private int supplyTicks;
    private boolean begun;
    private boolean frenzyAnnounced;
 
@@ -136,7 +140,8 @@ public final class DodgeballMatch {
       }
       this.ctx.broadcast(this.room, "&8&m----------------");
       this.ctx.broadcast(this.room, "&b&l躲避球");
-      this.ctx.broadcast(this.room, "&7红蓝对掷雪球，击中淘汰，空手右键接球可反杀投掷者。");
+      this.ctx.broadcast(this.room, "&7红蓝对掷雪球，击中淘汰，空手左键接球会把雪球反弹回去。");
+      this.ctx.broadcast(this.room, "&7不能越过中线。己方前线中点每 &f2s &7补充 1 个雪球，投掷冷却 &f0.2s&7。");
       this.ctx.broadcast(this.room, "&7每局 &f" + this.settings.roundSeconds() + "s &7· 先赢 &f"
          + this.settings.winsNeeded() + " &7局 · 本局不复活");
       this.ctx.broadcast(this.room, "&8&m----------------");
@@ -189,15 +194,23 @@ public final class DodgeballMatch {
       if (this.phase != Phase.FIGHT || !fighter.alive) {
          return InteractionResult.FAIL;
       }
-      if (stack == null || stack.isEmpty()) {
-         this.tryCatch(player, fighter);
-         return InteractionResult.FAIL;
-      }
-      if (stack.is(Items.SNOWBALL)) {
+      if (stack != null && stack.is(Items.SNOWBALL)) {
          this.throwBalls(player, fighter);
          return InteractionResult.FAIL;
       }
       return InteractionResult.FAIL;
+   }
+
+   public void handleSwing(ServerPlayer player) {
+      Fighter fighter = this.fighters.get(player.getUUID());
+      if (fighter == null || this.phase != Phase.FIGHT || !fighter.alive) {
+         return;
+      }
+      ItemStack held = player.getMainHandItem();
+      if (held != null && !held.isEmpty()) {
+         return;
+      }
+      this.tryCatch(player, fighter);
    }
 
    public InteractionResult handleUseBlock(ServerPlayer player, BlockHitResult hit, ItemStack stack) {
@@ -294,6 +307,7 @@ public final class DodgeballMatch {
          fighter.triple = false;
          fighter.homing = false;
          fighter.catchCool = 0;
+         fighter.throwCool = 0;
          fighter.marked = false;
          int i = index.getOrDefault(fighter.team, 0);
          index.put(fighter.team, i + 1);
@@ -331,8 +345,10 @@ public final class DodgeballMatch {
       this.phase = Phase.FIGHT;
       this.setTimer(this.settings.roundTicks());
       this.powerupTicks = POWERUP_INTERVAL;
+      this.supplyTicks = SUPPLY_INTERVAL;
+      this.restockPads(true);
       this.forEachOnline((player, fighter) -> {
-         this.title(player, "&a开战！", "&7右键投掷 · 空手接球反杀");
+         this.title(player, "&a开战！", "&7前线中点捡球 · 不能越线");
          this.giveKit(player, fighter);
       });
       this.playAll(SoundEvents.PLAYER_ATTACK_CRIT, 0.9F, 0.7F);
@@ -341,9 +357,13 @@ public final class DodgeballMatch {
    private void tickFight() {
       this.tickBalls();
       this.tickPowerups();
+      this.tickSupply();
       this.forEachOnline((player, fighter) -> {
          if (fighter.catchCool > 0) {
             fighter.catchCool--;
+         }
+         if (fighter.throwCool > 0) {
+            fighter.throwCool--;
          }
          if (fighter.shieldTicks > 0) {
             fighter.shieldTicks--;
@@ -355,7 +375,6 @@ public final class DodgeballMatch {
             this.eliminate(player, fighter, null, false, "掉出场地");
             return;
          }
-         this.refillSnowballs(player);
          this.applyFightEffects(player, fighter);
       });
       if (this.settings.frenzy() && this.ticksLeft == 30 * 20 && !this.frenzyAnnounced) {
@@ -506,10 +525,20 @@ public final class DodgeballMatch {
    }
 
    private void throwBalls(ServerPlayer player, Fighter fighter) {
+      if (fighter.throwCool > 0) {
+         return;
+      }
+      ItemStack held = this.heldSnowball(player);
+      if (held == null || held.isEmpty()) {
+         this.ctx.send(player, "&c你需要雪球！去前线中点补给。");
+         return;
+      }
       ServerLevel level = this.level();
       if (level == null) {
          return;
       }
+      held.shrink(1);
+      fighter.throwCool = THROW_COOLDOWN;
       int count = fighter.triple ? 3 : 1;
       fighter.triple = false;
       boolean homing = fighter.homing;
@@ -524,7 +553,15 @@ public final class DodgeballMatch {
          this.balls.put(ball.getUUID(), new Ball(player.getUUID(), fighter.team, homing, ball.position()));
       }
       this.play(player, SoundEvents.ARROW_SHOOT, 0.8F, 1.35F);
-      this.refillSnowballs(player);
+   }
+
+   private ItemStack heldSnowball(ServerPlayer player) {
+      ItemStack main = player.getMainHandItem();
+      if (main.is(Items.SNOWBALL) && !main.isEmpty()) {
+         return main;
+      }
+      ItemStack off = player.getOffhandItem();
+      return off.is(Items.SNOWBALL) && !off.isEmpty() ? off : null;
    }
 
    private void tryCatch(ServerPlayer player, Fighter fighter) {
@@ -569,15 +606,34 @@ public final class DodgeballMatch {
       this.play(player, SoundEvents.SHIELD_BLOCK, 1.0F, 1.4F);
       this.play(player, SoundEvents.EXPERIENCE_ORB_PICKUP, 0.8F, 1.6F);
       fighter.score += 20;
-      fighter.kills++;
-      fighter.roundKills++;
-      fighter.streak++;
-      this.announceStreak(player, fighter);
+      player.getInventory().add(new ItemStack(Items.SNOWBALL, 1));
       ServerPlayer thrower = info == null ? null : this.ctx.player(info.thrower);
-      Fighter victim = info == null ? null : this.fighters.get(info.thrower);
-      if (thrower != null && victim != null && victim.alive) {
-         this.eliminate(thrower, victim, player, true, "被接球反杀");
+      if (thrower != null) {
+         this.reflectAt(player, fighter, thrower);
+         this.ctx.send(player, "&a接住！雪球已反弹。");
+         this.ctx.send(thrower, "&c你的雪球被接住并反弹回来了！");
       }
+   }
+
+   private void reflectAt(ServerPlayer catcher, Fighter fighter, ServerPlayer target) {
+      ServerLevel level = this.level();
+      if (level == null) {
+         return;
+      }
+      Vec3 from = catcher.getEyePosition();
+      Vec3 to = target.getEyePosition();
+      Vec3 dir = to.subtract(from);
+      if (dir.lengthSqr() < 0.04) {
+         dir = catcher.getLookAngle();
+      }
+      Vec3 n = dir.normalize();
+      Snowball rebound = new Snowball(level, catcher);
+      rebound.setPos(from.x, from.y, from.z);
+      rebound.shoot(n.x, n.y, n.z, THROW_POWER * 1.25F, 0.05F);
+      rebound.setGlowingTag(true);
+      level.addFreshEntity(rebound);
+      this.balls.put(rebound.getUUID(), new Ball(catcher.getUUID(), fighter.team, false, rebound.position()));
+      this.play(catcher, SoundEvents.ARROW_SHOOT, 0.9F, 1.5F);
    }
 
    private void eliminate(ServerPlayer victim, Fighter fighter, ServerPlayer killer, boolean catchKill, String reason) {
@@ -830,14 +886,61 @@ public final class DodgeballMatch {
       chest.set(DataComponents.DYED_COLOR, new DyedItemColor(fighter.team.leather(), true));
       chest.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
       player.setItemSlot(EquipmentSlot.CHEST, chest);
-      this.refillSnowballs(player);
    }
 
-   private void refillSnowballs(ServerPlayer player) {
-      ItemStack snow = player.getInventory().getItem(0);
-      if (!snow.is(Items.SNOWBALL) || snow.getCount() < 16) {
-         player.getInventory().setItem(0, new ItemStack(Items.SNOWBALL, 16));
+   private void tickSupply() {
+      this.supplyTicks--;
+      if (this.supplyTicks > 0) {
+         return;
       }
+      this.supplyTicks = SUPPLY_INTERVAL;
+      this.restockPads(false);
+   }
+
+   private void restockPads(boolean force) {
+      this.restockPad(DodgeballTeam.RED, force);
+      this.restockPad(DodgeballTeam.BLUE, force);
+   }
+
+   private void restockPad(DodgeballTeam team, boolean force) {
+      ServerLevel level = this.level();
+      if (level == null) {
+         return;
+      }
+      Vec3 pos = this.arena.ballPad(team);
+      AABB box = new AABB(pos.x - 0.8, pos.y - 0.4, pos.z - 0.8, pos.x + 0.8, pos.y + 1.2, pos.z + 0.8);
+      ItemEntity existing = null;
+      for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, box)) {
+         if (item.getItem().is(Items.SNOWBALL)) {
+            existing = item;
+            break;
+         }
+      }
+      if (existing != null) {
+         ItemStack stack = existing.getItem();
+         if (stack.getCount() < SUPPLY_CAP) {
+            stack.grow(1);
+            existing.setItem(stack);
+            level.sendParticles(ParticleTypes.SNOWFLAKE, pos.x, pos.y + 0.3, pos.z, 4, 0.15, 0.2, 0.15, 0.01);
+         }
+         return;
+      }
+      if (!force && this.phase != Phase.FIGHT) {
+         return;
+      }
+      ItemStack stack = new ItemStack(Items.SNOWBALL, 1);
+      ItemEntity item = new ItemEntity(level, pos.x, pos.y, pos.z, stack);
+      item.setPickUpDelay(10);
+      item.setUnlimitedLifetime();
+      item.setInvulnerable(true);
+      item.setGlowingTag(true);
+      item.setCustomName(TextUtil.color(team.code() + "补给雪球"));
+      item.setCustomNameVisible(true);
+      item.setDeltaMovement(Vec3.ZERO);
+      item.setNoGravity(true);
+      level.addFreshEntity(item);
+      level.sendParticles(ParticleTypes.SNOWFLAKE, pos.x, pos.y + 0.3, pos.z, 8, 0.2, 0.25, 0.2, 0.01);
+      level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 0.5F, 1.3F);
    }
 
    private void teleportSpawn(ServerPlayer player, Fighter fighter, ServerLevel level) {
@@ -878,6 +981,19 @@ public final class DodgeballMatch {
          if (player.gameMode.getGameModeForPlayer() != GameType.ADVENTURE) {
             player.setGameMode(GameType.ADVENTURE);
          }
+         if (this.phase == Phase.SETTLE) {
+            return;
+         }
+         if (this.arena.onOwnSide(fighter.team, player.getX())) {
+            return;
+         }
+         double nx = this.arena.clampX(fighter.team, player.getX());
+         Vec3 vel = player.getDeltaMovement();
+         ServerLevel level = this.level();
+         if (level != null) {
+            player.teleportTo(level, nx, player.getY(), player.getZ(), player.getYRot(), player.getXRot());
+         }
+         player.setDeltaMovement(0.0, vel.y, vel.z);
       });
    }
 
@@ -1071,6 +1187,7 @@ public final class DodgeballMatch {
       int streak;
       int score;
       int catchCool;
+      int throwCool;
       int shieldTicks;
       boolean triple;
       boolean homing;

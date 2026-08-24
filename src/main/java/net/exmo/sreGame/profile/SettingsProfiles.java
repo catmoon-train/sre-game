@@ -21,10 +21,14 @@ import net.exmo.sreGame.games.dodgeball.DodgeballMiniGame;
 import net.exmo.sreGame.games.draw.DrawGuessMiniGame;
 import net.exmo.sreGame.games.draw.DrawWarMiniGame;
 import net.exmo.sreGame.games.fakehuman.FakeHumanMiniGame;
+import net.exmo.sreGame.games.fillinthewall.FillInTheWallMiniGame;
 import net.exmo.sreGame.games.fraud.FraudMasterMiniGame;
 import net.exmo.sreGame.games.luckypillar.LuckyPillarMiniGame;
+import net.exmo.sreGame.games.nametagwar.NameTagWarMiniGame;
 import net.exmo.sreGame.games.pillarpummel.PillarPummelMiniGame;
 import net.exmo.sreGame.games.pushthebutton.PushTheButtonMiniGame;
+import net.exmo.sreGame.games.skyworld.SkyWorldMiniGame;
+import net.exmo.sreGame.games.situationpuzzle.SituationPuzzleMiniGame;
 import net.exmo.sreGame.room.GameRoom;
 import net.exmo.sreGame.games.youguess.YouGuessMiniGame;
 import net.minecraft.server.level.ServerPlayer;
@@ -146,6 +150,18 @@ public final class SettingsProfiles {
       if (PushTheButtonMiniGame.ID.equals(id)) {
          return room.pushTheButtonSettings().snapshot();
       }
+      if (SkyWorldMiniGame.ID.equals(id)) {
+         return room.skyWorldSettings().snapshot();
+      }
+      if (SituationPuzzleMiniGame.ID.equals(id)) {
+         return room.situationPuzzleSettings().snapshot();
+      }
+      if (NameTagWarMiniGame.ID.equals(id)) {
+         return room.nameTagWarSettings().snapshot();
+      }
+      if (FillInTheWallMiniGame.ID.equals(id)) {
+         return room.fillInTheWallSettings().snapshot();
+      }
       return room.duelSettings().snapshot();
    }
 
@@ -177,6 +193,14 @@ public final class SettingsProfiles {
          room.youBuildRunSettings().apply(data);
       } else if (PushTheButtonMiniGame.ID.equals(id)) {
          room.pushTheButtonSettings().apply(data);
+      } else if (SkyWorldMiniGame.ID.equals(id)) {
+         room.skyWorldSettings().apply(data);
+      } else if (SituationPuzzleMiniGame.ID.equals(id)) {
+         room.situationPuzzleSettings().apply(data);
+      } else if (NameTagWarMiniGame.ID.equals(id)) {
+         room.nameTagWarSettings().apply(data);
+      } else if (FillInTheWallMiniGame.ID.equals(id)) {
+         room.fillInTheWallSettings().apply(data);
       } else {
          room.duelSettings().apply(data);
       }

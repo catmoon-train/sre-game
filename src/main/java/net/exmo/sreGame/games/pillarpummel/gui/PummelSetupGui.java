@@ -64,9 +64,9 @@ public final class PummelSetupGui {
             container.setItem(10, GuiItems.action("clock", "&f时长 &e" + s.durationMinutes() + " 分钟",
                List.of("&e点击切换 1–15"), "duration"));
             container.setItem(11, GuiItems.action("white_banner", "&f队伍数量 &e" + s.teamCount(),
-               List.of("&e点击切换 2 / 3 / 4"), "teams"));
+               List.of("&7红 / 蓝 / 黄 / 绿 / 橙 / 紫 / 青 / 粉", "&e点击切换 2–8"), "teams"));
             container.setItem(12, GuiItems.action("player_head", "&f每队人数 &e" + s.teamSize(),
-               List.of("&e点击切换 1–4"), "size"));
+               List.of("&7房间人数上限为 64", "&e点击切换 1–16"), "size"));
             container.setItem(13, GuiItems.action("quartz_pillar", "&f地图大小 &e" + s.grid() + "×" + s.grid()
                   + "（" + s.plotCount() + " 台）",
                List.of("&7每边柱子数量，间距 6", "&e点击切换 4–11"), "grid"));

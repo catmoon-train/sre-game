@@ -1,7 +1,9 @@
 package net.exmo.sreGame.mixin;
 
 import net.exmo.sreGame.SreGame;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Snowball;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.level.Level;
@@ -16,6 +18,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class SnowballMixin extends ThrowableItemProjectile {
    public SnowballMixin(EntityType<? extends ThrowableItemProjectile> entityType, Level level) {
       super(entityType, level);
+   }
+
+   @Inject(method = "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/LivingEntity;)V", at = @At("TAIL"))
+   private void sre$digSnowballCooldown(Level level, LivingEntity shooter, CallbackInfo ci) {
+      if (!(shooter instanceof ServerPlayer player)) {
+         return;
+      }
+      var ctx = SreGame.getContext();
+      if (ctx != null) {
+         ctx.digToDeath().onSnowballThrown(player);
+      }
    }
 
    @Inject(method = "onHitEntity", at = @At("HEAD"), cancellable = true)

@@ -159,20 +159,35 @@ public final class ShipManager {
          return Blocks.AIR.defaultBlockState();
       }
       if (ly == 0) {
+         if (lx >= 1 && lx <= 7) {
+            return Blocks.RED_CONCRETE.defaultBlockState();
+         }
+         if (lx >= 9 && lx <= 30 && lz >= 1 && lz <= 7) {
+            return Blocks.LIME_TERRACOTTA.defaultBlockState();
+         }
+         if (lx >= 9 && lx <= 30 && lz >= 25 && lz <= d - 2) {
+            return Blocks.WHITE_TERRACOTTA.defaultBlockState();
+         }
          if (lx >= 9 && lx <= 30 && lz >= 8 && lz <= 23) {
-            return ((lx + lz) % 6 == 0 ? Blocks.CYAN_TERRACOTTA : Blocks.LIGHT_GRAY_CONCRETE).defaultBlockState();
+            return ((lx + lz) % 2 == 0 ? Blocks.CYAN_TERRACOTTA : Blocks.LIGHT_GRAY_CONCRETE).defaultBlockState();
+         }
+         if (lx >= 32) {
+            return Blocks.DARK_PRISMARINE.defaultBlockState();
          }
          return Blocks.GRAY_CONCRETE.defaultBlockState();
       }
       if (ly == h - 1) {
+         if (lx % 6 == 3 && lz % 6 == 3) {
+            return Blocks.SEA_LANTERN.defaultBlockState();
+         }
          return Blocks.LIGHT_BLUE_CONCRETE.defaultBlockState();
       }
       boolean outer = lx == 0 || lx == w - 1 || lz == 0 || lz == d - 1;
       if (outer) {
          if (ly >= 3 && ly <= 4 && !isCorner(lx, lz, w, d) && (lx + lz) % 4 == 0) {
-            return Blocks.CYAN_STAINED_GLASS.defaultBlockState();
+            return (lx <= 8 ? Blocks.RED_STAINED_GLASS : Blocks.CYAN_STAINED_GLASS).defaultBlockState();
          }
-         return Blocks.LIGHT_BLUE_CONCRETE.defaultBlockState();
+         return (lx <= 8 ? Blocks.RED_CONCRETE : Blocks.LIGHT_BLUE_CONCRETE).defaultBlockState();
       }
       if (lx == 8 && !(lz >= 14 && lz <= 17 && ly >= 1 && ly <= 3)) {
          return Blocks.CYAN_CONCRETE.defaultBlockState();
@@ -180,9 +195,15 @@ public final class ShipManager {
       if (lx == 31 && !(lz >= 14 && lz <= 17 && ly >= 1 && ly <= 3)) {
          return Blocks.CYAN_CONCRETE.defaultBlockState();
       }
+      if (lz == 8 && lx >= 9 && lx <= 30 && !(lx >= 18 && lx <= 21 && ly <= 3)) {
+         return Blocks.QUARTZ_PILLAR.defaultBlockState();
+      }
+      if (lz == 24 && lx >= 9 && lx <= 30 && !(lx >= 18 && lx <= 21 && ly <= 3)) {
+         return Blocks.WHITE_CONCRETE.defaultBlockState();
+      }
       if (lx >= 1 && lx <= 7) {
          if (isAirlockGlass(lx, ly, lz)) {
-            return Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState();
+            return Blocks.IRON_BARS.defaultBlockState();
          }
       }
       if (lx == 20 && lz == 16 && ly == 1) {
@@ -193,12 +214,33 @@ public final class ShipManager {
             .setValue(ButtonBlock.FACE, AttachFace.FLOOR)
             .setValue(ButtonBlock.FACING, Direction.NORTH);
       }
+      if (lx >= 9 && lx <= 30 && lz >= 8 && lz <= 23 && ly == 1
+         && (lx + lz) % 5 == 0 && !(lx == 20 && lz == 16)
+         && !((lx == 12 || lx == 15 || lx == 25 || lx == 28) && (lz == 11 || lz == 20))) {
+         return Blocks.CYAN_CARPET.defaultBlockState();
+      }
+      if (lx >= 18 && lx <= 22 && lz >= 14 && lz <= 18 && ly == 1
+         && !(lx == 20 && lz == 16)) {
+         return Blocks.QUARTZ_SLAB.defaultBlockState();
+      }
+      if (ly == 1 && ((lx == 12 || lx == 15 || lx == 25 || lx == 28) && (lz == 11 || lz == 20))) {
+         return Blocks.OAK_STAIRS.defaultBlockState();
+      }
+      if (ly == 1 && ((lx == 13 || lx == 27) && (lz == 12 || lz == 19))) {
+         return Blocks.OAK_SLAB.defaultBlockState();
+      }
       if (lx >= 33 && lx <= 36 && lz >= 15 && lz <= 17 && ly == 1) {
          return Blocks.GOLD_BLOCK.defaultBlockState();
+      }
+      if (lx == 35 && lz == 16 && ly == 2) {
+         return Blocks.LECTERN.defaultBlockState();
       }
       if (lz == d - 2 && ly >= 2 && ly < 2 + Ship.CANVAS_H) {
          for (int i = 0; i < Ship.CANVAS_COUNT; i++) {
             int min = Ship.canvasMinLx(i);
+            if (lx == min - 1 || lx == min + Ship.CANVAS_W) {
+               return Blocks.BLACK_CONCRETE.defaultBlockState();
+            }
             if (lx >= min && lx < min + Ship.CANVAS_W) {
                return Blocks.WHITE_CONCRETE.defaultBlockState();
             }
@@ -215,6 +257,9 @@ public final class ShipManager {
       }
       if (ly == 1 && ((lx == 12 || lx == 28) && (lz == 10 || lz == 21))) {
          return Blocks.SEA_LANTERN.defaultBlockState();
+      }
+      if (ly == 2 && lx == 16 && lz == 9) {
+         return Blocks.SMOOTH_QUARTZ.defaultBlockState();
       }
       return Blocks.AIR.defaultBlockState();
    }

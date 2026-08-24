@@ -73,6 +73,9 @@ public final class RoomBrowserGui {
             lore.add("&7掘一死战 &8| &f" + room.digToDeathSettings().variant().label());
          } else if (room.isYouBuildRun()) {
             lore.add("&7你建我跑 &8| &f" + room.youBuildRunSettings().scene().label());
+         } else if (room.isSkyWorld()) {
+            lore.add("&7空岛战争 &8| &f" + room.skyWorldSettings().chestTier().label()
+               + " · 保护 " + room.skyWorldSettings().pvpGraceSeconds() + "s");
          } else if (room.duelSettings().gamemode() != null) {
             lore.add("&7模式： &f" + room.duelSettings().gamemode());
          }

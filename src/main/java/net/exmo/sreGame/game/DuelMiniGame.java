@@ -45,7 +45,7 @@ public final class DuelMiniGame implements MiniGame, MatchLifecycleListener {
 
    @Override
    public int maxPlayers() {
-      return 16;
+      return 64;
    }
 
    @Override

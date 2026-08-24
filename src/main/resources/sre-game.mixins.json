@@ -12,6 +12,7 @@
     "LivingJumpAccessor",
     "DontDoJumpMixin",
     "DontDoDropMixin",
+    "DodgeballSwingMixin",
     "LuckyPillarFishingMixin",
     "SnowballMixin",
     "MatchContainerDropMixin",
@@ -20,7 +21,8 @@
     "RoomChatMixin",
     "RoomChatSendMixin",
     "SreForceKillMixin",
-    "TrackedEntityAccessor"
+    "TrackedEntityAccessor",
+    "QuakeLivingAccessor"
   ],
   "client": [
   ],

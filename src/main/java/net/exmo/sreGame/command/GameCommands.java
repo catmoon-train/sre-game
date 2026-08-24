@@ -3,6 +3,7 @@ package net.exmo.sreGame.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.exmo.sreGame.GameContext;
+import net.exmo.sreGame.games.quakechasm.QuakeCommands;
 import net.exmo.sreGame.gui.MainMenuGui;
 import net.exmo.sreGame.gui.RoomBrowserGui;
 import net.exmo.sreGame.gui.RoomPanelGui;
@@ -35,6 +36,9 @@ public final class GameCommands {
             net.exmo.sreGame.gui.WordBankGui.open(ctx, player, 0);
             return 1;
          })));
+      AiCommands.register(dispatcher, ctx);
+      QuakeCommands.register(dispatcher, ctx);
+      SituationPuzzleCommands.register(dispatcher, ctx);
       dispatcher.register(Commands.literal("sg").executes(c -> openMenu(c.getSource(), ctx)));
       dispatcher.register(Commands.literal("menu").executes(c -> openMenu(c.getSource(), ctx)));
 
@@ -89,6 +93,13 @@ public final class GameCommands {
             ctx.rooms().leave(player);
             ctx.send(player, "&7已离开房间。");
             return 1;
+         }))
+         .then(Commands.literal("end").executes(c -> {
+            ServerPlayer player = player(c.getSource());
+            if (player == null) {
+               return 0;
+            }
+            return ctx.rooms().endActiveMatch(player) ? 1 : 0;
          }))
          .then(Commands.literal("list").executes(c -> {
             ServerPlayer player = player(c.getSource());

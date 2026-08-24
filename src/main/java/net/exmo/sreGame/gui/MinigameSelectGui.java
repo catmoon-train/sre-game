@@ -85,35 +85,47 @@ public final class MinigameSelectGui {
                   draft.maxPlayers = 8;
                }
                if (("fraud_master".equals(game.id()) || "who_is_fake".equals(game.id()))
-                  && (draft.maxPlayers < 4 || draft.maxPlayers > 8)) {
-                  draft.maxPlayers = 6;
+                  && (draft.maxPlayers < 4 || draft.maxPlayers > 32)) {
+                  draft.maxPlayers = 24;
                }
-               if ("cave_guess".equals(game.id()) && (draft.maxPlayers < 3 || draft.maxPlayers > 16)) {
+               if ("cave_guess".equals(game.id()) && (draft.maxPlayers < 3 || draft.maxPlayers > 64)) {
                   draft.maxPlayers = 8;
                }
-               if ("chicken_horse".equals(game.id()) && draft.maxPlayers > 30) {
-                  draft.maxPlayers = 16;
+               if ("chicken_horse".equals(game.id()) && draft.maxPlayers > 120) {
+                  draft.maxPlayers = 64;
                }
-               if ("dont_do".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 16)) {
+               if ("dont_do".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 64)) {
                   draft.maxPlayers = 8;
                }
-               if ("lucky_pillar".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 16)) {
+               if ("lucky_pillar".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 64)) {
                   draft.maxPlayers = 8;
                }
-               if ("pillar_pummel".equals(game.id()) && (draft.maxPlayers < 4 || draft.maxPlayers > 16)) {
+               if ("pillar_pummel".equals(game.id()) && (draft.maxPlayers < 4 || draft.maxPlayers > 64)) {
                   draft.maxPlayers = 8;
                }
-               if ("dodgeball".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 16)) {
+               if ("dodgeball".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 64)) {
                   draft.maxPlayers = 8;
                }
-               if ("dig_to_death".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 16)) {
+               if ("dig_to_death".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 64)) {
                   draft.maxPlayers = 8;
                }
-               if ("you_build_run".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 8)) {
+               if ("you_build_run".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 32)) {
                   draft.maxPlayers = 8;
                }
                if ("push_the_button".equals(game.id()) && (draft.maxPlayers < 4 || draft.maxPlayers > 10)) {
                   draft.maxPlayers = 8;
+               }
+               if ("skyworld".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 32)) {
+                  draft.maxPlayers = 8;
+               }
+               if ("situation_puzzle".equals(game.id()) && (draft.maxPlayers < 1 || draft.maxPlayers > 64)) {
+                  draft.maxPlayers = 8;
+               }
+               if ("name_tag_war".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 64)) {
+                  draft.maxPlayers = 8;
+               }
+               if ("fill_in_the_wall".equals(game.id()) && (draft.maxPlayers < 1 || draft.maxPlayers > 32)) {
+                  draft.maxPlayers = 4;
                }
                CreateRoomGui.open(this.ctx, player);
             } else {

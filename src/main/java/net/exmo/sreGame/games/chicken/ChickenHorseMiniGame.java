@@ -38,7 +38,7 @@ public final class ChickenHorseMiniGame implements net.exmo.sreGame.game.MiniGam
 
    @Override
    public int maxPlayers() {
-      return 30;
+      return 120;
    }
 
    @Override

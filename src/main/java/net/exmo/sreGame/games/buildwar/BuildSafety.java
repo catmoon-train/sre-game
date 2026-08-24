@@ -106,11 +106,22 @@ public final class BuildSafety {
             }
             return InteractionResultHolder.pass(stack);
          }
+         if (ctx.skyWorld().isPlaying(sp)) {
+            InteractionResult result = ctx.skyWorld().handleUseItem(sp, stack);
+            if (result == InteractionResult.FAIL) {
+               return InteractionResultHolder.fail(stack);
+            }
+            return InteractionResultHolder.pass(stack);
+         }
          if (ctx.parkour().isPlaying(sp)) {
             ctx.parkour().handleUseItem(sp, stack);
             return InteractionResultHolder.fail(stack);
          }
          if (ctx.digToDeath().isPlaying(sp)) {
+            InteractionResult result = ctx.digToDeath().handleUseItem(sp, stack);
+            if (result == InteractionResult.FAIL) {
+               return InteractionResultHolder.fail(stack);
+            }
             return InteractionResultHolder.pass(stack);
          }
          if (ctx.youBuildRun().isPlaying(sp)) {
@@ -121,6 +132,19 @@ public final class BuildSafety {
          }
          if (ctx.pushTheButton().isPlaying(sp)) {
             if (ctx.pushTheButton().handleUseItem(sp, stack)) {
+               return InteractionResultHolder.fail(stack);
+            }
+            return InteractionResultHolder.pass(stack);
+         }
+         if (ctx.nameTagWar().isPlaying(sp)) {
+            if (stack.is(Items.SHEARS)) {
+               return InteractionResultHolder.fail(stack);
+            }
+            return InteractionResultHolder.pass(stack);
+         }
+         if (ctx.fillInTheWall().isPlaying(sp)) {
+            InteractionResult result = ctx.fillInTheWall().handleUseItem(sp, stack);
+            if (result == InteractionResult.FAIL) {
                return InteractionResultHolder.fail(stack);
             }
             return InteractionResultHolder.pass(stack);
@@ -233,7 +257,16 @@ public final class BuildSafety {
          if (ctx.dodgeball().isPlaying(sp)) {
             return ctx.dodgeball().handleUseBlock(sp, hit, stack);
          }
-         if (ctx.parkour().isPlaying(sp) || ctx.digToDeath().isPlaying(sp)) {
+         if (ctx.skyWorld().isPlaying(sp)) {
+            return ctx.skyWorld().handleUseBlock(sp, hit, stack);
+         }
+         if (ctx.parkour().isPlaying(sp)) {
+            return InteractionResult.FAIL;
+         }
+         if (ctx.digToDeath().isPlaying(sp)) {
+            if (stack.is(Items.SNOWBALL) && ctx.digToDeath().handleUseItem(sp, stack) != InteractionResult.FAIL) {
+               return InteractionResult.PASS;
+            }
             return InteractionResult.FAIL;
          }
          if (ctx.youBuildRun().isPlaying(sp)) {
@@ -241,6 +274,12 @@ public final class BuildSafety {
          }
          if (ctx.pushTheButton().isPlaying(sp)) {
             return ctx.pushTheButton().handleUseBlock(sp, hit, stack);
+         }
+         if (ctx.nameTagWar().isPlaying(sp)) {
+            return InteractionResult.FAIL;
+         }
+         if (ctx.fillInTheWall().isPlaying(sp)) {
+            return ctx.fillInTheWall().handleUseBlock(sp, hit, stack);
          }
          if (ctx.youGuess().isPlaying(sp)) {
             var yg = ctx.youGuess().get(sp.getUUID());
@@ -319,14 +358,20 @@ public final class BuildSafety {
          if (ctx.luckyPillar().isPlaying(sp)) {
             return InteractionResult.PASS;
          }
+         if (ctx.skyWorld().isPlaying(sp)) {
+            return InteractionResult.PASS;
+         }
          if (ctx.pillarPummel().isPlaying(sp)) {
             return InteractionResult.PASS;
          }
          if (ctx.dodgeball().isPlaying(sp)) {
             return InteractionResult.FAIL;
          }
+         if (ctx.nameTagWar().isPlaying(sp)) {
+            return ctx.nameTagWar().handleUseEntity(sp, entity, sp.getItemInHand(hand));
+         }
          if (ctx.digToDeath().isPlaying(sp) || ctx.parkour().isPlaying(sp) || ctx.youBuildRun().isPlaying(sp)
-            || ctx.pushTheButton().isPlaying(sp)) {
+            || ctx.pushTheButton().isPlaying(sp) || ctx.fillInTheWall().isPlaying(sp)) {
             return InteractionResult.FAIL;
          }
          if (!ctx.youGuess().isPlaying(sp) && !ctx.buildWar().isPlaying(sp)
@@ -380,6 +425,9 @@ public final class BuildSafety {
          if (ctx.dodgeball().isPlaying(sp)) {
             return false;
          }
+         if (ctx.skyWorld().isPlaying(sp)) {
+            return ctx.skyWorld().tryBreak(sp, pos);
+         }
          if (ctx.parkour().isPlaying(sp)) {
             return false;
          }
@@ -391,6 +439,12 @@ public final class BuildSafety {
          }
          if (ctx.pushTheButton().isPlaying(sp)) {
             return ctx.pushTheButton().tryBreak(sp, pos);
+         }
+         if (ctx.nameTagWar().isPlaying(sp)) {
+            return false;
+         }
+         if (ctx.fillInTheWall().isPlaying(sp)) {
+            return ctx.fillInTheWall().tryBreak(sp, pos);
          }
          if (ctx.youGuess().isPlaying(sp)) {
             var yg = ctx.youGuess().get(sp.getUUID());
@@ -432,7 +486,9 @@ public final class BuildSafety {
          }
          if (entity instanceof PrimedTnt || entity instanceof MinecartTNT) {
             if (ctx.luckyPillar().containsEntity(entity) || ctx.pillarPummel().containsEntity(entity)
-               || ctx.dodgeball().containsEntity(entity) || ctx.digToDeath().containsEntity(entity)) {
+               || ctx.dodgeball().containsEntity(entity) || ctx.digToDeath().containsEntity(entity)
+               || ctx.skyWorld().containsEntity(entity) || ctx.nameTagWar().containsEntity(entity)
+               || ctx.fillInTheWall().containsEntity(entity)) {
                return;
             }
             entity.discard();

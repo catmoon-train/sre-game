@@ -213,22 +213,57 @@ public final class PummelArena {
    }
 
    public int[] spawnCell(int team, int pillars) {
-      return this.spawnCell(team, new Layout(pillars, 4, 0, 0, "SQUARE", 0L));
+      Layout layout = this.lastLayout;
+      if (layout.grid() != pillars) {
+         layout = new Layout(pillars, layout.teamCount(), layout.initialPlots(), layout.mineCount(),
+            layout.shape(), layout.seed());
+      }
+      return this.spawnCell(team, layout);
    }
 
    public int[] preferredSpawn(int team, int pillars) {
+      return this.preferredSpawn(team, pillars, this.lastLayout.teamCount());
+   }
+
+   public int[] preferredSpawn(int team, int pillars, int teamCount) {
       int n = Math.max(1, pillars - 1);
-      return switch (team) {
-         case 0 -> new int[] {0, 0};
-         case 1 -> new int[] {n - 1, n - 1};
-         case 2 -> new int[] {n - 1, 0};
-         default -> new int[] {0, n - 1};
-      };
+      int count = Math.max(2, teamCount);
+      if (count <= 4) {
+         return switch (Math.floorMod(team, 4)) {
+            case 0 -> new int[] {0, 0};
+            case 1 -> new int[] {n - 1, n - 1};
+            case 2 -> new int[] {n - 1, 0};
+            default -> new int[] {0, n - 1};
+         };
+      }
+      int[][] edge = this.perimeterCells(n);
+      int idx = (int) Math.floor((Math.floorMod(team, count) + 0.5) * edge.length / count) % edge.length;
+      return edge[idx];
+   }
+
+   private int[][] perimeterCells(int n) {
+      if (n <= 1) {
+         return new int[][] {{0, 0}};
+      }
+      List<int[]> out = new ArrayList<>();
+      for (int cx = 0; cx < n; cx++) {
+         out.add(new int[] {cx, 0});
+      }
+      for (int cz = 1; cz < n; cz++) {
+         out.add(new int[] {n - 1, cz});
+      }
+      for (int cx = n - 2; cx >= 0; cx--) {
+         out.add(new int[] {cx, n - 1});
+      }
+      for (int cz = n - 2; cz >= 1; cz--) {
+         out.add(new int[] {0, cz});
+      }
+      return out.toArray(new int[0][]);
    }
 
    public int[] spawnCell(int team, Layout layout) {
       int pillars = layout.grid();
-      int[] want = this.preferredSpawn(team, pillars);
+      int[] want = this.preferredSpawn(team, pillars, layout.teamCount());
       if (this.cellEnabled(want[0], want[1], layout)) {
          return want;
       }
@@ -289,8 +324,9 @@ public final class PummelArena {
    }
 
    public boolean inBase(BlockPos pos, int team, int pillars) {
-      int[] cell = this.spawnCell(team, this.lastLayout.grid() == pillars ? this.lastLayout
-         : new Layout(pillars, 4, 0, 0, "SQUARE", 0L));
+      Layout layout = this.lastLayout.grid() == pillars ? this.lastLayout
+         : new Layout(pillars, this.lastLayout.teamCount(), 0, 0, this.lastLayout.shape(), this.lastLayout.seed());
+      int[] cell = this.spawnCell(team, layout);
       BlockPos c = this.platformCenter(cell[0], cell[1], pillars);
       return Math.abs(pos.getX() - c.getX()) <= 2
          && Math.abs(pos.getZ() - c.getZ()) <= 2

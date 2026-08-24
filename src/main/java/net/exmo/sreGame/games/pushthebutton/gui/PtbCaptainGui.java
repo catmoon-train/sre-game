@@ -55,7 +55,10 @@ public final class PtbCaptainGui {
       List<UUID> alive = match.aliveSeats();
       int slot = 36;
       for (UUID uuid : alive) {
-         if (slot >= 45) {
+         if (slot == 49) {
+            slot++;
+         }
+         if (slot >= 54) {
             break;
          }
          boolean on = match.selected().contains(uuid);

@@ -38,7 +38,7 @@ public final class YouGuessMiniGame implements net.exmo.sreGame.game.MiniGame {
 
    @Override
    public int maxPlayers() {
-      return 20;
+      return 80;
    }
 
    @Override

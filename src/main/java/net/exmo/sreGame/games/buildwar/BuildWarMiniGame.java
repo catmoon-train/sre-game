@@ -38,7 +38,7 @@ public final class BuildWarMiniGame implements net.exmo.sreGame.game.MiniGame {
 
    @Override
    public int maxPlayers() {
-      return 20;
+      return 80;
    }
 
    @Override
@@ -73,7 +73,7 @@ public final class BuildWarMiniGame implements net.exmo.sreGame.game.MiniGame {
    public void start(GameRoom room, ServerPlayer actor) {
       UUID matchId = this.ctx.buildWar().start(room);
       if (matchId == null) {
-         this.ctx.send(actor, "&c没有足够的建筑场地（最多同时 20 格）。");
+         this.ctx.send(actor, "&c没有足够的建筑场地（最多同时 " + PlotManager.MAX_PLOTS + " 格）。");
       }
    }
 }

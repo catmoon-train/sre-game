@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public final class Ship {
@@ -100,8 +101,25 @@ public final class Ship {
       return pos.equals(base) || pos.equals(base.above());
    }
 
+   public AABB box() {
+      return new AABB(this.minX(), this.minY(), this.minZ(), this.maxX() + 1, this.maxY() + 1, this.maxZ() + 1);
+   }
+
    public Vec3 loungeSpawn() {
       return new Vec3(this.minX() + 20.5, this.minY() + 1.0, this.minZ() + 16.5);
+   }
+
+   public Vec3 jerrPos() {
+      return new Vec3(this.minX() + 34.5, this.minY() + 3.4, this.minZ() + 16.5);
+   }
+
+   public Vec3 promptBoardPos() {
+      return new Vec3(this.minX() + 16.5, this.minY() + 3.6, this.minZ() + 9.3);
+   }
+
+   public Vec3 answerBoardPos(int index) {
+      int i = Math.max(0, Math.min(3, index));
+      return new Vec3(this.minX() + 20.5 + i * 2.4, this.minY() + 3.4, this.minZ() + 9.3);
    }
 
    public Vec3 captainStand() {

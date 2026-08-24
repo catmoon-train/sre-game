@@ -38,7 +38,7 @@ public final class FakeHumanMiniGame implements net.exmo.sreGame.game.MiniGame {
 
    @Override
    public int maxPlayers() {
-      return 8;
+      return 32;
    }
 
    @Override

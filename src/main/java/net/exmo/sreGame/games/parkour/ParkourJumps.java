@@ -7,11 +7,11 @@ public final class ParkourJumps {
    }
 
    public static int distance() {
-      return weighted(new int[] {1, 2, 3, 4}, new int[] {10, 55, 34, 1});
+      return weighted(new int[] {1, 2, 3}, new int[] {15, 55, 30});
    }
 
    public static int height() {
-      return weighted(new int[] {1, 0, -1, -2}, new int[] {20, 65, 10, 5});
+      return weighted(new int[] {1, 0, -1, -2}, new int[] {18, 67, 10, 5});
    }
 
    public static boolean special(boolean enabled) {
@@ -35,13 +35,78 @@ public final class ParkourJumps {
       return Special.FENCE;
    }
 
+   public static int clampDistance(int height, int distance) {
+      if (height >= 1) {
+         return Math.min(distance, 2);
+      }
+      return Math.min(distance, 3);
+   }
+
    public static int sideOffset(int height, int distance) {
       int max = maxOffset(height, distance);
+      if (distance >= 4 || height >= 1 && distance >= 3) {
+         return 0;
+      }
       double u1 = Math.max(1e-9, ThreadLocalRandom.current().nextDouble());
       double u2 = ThreadLocalRandom.current().nextDouble();
       double gaussian = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(Math.PI * 2.0 * u2);
       int offset = (int) Math.round(gaussian);
       return Math.max(-max, Math.min(max, offset));
+   }
+
+   public static boolean reachable(int forward, int up, int side, Special from) {
+      int fx = Math.abs(forward);
+      int fz = Math.abs(side);
+      if (fx == 0 && fz == 0) {
+         return up != 0;
+      }
+      double horiz = Math.hypot(fx, fz);
+      if (from == Special.SLIME) {
+         if (fz > 1) {
+            return false;
+         }
+         return up >= 2 && up <= 4 && fx >= 2 && fx <= 3;
+      }
+      if (from == Special.ICE) {
+         if (up > 0) {
+            return horiz <= 3.1;
+         }
+         return up >= -2 && horiz <= 5.1;
+      }
+      if (from == Special.PANE) {
+         if (up > 0) {
+            return false;
+         }
+         return up >= -1 && horiz <= 3.1;
+      }
+      if (from == Special.FENCE) {
+         if (up > 1) {
+            return false;
+         }
+         return up >= -1 && horiz <= 3.1;
+      }
+      if (from == Special.SLAB && up > 0) {
+         return false;
+      }
+      if (up > 1) {
+         return false;
+      }
+      if (up == 1) {
+         return horiz <= 3.05;
+      }
+      if (up == 0) {
+         return horiz <= 4.05;
+      }
+      if (up == -1) {
+         return horiz <= 5.15;
+      }
+      if (up == -2) {
+         return horiz <= 5.6;
+      }
+      if (up <= -3 && up >= -5) {
+         return horiz <= 2.1;
+      }
+      return false;
    }
 
    private static int maxOffset(int y, int distance) {
@@ -86,6 +151,6 @@ public final class ParkourJumps {
    }
 
    public enum Special {
-      ICE, SLAB, PANE, FENCE
+      ICE, SLAB, PANE, FENCE, SLIME
    }
 }

@@ -11,12 +11,13 @@ public final class LuckyPillarSettings {
    private static final int[] LURE_LEVELS = {1, 2, 3, 4, 5};
    private static final int[] BORDER_SIZES = {64, 96, 128, 160, 192};
    private static final int[] SHRINK_DELAYS = {60, 90, 120, 180};
-   private static final int[] SHRINK_SPEED_TENTHS = {5, 10, 20};
+   private static final int[] SHRINK_TICKS = {40, 20, 10, 80, 160};
    private static final int[] PILLAR_HEIGHTS = {32, 48, 64, 80};
+   private static final int[] PILLAR_SPACINGS = {8, 12, 16, 24, 32, 48};
 
    private boolean teams;
    private int teamSize = 2;
-   private int refreshSeconds = 16;
+   private int refreshSeconds = 5;
    private int refreshCount = 1;
    private boolean luckyBlockMode;
    private FloorBlock floor = FloorBlock.WHITE_WOOL;
@@ -27,8 +28,9 @@ public final class LuckyPillarSettings {
    private boolean border = true;
    private int borderSize = 128;
    private int shrinkDelaySeconds = 120;
-   private int shrinkSpeedTenths = 5;
+   private int shrinkTicksPerBlock = 40;
    private int pillarHeight = 64;
+   private int pillarSpacing = 16;
 
    public boolean teams() {
       return this.teams;
@@ -51,7 +53,7 @@ public final class LuckyPillarSettings {
    }
 
    public void cycleRefreshSeconds() {
-      this.refreshSeconds = next(REFRESH_SECONDS, this.refreshSeconds, 16);
+      this.refreshSeconds = next(REFRESH_SECONDS, this.refreshSeconds, 5);
    }
 
    public int refreshCount() {
@@ -135,7 +137,7 @@ public final class LuckyPillarSettings {
    }
 
    public int shrinkSpeedTenths() {
-      return this.shrinkSpeedTenths;
+      return Math.max(1, 200 / this.ticksPerShrinkBlock());
    }
 
    public String shrinkSpeedLabel() {
@@ -147,11 +149,11 @@ public final class LuckyPillarSettings {
    }
 
    public void cycleShrinkSpeed() {
-      this.shrinkSpeedTenths = next(SHRINK_SPEED_TENTHS, this.shrinkSpeedTenths, 5);
+      this.shrinkTicksPerBlock = next(SHRINK_TICKS, this.shrinkTicksPerBlock, 40);
    }
 
    public int ticksPerShrinkBlock() {
-      return Math.max(1, 200 / Math.max(1, this.shrinkSpeedTenths));
+      return Math.max(1, this.shrinkTicksPerBlock);
    }
 
    public int pillarHeight() {
@@ -160,6 +162,14 @@ public final class LuckyPillarSettings {
 
    public void cyclePillarHeight() {
       this.pillarHeight = next(PILLAR_HEIGHTS, this.pillarHeight, 64);
+   }
+
+   public int pillarSpacing() {
+      return this.pillarSpacing;
+   }
+
+   public void cyclePillarSpacing() {
+      this.pillarSpacing = next(PILLAR_SPACINGS, this.pillarSpacing, 16);
    }
 
    public String onOff(boolean value) {
@@ -181,8 +191,10 @@ public final class LuckyPillarSettings {
       data.put("border", this.border);
       data.put("borderSize", this.borderSize);
       data.put("shrinkDelaySeconds", this.shrinkDelaySeconds);
-      data.put("shrinkSpeedTenths", this.shrinkSpeedTenths);
+      data.put("shrinkTicksPerBlock", this.shrinkTicksPerBlock);
+      data.put("shrinkSpeedTenths", this.shrinkSpeedTenths());
       data.put("pillarHeight", this.pillarHeight);
+      data.put("pillarSpacing", this.pillarSpacing);
       return data;
    }
 
@@ -192,7 +204,7 @@ public final class LuckyPillarSettings {
       }
       this.teams = SettingsIo.asBool(data, "teams", this.teams);
       this.teamSize = clampCycle(TEAM_SIZES, SettingsIo.asInt(data, "teamSize", this.teamSize), 2);
-      this.refreshSeconds = clampCycle(REFRESH_SECONDS, SettingsIo.asInt(data, "refreshSeconds", this.refreshSeconds), 16);
+      this.refreshSeconds = clampCycle(REFRESH_SECONDS, SettingsIo.asInt(data, "refreshSeconds", this.refreshSeconds), 5);
       this.refreshCount = clampCycle(REFRESH_COUNTS, SettingsIo.asInt(data, "refreshCount", this.refreshCount), 1);
       this.luckyBlockMode = SettingsIo.asBool(data, "luckyBlockMode", this.luckyBlockMode);
       this.floor = FloorBlock.fromName(SettingsIo.asString(data, "floor", this.floor.name()));
@@ -203,8 +215,14 @@ public final class LuckyPillarSettings {
       this.border = SettingsIo.asBool(data, "border", this.border);
       this.borderSize = clampCycle(BORDER_SIZES, SettingsIo.asInt(data, "borderSize", this.borderSize), 128);
       this.shrinkDelaySeconds = clampCycle(SHRINK_DELAYS, SettingsIo.asInt(data, "shrinkDelaySeconds", this.shrinkDelaySeconds), 120);
-      this.shrinkSpeedTenths = clampCycle(SHRINK_SPEED_TENTHS, SettingsIo.asInt(data, "shrinkSpeedTenths", this.shrinkSpeedTenths), 5);
+      int ticks = SettingsIo.asInt(data, "shrinkTicksPerBlock", 0);
+      if (ticks <= 0) {
+         int tenths = SettingsIo.asInt(data, "shrinkSpeedTenths", 5);
+         ticks = Math.max(1, 200 / Math.max(1, tenths));
+      }
+      this.shrinkTicksPerBlock = clampCycle(SHRINK_TICKS, ticks, 40);
       this.pillarHeight = clampCycle(PILLAR_HEIGHTS, SettingsIo.asInt(data, "pillarHeight", this.pillarHeight), 64);
+      this.pillarSpacing = clampCycle(PILLAR_SPACINGS, SettingsIo.asInt(data, "pillarSpacing", this.pillarSpacing), 16);
    }
 
    private static int next(int[] cycle, int current, int fallback) {

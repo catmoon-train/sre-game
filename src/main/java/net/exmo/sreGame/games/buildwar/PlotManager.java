@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 public final class PlotManager {
-   public static final int MAX_PLOTS = 20;
+   public static final int MAX_PLOTS = 80;
    private static final int BLOCKS_PER_TICK = 9000;
 
    private final GameContext ctx;

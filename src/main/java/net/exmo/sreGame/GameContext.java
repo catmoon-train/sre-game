@@ -14,13 +14,19 @@ import net.exmo.sreGame.games.buildrun.YouBuildRunManager;
 import net.exmo.sreGame.games.dig.DigToDeathManager;
 import net.exmo.sreGame.games.dodgeball.DodgeballManager;
 import net.exmo.sreGame.games.fakehuman.FakeHumanManager;
+import net.exmo.sreGame.games.fillinthewall.FillInTheWallManager;
 import net.exmo.sreGame.games.fraud.FraudMasterManager;
 import net.exmo.sreGame.game.MiniGameRegistry;
 import net.exmo.sreGame.games.luckypillar.LuckyPillarManager;
+import net.exmo.sreGame.games.nametagwar.NameTagWarManager;
 import net.exmo.sreGame.games.parkour.ParkourManager;
 import net.exmo.sreGame.games.pillarpummel.PillarPummelManager;
 import net.exmo.sreGame.profile.SettingsProfiles;
 import net.exmo.sreGame.games.pushthebutton.PushTheButtonManager;
+import net.exmo.sreGame.games.skyworld.SkyWorldManager;
+import net.exmo.sreGame.games.situationpuzzle.SituationPuzzleManager;
+import net.exmo.sreGame.ai.AiConfig;
+import net.exmo.sreGame.ai.AiService;
 import net.exmo.sreGame.room.RoomManager;
 import net.exmo.sreGame.util.TextUtil;
 import net.exmo.sreGame.words.WordLibrary;
@@ -50,7 +56,13 @@ public final class GameContext {
    private final DigToDeathManager digToDeath = new DigToDeathManager(this);
    private final YouBuildRunManager youBuildRun = new YouBuildRunManager(this);
    private final PushTheButtonManager pushTheButton = new PushTheButtonManager(this);
+   private final SkyWorldManager skyWorld = new SkyWorldManager(this);
    private final ParkourManager parkour = new ParkourManager(this);
+   private final SituationPuzzleManager situationPuzzle = new SituationPuzzleManager(this);
+   private final NameTagWarManager nameTagWar = new NameTagWarManager(this);
+   private final FillInTheWallManager fillInTheWall = new FillInTheWallManager(this);
+   private final AiConfig aiConfig = new AiConfig(this.configDir);
+   private final AiService aiService = new AiService(this.aiConfig);
    private final SettingsProfiles profiles = new SettingsProfiles(this.configDir);
    private MinecraftServer server;
 
@@ -134,8 +146,32 @@ public final class GameContext {
       return this.pushTheButton;
    }
 
+   public SkyWorldManager skyWorld() {
+      return this.skyWorld;
+   }
+
    public ParkourManager parkour() {
       return this.parkour;
+   }
+
+   public SituationPuzzleManager situationPuzzle() {
+      return this.situationPuzzle;
+   }
+
+   public NameTagWarManager nameTagWar() {
+      return this.nameTagWar;
+   }
+
+   public FillInTheWallManager fillInTheWall() {
+      return this.fillInTheWall;
+   }
+
+   public AiConfig aiConfig() {
+      return this.aiConfig;
+   }
+
+   public AiService ai() {
+      return this.aiService;
    }
 
    public SettingsProfiles profiles() {
@@ -162,7 +198,11 @@ public final class GameContext {
       this.digToDeath.arenas().pregen();
       this.youBuildRun.tracks().pregen();
       this.pushTheButton.ships().pregen();
+      this.skyWorld.arenas().pregen();
+      this.nameTagWar.arenas().pregen();
+      this.fillInTheWall.arenas().pregen();
       this.parkour.load();
+      this.aiConfig.load();
    }
 
    public void onServerStopping() {
@@ -179,7 +219,11 @@ public final class GameContext {
       this.digToDeath.endAll();
       this.youBuildRun.endAll();
       this.pushTheButton.endAll();
+      this.skyWorld.endAll();
       this.parkour.endAll();
+      this.situationPuzzle.endAll();
+      this.nameTagWar.endAll();
+      this.fillInTheWall.endAll();
       this.rooms.disbandAll();
       this.server = null;
    }
@@ -199,7 +243,11 @@ public final class GameContext {
       this.digToDeath.tick();
       this.youBuildRun.tick();
       this.pushTheButton.tick();
+      this.skyWorld.tick();
       this.parkour.tick();
+      this.situationPuzzle.tick();
+      this.nameTagWar.tick();
+      this.fillInTheWall.tick();
       net.exmo.sreGame.games.draw.DrawKit.tick(this);
    }
 

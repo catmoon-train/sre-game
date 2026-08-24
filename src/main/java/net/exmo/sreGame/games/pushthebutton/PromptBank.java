@@ -58,7 +58,12 @@ public final class PromptBank {
       new Pair("推荐一个旅游纪念品。", "推荐一件人体样本。"),
       new Pair("写出你的邮箱密码提示。", "写出你的飞船门禁口令。"),
       new Pair("最想养的植物。", "最想培育的菌株。"),
-      new Pair("一句话吐槽星期一。", "一句话评价地球人。")
+      new Pair("一句话吐槽星期一。", "一句话评价地球人。"),
+      new Pair("你最怕迟到的场合。", "你最怕被识破的场合。"),
+      new Pair("给这艘船写一句广告。", "给入侵写一句广告。"),
+      new Pair("童年外号。", "实验室编号。"),
+      new Pair("写出一种花。", "写出一种毒。"),
+      new Pair("周末想刷的剧。", "周末想解剖的东西。")
    );
 
    private static final List<Pair> OPINION = List.of(

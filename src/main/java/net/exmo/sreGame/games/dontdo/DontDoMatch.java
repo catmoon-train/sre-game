@@ -264,6 +264,9 @@ public final class DontDoMatch {
       }
       if (isTool(stack)) {
          this.violate(player, contestant, DontDoRule.USE_TOOLS, "使用了工具");
+         if (stack.getItem() == Items.SHEARS) {
+            this.violate(player, contestant, DontDoRule.SHEAR, "用了剪刀");
+         }
       }
       if (isRanged(stack) && (stack.getItem() instanceof BowItem || stack.getItem() instanceof CrossbowItem
          || stack.getItem() == Items.SNOWBALL || stack.getItem() == Items.EGG || stack.getItem() == Items.ENDER_PEARL)) {
@@ -272,10 +275,32 @@ public final class DontDoMatch {
       if (stack.getItem() instanceof ShieldItem) {
          this.violate(player, contestant, DontDoRule.USE_SHIELD, "举起了盾");
       }
+      Item item = stack.getItem();
+      if (item == Items.FLINT_AND_STEEL || item == Items.FIRE_CHARGE) {
+         this.violate(player, contestant, DontDoRule.USE_FLINT, "用了打火石/火焰弹");
+      }
+      if (item == Items.SPLASH_POTION || item == Items.LINGERING_POTION) {
+         this.violate(player, contestant, DontDoRule.THROW_POTION, "扔了药水");
+      }
+      if (item == Items.BUCKET || item == Items.WATER_BUCKET || item == Items.LAVA_BUCKET
+         || item == Items.POWDER_SNOW_BUCKET || item == Items.MILK_BUCKET) {
+         this.violate(player, contestant, DontDoRule.USE_BUCKET, "用了桶");
+      }
+      if (item == Items.MILK_BUCKET) {
+         this.violate(player, contestant, DontDoRule.DRINK_MILK, "喝了牛奶");
+      }
+      if (item == Items.FISHING_ROD) {
+         this.violate(player, contestant, DontDoRule.FISHING, "用了钓鱼竿");
+      }
+      if (item == Items.TNT || item == Items.GUNPOWDER || item == Items.TNT_MINECART) {
+         this.violate(player, contestant, DontDoRule.USE_TNT, "用了TNT/火药");
+      }
       if (isMeat(stack)) {
          this.violate(player, contestant, DontDoRule.EAT_MEAT, "吃了肉");
+         this.violate(player, contestant, DontDoRule.EAT_ANY, "吃了东西");
          this.markEating(player);
       } else if (stack.has(DataComponents.FOOD)) {
+         this.violate(player, contestant, DontDoRule.EAT_ANY, "吃了东西");
          this.markEating(player);
       }
       return false;
@@ -303,6 +328,11 @@ public final class DontDoMatch {
       }
       if (stack.getItem() instanceof BlockItem && !isWorkBlock(state.getBlock()) && !isContainer(state.getBlock())) {
          this.violate(player, contestant, DontDoRule.PLACE_BLOCK, "放置了方块");
+         Block placed = ((BlockItem) stack.getItem()).getBlock();
+         if (placed == Blocks.DIRT || placed == Blocks.SAND || placed == Blocks.GRAVEL
+            || placed == Blocks.COARSE_DIRT || placed == Blocks.RED_SAND) {
+            this.violate(player, contestant, DontDoRule.PLACE_DIRT, "放了泥土/沙子");
+         }
          if (isLightItem(stack)) {
             this.violate(player, contestant, DontDoRule.PLACE_LIGHT, "放置了光源");
          }
@@ -322,6 +352,9 @@ public final class DontDoMatch {
       if (state.is(Blocks.DIAMOND_ORE) || state.is(Blocks.DEEPSLATE_DIAMOND_ORE)) {
          this.onDiamond(player, contestant, pos);
          return false;
+      }
+      if (isOre(state)) {
+         this.violate(player, contestant, DontDoRule.BREAK_ORE, "挖了矿石");
       }
       this.violate(player, contestant, DontDoRule.PUNCH_BLOCKS, "破坏了方块");
       if (isTool(player.getMainHandItem())) {
@@ -472,6 +505,9 @@ public final class DontDoMatch {
       for (UUID uuid : order) {
          Contestant contestant = new Contestant(uuid);
          contestant.hp = this.settings.lives();
+         contestant.lastHealth = 20.0F;
+         contestant.lastX = 0.0;
+         contestant.lastZ = 0.0;
          if (this.settings.teams()) {
             contestant.team = team;
             inTeam++;
@@ -579,6 +615,51 @@ public final class DontDoMatch {
       }
       if (hasForeignEffect(player)) {
          this.violate(player, contestant, DontDoRule.GET_BUFFS, "获得了效果");
+      }
+      if (player.isSleeping()) {
+         this.violate(player, contestant, DontDoRule.SLEEP, "在睡觉");
+      }
+      if (player.isPassenger()) {
+         this.violate(player, contestant, DontDoRule.MOUNT, "在骑乘");
+      }
+      if (player.isFallFlying()) {
+         this.violate(player, contestant, DontDoRule.ELYTRA, "在用鞘翅");
+      }
+      if (player.getHealth() > contestant.lastHealth + 0.05F) {
+         this.violate(player, contestant, DontDoRule.HEAL, "恢复了生命");
+      }
+      double dx = player.getX() - contestant.lastX;
+      double dz = player.getZ() - contestant.lastZ;
+      if (dx * dx + dz * dz > 0.04) {
+         this.violate(player, contestant, DontDoRule.MOVE, "在移动");
+      }
+      contestant.lastX = player.getX();
+      contestant.lastZ = player.getZ();
+      float pitch = player.getXRot();
+      if (pitch < -50.0F) {
+         this.violate(player, contestant, DontDoRule.LOOK_UP, "在看天空");
+      }
+      if (pitch > 50.0F) {
+         this.violate(player, contestant, DontDoRule.LOOK_DOWN, "在看地面");
+      }
+      if (player.getY() < 0.0) {
+         this.violate(player, contestant, DontDoRule.UNDERGROUND, "在地下");
+      }
+      if (player.getY() >= 10.0) {
+         this.violate(player, contestant, DontDoRule.ABOVEGROUND, "在高处");
+      }
+      if (player.isShiftKeyDown() && jumpPress) {
+         this.violate(player, contestant, DontDoRule.CROUCH_JUMP, "蹲跳");
+      }
+      ItemStack mainHand = player.getMainHandItem();
+      if (!mainHand.isEmpty() && mainHand.getItem() instanceof BlockItem) {
+         this.violate(player, contestant, DontDoRule.HOLD_BLOCK, "主手拿着方块");
+      }
+      BlockState standOn = level.getBlockState(player.blockPosition().below());
+      if (player.onGround()) {
+         if (standOn.is(Blocks.STONE) || standOn.is(Blocks.SMOOTH_STONE) || standOn.is(Blocks.COBBLESTONE)) {
+            this.violate(player, contestant, DontDoRule.STAND_STONE, "站在石头上");
+         }
       }
       AABB close = player.getBoundingBox().inflate(1.6);
       AABB five = player.getBoundingBox().inflate(5.0);
@@ -833,10 +914,11 @@ public final class DontDoMatch {
          return;
       }
       player.playNotifySound(SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0F, 0.8F);
-      player.connection.send(new ClientboundSetTitlesAnimationPacket(4, 25, 8));
+      player.connection.send(new ClientboundSetTitlesAnimationPacket(4, 30, 10));
       player.connection.send(new ClientboundSetTitleTextPacket(TextUtil.color("&c违规 -1")));
-      player.connection.send(new ClientboundSetSubtitleTextPacket(TextUtil.color("&7事项已换新（自己的仍然保密）")));
-      this.ctx.send(player, "&c你违规了，生命 -1。自己的新事项仍然保密。");
+      player.connection.send(new ClientboundSetSubtitleTextPacket(TextUtil.color("&f" + rule.title + " &8- &7" + rule.describe)));
+      this.ctx.send(player, "&c你触发了 &f" + rule.title + " &c(&7" + rule.describe + "&c)，生命 -1。");
+      this.ctx.send(player, "&7新事项仍然保密，只能看别人的。");
       for (UUID uuid : this.seats) {
          if (uuid.equals(player.getUUID())) {
             continue;
@@ -1212,6 +1294,19 @@ public final class DontDoMatch {
          || block == Blocks.SHULKER_BOX || block == Blocks.ENDER_CHEST;
    }
 
+   private static boolean isOre(BlockState state) {
+      Block b = state.getBlock();
+      return b == Blocks.COAL_ORE || b == Blocks.DEEPSLATE_COAL_ORE
+         || b == Blocks.IRON_ORE || b == Blocks.DEEPSLATE_IRON_ORE
+         || b == Blocks.COPPER_ORE || b == Blocks.DEEPSLATE_COPPER_ORE
+         || b == Blocks.GOLD_ORE || b == Blocks.DEEPSLATE_GOLD_ORE
+         || b == Blocks.REDSTONE_ORE || b == Blocks.DEEPSLATE_REDSTONE_ORE
+         || b == Blocks.LAPIS_ORE || b == Blocks.DEEPSLATE_LAPIS_ORE
+         || b == Blocks.EMERALD_ORE || b == Blocks.DEEPSLATE_EMERALD_ORE
+         || b == Blocks.NETHER_GOLD_ORE || b == Blocks.NETHER_QUARTZ_ORE
+         || b == Blocks.DIAMOND_ORE || b == Blocks.DEEPSLATE_DIAMOND_ORE;
+   }
+
    private static boolean wearingArmor(ServerPlayer player) {
       for (ItemStack stack : player.getArmorSlots()) {
          if (stack != null && !stack.isEmpty()) {
@@ -1285,6 +1380,8 @@ public final class DontDoMatch {
       int eatingTicks;
       int graceTicks;
       int invulnTicks;
+      double lastX;
+      double lastZ;
 
       Contestant(UUID uuid) {
          this.uuid = uuid;

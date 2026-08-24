@@ -20,7 +20,9 @@ public final class MatchGuard {
          || ctx.dontDo().isPlaying(sp) || ctx.luckyPillar().isPlaying(sp)
          || ctx.pillarPummel().isPlaying(sp) || ctx.dodgeball().isPlaying(sp)
          || ctx.digToDeath().isPlaying(sp) || ctx.youBuildRun().isPlaying(sp)
-         || ctx.pushTheButton().isPlaying(sp)
+         || ctx.pushTheButton().isPlaying(sp) || ctx.skyWorld().isPlaying(sp)
+         || ctx.situationPuzzle().isPlaying(sp)
+         || ctx.nameTagWar().isPlaying(sp)
          || ctx.parkour().isPlaying(sp));
    }
 
@@ -34,6 +36,8 @@ public final class MatchGuard {
          || ctx.caveGuess().isPlaying(sp) || ctx.chickenHorse().isPlaying(sp)
          || ctx.dodgeball().isPlaying(sp) || ctx.digToDeath().isPlaying(sp)
          || ctx.youBuildRun().isPlaying(sp) || ctx.pushTheButton().isPlaying(sp)
+         || ctx.situationPuzzle().isPlaying(sp)
+         || ctx.nameTagWar().isPlaying(sp)
          || ctx.parkour().isPlaying(sp));
    }
 

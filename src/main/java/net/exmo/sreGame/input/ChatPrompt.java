@@ -24,7 +24,8 @@ public final class ChatPrompt {
       ROOM_PASSWORD,
       WORD_ADD,
       ROOM_WORD_ADD,
-      PACK_EXPORT
+      PACK_EXPORT,
+      SITUATION_AI_PASSWORD
    }
 
    public record Pending(Kind kind, String roomId, long since) {
@@ -142,6 +143,21 @@ public final class ChatPrompt {
                ctx.send(player, "&a已导出词库 &f" + pack.name() + " &7（" + pack.words().size() + " 词）。");
             }
             WordPackGui.open(ctx, player, room, meta[1]);
+         }
+         case SITUATION_AI_PASSWORD -> {
+            GameRoom room = ctx.rooms().get(pending.roomId());
+            if (room == null || !room.isHost(player.getUUID())) {
+               ctx.send(player, "&c房间已不存在或你不是房主。");
+               return true;
+            }
+            String pw = ctx.aiConfig().aiPassword();
+            if (pw == null || pw.isEmpty() || pw.equals(input)) {
+               ctx.situationPuzzle().grantAiAuth(player.getUUID());
+               ctx.send(player, pw == null || pw.isEmpty() ? "&a开始对局…" : "&a密码正确，开始对局…");
+               ctx.rooms().start(player);
+            } else {
+               ctx.send(player, "&c密码错误，对局未开始。");
+            }
          }
       }
       return true;

@@ -175,6 +175,14 @@ public final class RoomManager {
                this.ctx.youBuildRun().onLeave(player);
             } else if (room.isPushTheButton()) {
                this.ctx.pushTheButton().onLeave(player);
+            } else if (room.isSkyWorld()) {
+               this.ctx.skyWorld().onLeave(player);
+            } else if (room.isSituationPuzzle()) {
+               this.ctx.situationPuzzle().onLeave(player);
+            } else if (room.isNameTagWar()) {
+               this.ctx.nameTagWar().onLeave(player);
+            } else if (room.isFillInTheWall()) {
+               this.ctx.fillInTheWall().onLeave(player);
             } else {
                com.mcrpvp.duel.fabric.api.DuelApi.forceLeave(player);
             }
@@ -257,11 +265,15 @@ public final class RoomManager {
       boolean inDig = this.ctx.digToDeath().isPlaying(player);
       boolean inBuildRun = this.ctx.youBuildRun().isPlaying(player);
       boolean inPtb = this.ctx.pushTheButton().isPlaying(player);
+      boolean inSky = this.ctx.skyWorld().isPlaying(player);
+      boolean inSituation = this.ctx.situationPuzzle().isPlaying(player);
+      boolean inNameTag = this.ctx.nameTagWar().isPlaying(player);
+      boolean inFillWall = this.ctx.fillInTheWall().isPlaying(player);
       boolean inParkour = this.ctx.parkour().isPlaying(player);
       if (inParkour) {
          this.ctx.parkour().leave(player, false);
       }
-      if (inRoom || inBuildWar || inYouGuess || inFraud || inFake || inCave || inChicken || inDontDo || inLucky || inPummel || inDodgeball || inDig || inBuildRun || inPtb) {
+      if (inRoom || inBuildWar || inYouGuess || inFraud || inFake || inCave || inChicken || inDontDo || inLucky || inPummel || inDodgeball || inDig || inBuildRun || inPtb || inSky || inSituation || inNameTag || inFillWall) {
          this.leave(player.getUUID(), false);
          this.resetLobbyState(player);
          this.ctx.send(player, "&7已退出房间并回到出生点。");
@@ -334,6 +346,71 @@ public final class RoomManager {
       room.setState(RoomState.WAITING);
       room.clearReadyExceptHost();
       this.ctx.broadcast(room, "&a对局结束。房主可以再开一局，或解散房间。");
+   }
+
+   /** 房主在游戏过程中强制终止当前对局（通用，按房间当前小游戏分发）。 */
+   public boolean endActiveMatch(ServerPlayer host) {
+      if (host == null) {
+         return false;
+      }
+      GameRoom room = this.getByPlayer(host.getUUID());
+      if (room == null) {
+         this.ctx.send(host, "&c你不在任何房间中。");
+         return false;
+      }
+      if (!room.isHost(host.getUUID())) {
+         this.ctx.send(host, "&c只有房主可以终止对局。");
+         return false;
+      }
+      UUID matchId = room.activeMatchId();
+      if (matchId == null || room.state() == RoomState.WAITING) {
+         this.ctx.send(host, "&c当前没有进行中的对局。");
+         return false;
+      }
+      this.endMatchById(room, matchId);
+      this.ctx.broadcast(room, "&c房主终止了当前对局。");
+      return true;
+   }
+
+   public void endMatchById(GameRoom room, UUID matchId) {
+      if (room == null || matchId == null) {
+         return;
+      }
+      if (room.isBuildWarFamily()) {
+         var m = this.ctx.buildWar().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isYouGuessFamily()) {
+         var m = this.ctx.youGuess().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isFraudMaster()) {
+         var m = this.ctx.fraudMaster().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isFakeHuman()) {
+         var m = this.ctx.fakeHuman().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isCaveGuess()) {
+         var m = this.ctx.caveGuess().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isChickenHorse()) {
+         var m = this.ctx.chickenHorse().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isDontDo()) {
+         var m = this.ctx.dontDo().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isLuckyPillar()) {
+         var m = this.ctx.luckyPillar().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isPillarPummel()) {
+         var m = this.ctx.pillarPummel().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isDodgeball()) {
+         var m = this.ctx.dodgeball().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isDigToDeath()) {
+         var m = this.ctx.digToDeath().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isYouBuildRun()) {
+         var m = this.ctx.youBuildRun().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isPushTheButton()) {
+         var m = this.ctx.pushTheButton().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isSkyWorld()) {
+         var m = this.ctx.skyWorld().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isSituationPuzzle()) {
+         var m = this.ctx.situationPuzzle().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isNameTagWar()) {
+         var m = this.ctx.nameTagWar().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isFillInTheWall()) {
+         var m = this.ctx.fillInTheWall().getById(matchId); if (m != null) m.endNow();
+      }
    }
 
    private String nextCode() {

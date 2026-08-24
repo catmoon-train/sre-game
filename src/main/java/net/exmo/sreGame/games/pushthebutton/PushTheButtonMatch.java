@@ -30,8 +30,13 @@ import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +49,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class PushTheButtonMatch {
    public enum Phase {
-      INTRO, CAPTAIN, TEST, VIEW, LOUNGE, NOMINATE, VOTE, EJECT, ENDED
+      INTRO, CAPTAIN, TEST, COMPILE, VIEW, LOUNGE, DIALOGUE, NOMINATE, VOTE, EJECT, ENDED
    }
 
    public static final String[] OPINIONS = {"非常不同意", "略不同意", "略同意", "非常同意"};
@@ -91,6 +96,8 @@ public final class PushTheButtonMatch {
    private PromptBank.Pair pair;
    private PromptBank.Delib delib;
    private BlockState[][][] bioPatterns = new BlockState[Ship.BIO_STATIONS][3][3];
+   private int bioCooldown;
+   private boolean claimedThisView;
 
    public PushTheButtonMatch(GameContext ctx, GameRoom room, List<UUID> seats, Ship ship) {
       this.ctx = ctx;
@@ -193,7 +200,7 @@ public final class PushTheButtonMatch {
          if (type == PtbTestType.DRAWING && !this.settings.drawing()) {
             continue;
          }
-         if (type == PtbTestType.BIO && !this.settings.bio()) {
+         if (type == PtbTestType.BIO && (!this.settings.bio() || this.bioCooldown > 0)) {
             continue;
          }
          list.add(type);
@@ -279,8 +286,8 @@ public final class PushTheButtonMatch {
       }
       this.ctx.broadcast(this.room, "&8&m----------------");
       this.ctx.broadcast(this.room, "&c&l拍下按钮");
-      this.ctx.broadcast(this.room, "&7找出混入飞船的外星人，拍下按钮把他们送进气闸。");
-      this.ctx.broadcast(this.room, "&7时间耗尽或误放人类，外星人获胜。");
+      this.jerr(JerrBot.intro());
+      this.jerr(JerrBot.roles());
       this.ctx.broadcast(this.room, "&8&m----------------");
       this.revealRoles();
       this.phase = Phase.INTRO;
@@ -294,6 +301,15 @@ public final class PushTheButtonMatch {
       }
       this.ticksLeft--;
       this.boardTicks++;
+      if (this.phase == Phase.TEST || this.phase == Phase.VIEW || this.phase == Phase.CAPTAIN) {
+         int extra = 0;
+         for (Seat seat : this.players.values()) {
+            if (seat.alive && seat.hurried) {
+               extra++;
+            }
+         }
+         this.ticksLeft -= extra;
+      }
       if (this.phase != Phase.INTRO && this.phase != Phase.EJECT && this.phase != Phase.ENDED) {
          this.gameTicks--;
          if (this.gameTicks <= 0) {
@@ -306,17 +322,24 @@ public final class PushTheButtonMatch {
       } else if (this.phase == Phase.CAPTAIN && this.ticksLeft <= 0) {
          this.autoPickAndStart();
       } else if (this.phase == Phase.TEST && this.ticksLeft <= 0) {
+         this.beginCompile();
+      } else if (this.phase == Phase.COMPILE && this.ticksLeft <= 0) {
          this.beginView();
       } else if (this.phase == Phase.VIEW && this.ticksLeft <= 0) {
          this.beginLounge();
       } else if (this.phase == Phase.LOUNGE && this.ticksLeft <= 0) {
          this.beginCaptain();
+      } else if (this.phase == Phase.DIALOGUE && this.ticksLeft <= 0) {
+         this.enterNominate();
       } else if (this.phase == Phase.NOMINATE && this.ticksLeft <= 0) {
          this.beginVote();
       } else if (this.phase == Phase.VOTE && this.ticksLeft <= 0) {
          this.resolveVote();
       } else if (this.phase == Phase.EJECT && this.ticksLeft <= 0) {
          this.resolveEject();
+      }
+      if (this.phase == Phase.DIALOGUE && this.ticksLeft == 5 * 20) {
+         this.jerr(JerrBot.airlockPick(this.alienCount));
       }
       if (this.phase == Phase.TEST && this.testType == PtbTestType.BIO && this.boardTicks % 10 == 0) {
          this.checkBio();
@@ -380,6 +403,8 @@ public final class PushTheButtonMatch {
             }
          }
          case "ptb_hurry" -> this.hurry(player);
+         case "ptb_done" -> this.submitDrawing(player);
+         case "ptb_claim" -> this.claimHack(player);
          case "ptb_vote_yes" -> this.castVote(player, true);
          case "ptb_vote_no" -> this.castVote(player, false);
          case "ptb_nominate" -> {
@@ -668,14 +693,20 @@ public final class PushTheButtonMatch {
       this.selected.clear();
       this.testees.clear();
       this.rotateLocks();
+      if (this.bioCooldown > 0) {
+         this.bioCooldown--;
+      }
+      this.clearHurry();
       List<PtbTestType> avail = this.availableTypes();
       this.testType = avail.isEmpty() ? PtbTestType.WRITING : avail.get(0);
       this.phase = Phase.CAPTAIN;
       this.ticksLeft = 45 * 20;
-      this.ctx.broadcast(this.room, "&6<JerrBot> &e下一位船长是 &f" + this.ctx.name(this.captain));
+      this.jerr(JerrBot.captain(this.ctx.name(this.captain)));
+      this.ping(SoundEvents.NOTE_BLOCK_BELL.value(), 1.1f);
       ServerPlayer capt = this.ctx.player(this.captain);
       if (capt != null) {
          this.title(capt, "&e你是船长", "&7选择测试与受试者");
+         capt.addEffect(new MobEffectInstance(MobEffects.GLOWING, 45 * 20, 0, true, false, false));
          ServerLevel level = this.level();
          if (level != null) {
             this.ship.teleport(capt, level, this.ship.captainStand(), 90f);
@@ -765,8 +796,10 @@ public final class PushTheButtonMatch {
       }
       this.phase = Phase.TEST;
       this.ticksLeft = this.testType.seconds() * 20;
-      this.ctx.broadcast(this.room, "&6<JerrBot> &f本轮测试：&e" + this.testType.label()
-         + " &7受试者 &f" + this.names(this.testees));
+      if (this.testType == PtbTestType.BIO) {
+         this.bioCooldown = 1;
+      }
+      this.jerr(JerrBot.test(this.testType.label(), this.names(this.testees)));
       this.refreshKits();
       if (this.needsAnswerGui()) {
          this.openAnswerGuis();
@@ -867,16 +900,29 @@ public final class PushTheButtonMatch {
       if (this.phase != Phase.TEST) {
          return;
       }
-      if (this.testType == PtbTestType.DRAWING) {
-         return;
-      }
       for (UUID uuid : this.testees) {
          Seat seat = this.seat(uuid);
          if (seat != null && seat.alive && !seat.submitted) {
             return;
          }
       }
-      this.beginView();
+      this.beginCompile();
+   }
+
+   private void beginCompile() {
+      this.phase = Phase.COMPILE;
+      this.ticksLeft = 4 * 20;
+      this.jerr(JerrBot.compile());
+      this.ping(SoundEvents.NOTE_BLOCK_CHIME.value(), 1.2f);
+      ServerLevel level = this.level();
+      for (UUID uuid : this.aliveSeats()) {
+         ServerPlayer player = this.ctx.player(uuid);
+         if (player != null && level != null) {
+            player.closeContainer();
+            this.ship.teleport(player, level, this.ship.loungeSpawn(), 90f);
+         }
+      }
+      this.refreshKits();
    }
 
    private void beginView() {
@@ -895,8 +941,12 @@ public final class PushTheButtonMatch {
       this.history.add(rec);
       this.phase = Phase.VIEW;
       this.ticksLeft = 25 * 20;
-      this.ctx.broadcast(this.room, "&6<JerrBot> &f查看答案并标记可疑的人。");
+      this.claimedThisView = false;
+      this.clearHurry();
+      this.jerr(JerrBot.view());
+      this.ping(SoundEvents.NOTE_BLOCK_PLING.value(), 1.4f);
       ServerLevel level = this.level();
+      PtbBoards.showAnswers(level, this.ship, this);
       for (UUID uuid : this.aliveSeats()) {
          ServerPlayer player = this.ctx.player(uuid);
          if (player == null) {
@@ -906,7 +956,6 @@ public final class PushTheButtonMatch {
          if (level != null) {
             this.ship.teleport(player, level, this.ship.loungeSpawn(), 90f);
          }
-         PtbViewGui.open(this, player);
       }
       this.refreshKits();
    }
@@ -920,10 +969,12 @@ public final class PushTheButtonMatch {
 
    private void beginLounge() {
       this.phase = Phase.LOUNGE;
-      this.ticksLeft = 12 * 20;
+      this.ticksLeft = 20 * 20;
       this.buttoneer = null;
       this.nominees.clear();
+      this.clearHurry();
       ServerLevel level = this.level();
+      PtbBoards.clear(level, this.ship);
       for (UUID uuid : this.aliveSeats()) {
          ServerPlayer player = this.ctx.player(uuid);
          if (player != null && level != null) {
@@ -931,14 +982,14 @@ public final class PushTheButtonMatch {
             this.ship.teleport(player, level, this.ship.loungeSpawn(), 90f);
          }
       }
-      this.ctx.broadcast(this.room, "&6<JerrBot> &7可以讨论，也可以拍下按钮。下一位船长即将上场。");
+      this.jerr(JerrBot.lounge());
       this.refreshKits();
    }
 
    private boolean canPush(UUID uuid) {
       Seat seat = this.seat(uuid);
       return seat != null && seat.alive && !seat.hasPushed
-         && (this.phase == Phase.CAPTAIN || this.phase == Phase.VIEW || this.phase == Phase.LOUNGE || this.phase == Phase.TEST);
+         && (this.phase == Phase.CAPTAIN || this.phase == Phase.VIEW || this.phase == Phase.LOUNGE);
    }
 
    private void confirmButton(ServerPlayer player) {
@@ -968,17 +1019,28 @@ public final class PushTheButtonMatch {
       this.buttoneer = player.getUUID();
       this.nominees.clear();
       this.airlockAttempt++;
-      this.phase = Phase.NOMINATE;
-      int seconds = this.airlockAttempt <= 1 ? 121 : this.airlockAttempt == 2 ? 91 : this.airlockAttempt == 3 ? 61 : 31;
-      this.ticksLeft = seconds * 20;
-      this.ctx.broadcast(this.room, "&c&l" + this.ctx.name(player.getUUID()) + " 拍下了按钮！");
+      this.phase = Phase.DIALOGUE;
+      this.ticksLeft = 8 * 20;
+      this.jerr(JerrBot.button(this.ctx.name(player.getUUID())));
+      this.ping(SoundEvents.NOTE_BLOCK_BASS.value(), 0.6f);
       this.title(player, "&c气闸启动", "&7选出 " + this.alienCount + " 名你认为的外星人");
       ServerLevel level = this.level();
       if (level != null) {
          this.ship.teleport(player, level, this.ship.airlockCell(0), 270f);
       }
       this.refreshKits();
-      PtbNominateGui.open(this, player);
+   }
+
+   private void enterNominate() {
+      this.phase = Phase.NOMINATE;
+      int seconds = this.airlockAttempt <= 1 ? 121 : this.airlockAttempt == 2 ? 91 : this.airlockAttempt == 3 ? 61 : 31;
+      this.ticksLeft = seconds * 20;
+      this.jerr(JerrBot.airlockPick(this.alienCount));
+      ServerPlayer player = this.ctx.player(this.buttoneer);
+      if (player != null) {
+         PtbNominateGui.open(this, player);
+      }
+      this.refreshKits();
    }
 
    private void beginVote() {
@@ -1005,8 +1067,7 @@ public final class PushTheButtonMatch {
             this.title(nom, "&c你被送进气闸", "&7等待投票");
          }
       }
-      this.ctx.broadcast(this.room, "&6<JerrBot> &f请投票：是否释放 "
-         + this.names(this.nominees) + " ？");
+      this.jerr(JerrBot.vote(this.names(this.nominees)));
       this.refreshKits();
       for (UUID uuid : this.aliveSeats()) {
          if (uuid.equals(this.buttoneer) || this.nominees.contains(uuid)) {
@@ -1072,7 +1133,8 @@ public final class PushTheButtonMatch {
       boolean buffer = (this.hasJester && this.aliveSeats().size() >= 5) || voters >= 6;
       boolean pass = no == 0 || (buffer && no == 1);
       if (pass) {
-         this.ctx.broadcast(this.room, "&a投票通过。气闸即将释放。");
+         this.jerr(JerrBot.votePass());
+         this.ping(SoundEvents.NOTE_BLOCK_BELL.value(), 0.8f);
          this.phase = Phase.EJECT;
          this.ticksLeft = 4 * 20;
          for (UUID uuid : this.nominees) {
@@ -1082,7 +1144,7 @@ public final class PushTheButtonMatch {
             }
          }
       } else {
-         this.ctx.broadcast(this.room, "&c投票失败。" + (noVoters.isEmpty() ? "" : " 反对：&f" + String.join("&7, &f", noVoters)));
+         this.jerr(JerrBot.voteFail(noVoters.isEmpty() ? "" : String.join("&7, &f", noVoters)));
          this.beginLounge();
       }
    }
@@ -1134,6 +1196,12 @@ public final class PushTheButtonMatch {
       victim.seesHuman = !victim.seesHuman;
       this.hacksLeft--;
       this.ctx.send(actor, "&c已入侵 &f" + this.ctx.name(target) + " &7剩余 &e" + this.hacksLeft);
+      for (UUID uuid : this.aliveSeats()) {
+         Seat other = this.seat(uuid);
+         if (other != null && other.role == PtbRole.ALIEN && !uuid.equals(actor.getUUID())) {
+            this.ctx.send(this.ctx.player(uuid), JerrBot.hack(this.ctx.name(actor.getUUID()), this.ctx.name(target)));
+         }
+      }
       ServerPlayer tp = this.ctx.player(target);
       if (tp != null) {
          this.ctx.send(tp, "&e你的提示已更新：&f" + this.promptFor(target));
@@ -1163,10 +1231,16 @@ public final class PushTheButtonMatch {
          }
       }
       this.ctx.send(this.ctx.player(actor), "&e已标记 &f" + this.ctx.name(target) + " &e可疑。");
+      ServerPlayer victim = this.ctx.player(target);
+      if (victim != null) {
+         this.ctx.send(victim, "&e" + this.ctx.name(actor) + " 觉得你很可疑。");
+      }
+      this.jerr(JerrBot.sus(this.ctx.name(actor), this.ctx.name(target)));
    }
 
    private void hurry(ServerPlayer player) {
-      if (this.phase != Phase.TEST || this.testees.contains(player.getUUID())) {
+      if ((this.phase != Phase.TEST && this.phase != Phase.VIEW && this.phase != Phase.CAPTAIN)
+         || this.testees.contains(player.getUUID()) && this.phase == Phase.TEST) {
          return;
       }
       Seat seat = this.seat(player.getUUID());
@@ -1175,8 +1249,52 @@ public final class PushTheButtonMatch {
       }
       seat.hurried = true;
       this.ticksLeft = Math.max(20, this.ticksLeft - 5 * 20);
-      this.ctx.broadcast(this.room, "&b" + this.ctx.name(player.getUUID()) + " 催促了测试。");
+      this.jerr(JerrBot.hurry(this.ctx.name(player.getUUID())));
       this.giveKit(player);
+   }
+
+   private void submitDrawing(ServerPlayer player) {
+      if (this.phase != Phase.TEST || this.testType != PtbTestType.DRAWING) {
+         return;
+      }
+      Seat seat = this.seat(player.getUUID());
+      if (seat == null || seat.submitted || !this.testees.contains(player.getUUID())) {
+         return;
+      }
+      seat.submitted = true;
+      seat.answer = "已作画";
+      this.ctx.send(player, "&a画布已提交。");
+      this.giveKit(player);
+      this.maybeFinishTest();
+   }
+
+   private void claimHack(ServerPlayer player) {
+      Seat seat = this.seat(player.getUUID());
+      if (this.phase != Phase.VIEW || seat == null || seat.role != PtbRole.ALIEN || this.claimedThisView) {
+         return;
+      }
+      this.claimedThisView = true;
+      this.jerr(JerrBot.claim(this.ctx.name(player.getUUID())));
+   }
+
+   private void jerr(String line) {
+      this.ctx.broadcast(this.room, line);
+      PtbBoards.showJerr(this.level(), this.ship, line);
+   }
+
+   private void ping(SoundEvent sound, float pitch) {
+      for (UUID uuid : this.aliveSeats()) {
+         ServerPlayer player = this.ctx.player(uuid);
+         if (player != null) {
+            player.playNotifySound(sound, SoundSource.PLAYERS, 0.85F, pitch);
+         }
+      }
+   }
+
+   private void clearHurry() {
+      for (Seat seat : this.players.values()) {
+         seat.hurried = false;
+      }
    }
 
    private void sendRules(ServerPlayer player) {
@@ -1228,11 +1346,14 @@ public final class PushTheButtonMatch {
          return;
       }
       this.phase = Phase.ENDED;
+      PtbBoards.clear(this.level(), this.ship);
       this.ctx.broadcast(this.room, "&8&m----------------");
       this.ctx.broadcast(this.room, reason);
       if (winner == PtbRole.HUMAN) {
+         this.jerr(JerrBot.humanWin());
          this.ctx.broadcast(this.room, "&a&l人类获胜");
       } else if (winner == PtbRole.ALIEN) {
+         this.jerr(JerrBot.alienWin());
          this.ctx.broadcast(this.room, "&c&l外星人获胜" + (jesterWins ? " &d(+小丑)" : ""));
       }
       for (UUID uuid : this.seats) {
@@ -1290,9 +1411,13 @@ public final class PushTheButtonMatch {
             for (String wool : WOOL_COLORS) {
                inv.setItem(slot++, GuiItems.named(wool, "&f颜料", List.of("&7点在画板/临摹墙上")));
             }
+            if (this.testType == PtbTestType.DRAWING) {
+               inv.setItem(8, item("lime_dye", "&a交卷", "ptb_done"));
+            }
          }
       }
-      if (this.phase == Phase.TEST && !this.testees.contains(player.getUUID())) {
+      if ((this.phase == Phase.TEST && !this.testees.contains(player.getUUID()))
+         || this.phase == Phase.VIEW || this.phase == Phase.CAPTAIN) {
          inv.setItem(2, item("clock", "&b催促", "ptb_hurry"));
       }
       if (this.canHack(player.getUUID())) {
@@ -1305,6 +1430,9 @@ public final class PushTheButtonMatch {
       }
       if (this.phase == Phase.VIEW) {
          inv.setItem(1, item("spyglass", "&e查看答案", "ptb_view"));
+         if (seat.role == PtbRole.ALIEN && !this.claimedThisView) {
+            inv.setItem(5, item("ender_pearl", "&c声称入侵", "ptb_claim"));
+         }
       }
       if (this.phase == Phase.NOMINATE && player.getUUID().equals(this.buttoneer)) {
          inv.setItem(0, item("hopper", "&c提名外星人", "ptb_nominate"));
@@ -1388,11 +1516,13 @@ public final class PushTheButtonMatch {
          case INTRO -> "&f揭示";
          case CAPTAIN -> "&e船长选择";
          case TEST -> "&b测试中";
+         case COMPILE -> "&7汇总";
          case VIEW -> "&d查看";
          case LOUNGE -> "&a大厅";
+         case DIALOGUE -> "&c气闸";
          case NOMINATE -> "&c提名";
          case VOTE -> "&6投票";
-         case EJECT -> "&4气闸";
+         case EJECT -> "&4释放";
          case ENDED -> "&8结束";
       };
    }
@@ -1409,19 +1539,11 @@ public final class PushTheButtonMatch {
 
    private int playersPerTest() {
       int n = this.aliveSeats().size();
-      if (n <= 3) {
-         return 1;
+      int base = n <= 2 ? 1 : n <= 5 ? 2 : n <= 8 ? 3 : 4;
+      if (this.gameTicks < 3 * 60 * 20) {
+         base = Math.min(4, base + 1);
       }
-      if (n <= 5) {
-         return 2;
-      }
-      if (n <= 7) {
-         return 3;
-      }
-      if (n <= 9) {
-         return n >= 9 ? 4 : 3;
-      }
-      return 4;
+      return base;
    }
 
    private int playersPerBio() {

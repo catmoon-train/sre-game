@@ -6,13 +6,15 @@ import net.exmo.sreGame.profile.SettingsIo;
 
 public final class YouBuildRunSettings {
    private static final int[] BUILD_SECONDS = {60, 120, 180, 240};
-   private static final int[] SELF_SECONDS = {60, 90, 120};
+   private static final int[] SELF_SECONDS = {60, 90, 120, 180};
+   private static final int[] RUN_SECONDS = {60, 90, 120, 180};
    private static final int[] BLOCKS = {32, 64, 128, 256};
    private static final int[] LIVES = {1, 2, 3, 5};
 
    private BuildRunScene scene = BuildRunScene.PLOT;
    private int buildSeconds = 180;
-   private int selfSeconds = 90;
+   private int selfSeconds = 120;
+   private int runSeconds = 120;
    private int blockLimit = 64;
    private int lives = 2;
 
@@ -37,7 +39,15 @@ public final class YouBuildRunSettings {
    }
 
    public void cycleSelfSeconds() {
-      this.selfSeconds = next(SELF_SECONDS, this.selfSeconds, 90);
+      this.selfSeconds = next(SELF_SECONDS, this.selfSeconds, 120);
+   }
+
+   public int runSeconds() {
+      return this.runSeconds;
+   }
+
+   public void cycleRunSeconds() {
+      this.runSeconds = next(RUN_SECONDS, this.runSeconds, 120);
    }
 
    public int blockLimit() {
@@ -61,6 +71,7 @@ public final class YouBuildRunSettings {
       data.put("scene", this.scene.name());
       data.put("buildSeconds", this.buildSeconds);
       data.put("selfSeconds", this.selfSeconds);
+      data.put("runSeconds", this.runSeconds);
       data.put("blockLimit", this.blockLimit);
       data.put("lives", this.lives);
       return data;
@@ -72,7 +83,8 @@ public final class YouBuildRunSettings {
       }
       this.scene = BuildRunScene.fromName(SettingsIo.asString(data, "scene", this.scene.name()));
       this.buildSeconds = clamp(BUILD_SECONDS, SettingsIo.asInt(data, "buildSeconds", this.buildSeconds), 180);
-      this.selfSeconds = clamp(SELF_SECONDS, SettingsIo.asInt(data, "selfSeconds", this.selfSeconds), 90);
+      this.selfSeconds = clamp(SELF_SECONDS, SettingsIo.asInt(data, "selfSeconds", this.selfSeconds), 120);
+      this.runSeconds = clamp(RUN_SECONDS, SettingsIo.asInt(data, "runSeconds", this.runSeconds), 120);
       this.blockLimit = clamp(BLOCKS, SettingsIo.asInt(data, "blockLimit", this.blockLimit), 64);
       this.lives = clamp(LIVES, SettingsIo.asInt(data, "lives", this.lives), 2);
    }

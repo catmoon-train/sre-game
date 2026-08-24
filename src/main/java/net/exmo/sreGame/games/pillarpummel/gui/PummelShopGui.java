@@ -19,8 +19,8 @@ public final class PummelShopGui {
       PummelShop.TNT, PummelShop.TNTPACK, PummelShop.FORT, PummelShop.TURRET, PummelShop.BLOCKGEN,
       PummelShop.BOW, PummelShop.REPAIR, PummelShop.NUKE,
       PummelShop.SHIELD, PummelShop.SPEED, PummelShop.JUMP, PummelShop.HEAL,
-      PummelShop.GAPPLE, PummelShop.PEARL, PummelShop.WEB, PummelShop.POWDER,
-      PummelShop.SNOWBALL, PummelShop.ARROWS, PummelShop.ROD,
+      PummelShop.GAPPLE, PummelShop.PEARL, PummelShop.WEB,
+      PummelShop.SNOWBALL, PummelShop.ARROWS, PummelShop.ROD, PummelShop.AXE,
       PummelShop.STONE, PummelShop.IRON, PummelShop.DIAMOND,
       PummelShop.WATER, PummelShop.MILK, PummelShop.WIND, PummelShop.TOTEM
    };
@@ -28,8 +28,8 @@ public final class PummelShopGui {
       "tnt", "tnt", "stone_bricks", "iron_block", "diamond_block",
       "bow", "snow_block", "carrot_on_a_stick",
       "shield", "potion", "potion", "potion",
-      "golden_apple", "ender_pearl", "cobweb", "red_concrete_powder",
-      "snowball", "arrow", "fishing_rod",
+      "golden_apple", "ender_pearl", "cobweb",
+      "snowball", "arrow", "fishing_rod", "iron_axe",
       "cobblestone", "iron_block", "obsidian",
       "water_bucket", "milk_bucket", "wind_charge", "totem_of_undying"
    };
@@ -37,8 +37,8 @@ public final class PummelShopGui {
       "&cTNT", "&cTNT ×3", "&d堡垒", "&d防御塔", "&a方块生成器",
       "&f弓", "&6维修工具盒", "&4☢ 核弹",
       "&f盾牌", "&b速度药水", "&a跳跃药水", "&c治疗药水",
-      "&6金苹果", "&5末影珍珠 ×2", "&f蜘蛛网 ×4", "&f粉末 ×8",
-      "&f雪球 ×8", "&f箭 ×8", "&b钓鱼竿",
+      "&6金苹果", "&5末影珍珠 ×2", "&f蜘蛛网 ×4",
+      "&f雪球 ×8", "&f箭 ×8", "&b钓鱼竿", "&f铁斧",
       "&7圆石 ×16", "&f铁块 ×2", "&5黑曜石 ×4",
       "&9水桶", "&f牛奶", "&b风弹 ×4", "&6不死图腾"
    };
@@ -67,7 +67,7 @@ public final class PummelShopGui {
          10, 11, 12, 13, 14, 15, 16,
          19, 20, 21, 22, 23, 24, 25,
          28, 29, 30, 31, 32, 33, 34,
-         37, 38, 39, 40, 41
+         37, 38, 39, 40, 41, 42
       };
       for (int i = 0; i < IDS.length && i < slots.length; i++) {
          int price = PummelShop.price(IDS[i], match.settings());

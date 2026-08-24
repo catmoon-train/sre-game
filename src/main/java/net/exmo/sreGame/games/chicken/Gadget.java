@@ -62,7 +62,7 @@ public enum Gadget {
    WITHER("ch_wither", "nether_wart_block", "&4凋零区", "&7碰到算出局", Kind.TRAP),
    REVERSE("ch_reverse", "purple_glazed_terracotta", "&5倒车板", "&7速度反向", Kind.TRAP),
    FROST("ch_frost", "snow_block", "&b冰封", "&7冻住脚步", Kind.TRAP),
-   MAGNET("ch_magnet", "iron_block", "&7磁铁", "&7大范围吸向赛道边墙", Kind.TRAP),
+   MAGNET("ch_magnet", "iron_block", "&7磁铁", "&7吸向赛道边墙", Kind.TRAP),
    FLASH("ch_flash", "glowstone", "&e闪光", "&7反胃晃眼", Kind.TRAP),
    BOMB("ch_bomb", "tnt", "&c炸弹", "&7炸掉周围 2 格的机关", Kind.BOMB),
    SRE_FAKE("ch_sre_fake", "noellesroles:fake_block", "&dSRE 假方块", "&7只看得见，踩空", Kind.TRAP, "fake_block"),

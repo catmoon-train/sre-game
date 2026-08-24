@@ -39,22 +39,27 @@ public final class YouBuildRunSetupGui {
       container.setItem(14, GuiItems.action("golden_boots", "&f自测时长 &e" + s.selfSeconds() + "s", List.of(
          "&7必须自己跑通，超时淘汰",
          "&7自测无生命限制",
-         "&e点击切换 60 / 90 / 120"
+         "&e点击切换 60 / 90 / 120 / 180"
       ), "self"));
       container.setItem(16, GuiItems.action("stone", "&f方块数量 &e" + s.blockLimit(), List.of(
-         "&7另给金块/钻石块/绿宝石",
+         "&7另给镐铲斧、两组脚手架与红石件",
          "&e点击切换 32 / 64 / 128 / 256"
       ), "blocks"));
-      container.setItem(28, GuiItems.action("redstone", "&f交换生命 &e" + s.lives(), List.of(
+      container.setItem(28, GuiItems.action("clock", "&f交换时限 &e" + s.runSeconds() + "s", List.of(
+         "&7互相跑图的时间限制",
+         "&7超时未通关淘汰",
+         "&e点击切换 60 / 90 / 120 / 180"
+      ), "run"));
+      container.setItem(30, GuiItems.action("redstone", "&f交换生命 &e" + s.lives(), List.of(
          "&7自测通过后互相跑图",
          "&7掉出扣命，最后活人获胜",
          "&e点击切换 1 / 2 / 3 / 5"
       ), "lives"));
-      container.setItem(31, GuiItems.named("diamond_block", "&f规则摘要", List.of(
+      container.setItem(32, GuiItems.named("diamond_block", "&f规则摘要", List.of(
          "&72–8 人，金块起点、钻石块终点",
-         "&7绿宝石为记录点",
-         "&7自测 90s 未到终点直接淘汰",
-         "&7剩余玩家交换跑酷，共 2 条命"
+         "&7绿宝石记录点最多 3 个",
+         "&7出生平台，其余地面为虚空",
+         "&7自测 / 交换默认 120s，超时淘汰"
       )));
       SettingsArchive.paint(container);
       container.setItem(49, GuiItems.action("barrier", "&c返回房间", List.of(), "back"));
@@ -90,6 +95,7 @@ public final class YouBuildRunSetupGui {
             case "scene" -> s.cycleScene();
             case "build" -> s.cycleBuildSeconds();
             case "self" -> s.cycleSelfSeconds();
+            case "run" -> s.cycleRunSeconds();
             case "blocks" -> s.cycleBlockLimit();
             case "lives" -> s.cycleLives();
             default -> {

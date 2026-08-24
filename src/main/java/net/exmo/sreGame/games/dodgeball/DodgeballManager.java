@@ -103,6 +103,13 @@ public final class DodgeballManager {
       return match == null ? InteractionResult.PASS : match.handleUseBlock(player, hit, stack);
    }
 
+   public void handleSwing(ServerPlayer player) {
+      DodgeballMatch match = this.get(player.getUUID());
+      if (match != null) {
+         match.handleSwing(player);
+      }
+   }
+
    public boolean handleDeath(ServerPlayer player) {
       DodgeballMatch match = this.get(player.getUUID());
       return match != null && match.handleDeath(player);

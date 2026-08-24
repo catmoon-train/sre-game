@@ -56,9 +56,11 @@ public final class LuckyPillarSetupGui {
       container.setItem(23, GuiItems.action("clock", "&f收缩时间 &e" + s.shrinkDelaySeconds() + "s",
          List.of("&7开局后多久开始挤压", "&7默认 120s", "&e点击切换 60 / 90 / 120 / 180"), "shrinkDelay"));
       container.setItem(24, GuiItems.action("piston", "&f收缩速度 &e" + s.shrinkSpeedLabel(),
-         List.of("&7默认 2 秒收缩一格", "&e点击切换 2s / 1s / 0.5s 一格"), "shrinkSpeed"));
+         List.of("&7默认 2 秒收缩一格", "&e点击切换 2s / 1s / 0.5s / 4s / 8s 一格"), "shrinkSpeed"));
       container.setItem(25, GuiItems.action("stone", "&f柱子高度 &e" + s.pillarHeight(),
          List.of("&e点击切换 32 / 48 / 64 / 80"), "height"));
+      container.setItem(26, GuiItems.action("compass", "&f柱子间隔 &e" + s.pillarSpacing(),
+         List.of("&7相邻柱心距离（格）", "&7过大时会卡在边界内", "&e点击切换 8 / 12 / 16 / 24 / 32 / 48"), "spacing"));
       container.setItem(28, GuiItems.action(s.pillar().icon(), "&f柱子材质 &e" + s.pillar().label(),
          List.of("&7默认黑曜石", "&e点击切换"), "pillar"));
 
@@ -129,6 +131,7 @@ public final class LuckyPillarSetupGui {
             case "shrinkDelay" -> s.cycleShrinkDelay();
             case "shrinkSpeed" -> s.cycleShrinkSpeed();
             case "height" -> s.cyclePillarHeight();
+            case "spacing" -> s.cyclePillarSpacing();
             case "pillar" -> s.cyclePillar();
             default -> {
                return;

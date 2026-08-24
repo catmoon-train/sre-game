@@ -29,8 +29,8 @@ public final class DigToDeathSetupGui {
       DigToDeathSettings s = room.digToDeathSettings();
       container.setItem(11, GuiItems.action(s.variant().icon(), "&f变体 &e" + s.variant().label(), List.of(
          "&7铲子：效率五纯挖",
-         "&7雪球：砸块破坏 + 打人击退",
-         "&7铲子+雪球：砸地半径 2 球形破坏",
+         "&7雪球：砸中的那一块 + 打人击退",
+         "&7铲子+雪球：砸地半径 1 球形破坏",
          "&e点击切换"
       ), "variant"));
       container.setItem(13, GuiItems.action("snow_block", "&f层数 &e" + s.layers(), List.of(

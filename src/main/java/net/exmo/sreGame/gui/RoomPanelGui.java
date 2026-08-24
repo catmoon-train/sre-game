@@ -23,29 +23,49 @@ public final class RoomPanelGui {
    private static final int[] MEMBER_SLOTS = {
       9, 10, 11, 12, 13, 14, 15, 16, 17,
       18, 19, 20, 21, 22, 23, 24, 25, 26,
-      27, 28, 29, 30, 31, 32, 33, 34, 35,
-      43, 44, 46
+      27, 28, 29, 30, 31, 32, 33, 34, 35
    };
 
    private RoomPanelGui() {
    }
 
    public static void open(GameContext ctx, ServerPlayer player) {
+      open(ctx, player, 0);
+   }
+
+   public static void open(GameContext ctx, ServerPlayer player, int page) {
       GameRoom room = ctx.rooms().getByPlayer(player.getUUID());
       if (room == null) {
          ctx.send(player, "&c你不在任何房间中。");
          MainMenuGui.open(ctx, player);
          return;
       }
+      int safePage = clampPage(room, page);
       SimpleContainer container = new SimpleContainer(54);
-      fill(ctx, player, container, room);
+      fill(ctx, player, container, room, safePage);
       player.openMenu(new SimpleMenuProvider(
-         (syncId, inv, p) -> new Menu(syncId, inv, container, ctx, player),
+         (syncId, inv, p) -> new Menu(syncId, inv, container, ctx, player, safePage),
          TextUtil.color("&e⌂ &f" + room.displayName() + " &8[" + room.id() + "]")
       ));
    }
 
-   private static void fill(GameContext ctx, ServerPlayer player, SimpleContainer container, GameRoom room) {
+   private static int perPage(GameRoom room) {
+      return room.isBuildStyle() ? MEMBER_SLOTS.length : TEAM1_SLOTS.length;
+   }
+
+   private static int listedCount(GameRoom room) {
+      if (room.isBuildStyle()) {
+         return room.members().size();
+      }
+      return Math.max(room.duelSettings().team1().size(), room.duelSettings().team2().size());
+   }
+
+   private static int clampPage(GameRoom room, int page) {
+      int last = Math.max(0, (listedCount(room) - 1) / perPage(room));
+      return Math.max(0, Math.min(page, last));
+   }
+
+   private static void fill(GameContext ctx, ServerPlayer player, SimpleContainer container, GameRoom room, int page) {
       ItemStackPane.fill(container);
       MiniGame game = ctx.games().get(room.miniGameId());
       boolean host = room.isHost(player.getUUID());
@@ -119,7 +139,8 @@ public final class RoomPanelGui {
             + " &8| &7组队 &f" + lp.onOff(lp.teams())
             + " &8| &7钓鱼 &f" + lp.onOff(lp.fishingMode()));
          info.add("&7边界 &f" + (lp.border() ? lp.borderSize() + " / " + lp.shrinkDelaySeconds() + "s" : "关")
-            + " &8| &7柱子 &f" + lp.pillar().label() + " " + lp.pillarHeight());
+            + " &8| &7柱子 &f" + lp.pillar().label() + " " + lp.pillarHeight()
+            + " &8| &7间隔 &f" + lp.pillarSpacing());
       } else if (room.isPillarPummel()) {
          var pp = room.pillarPummelSettings();
          info.add("&7" + pp.teamCount() + " 队×" + pp.teamSize()
@@ -135,7 +156,7 @@ public final class RoomPanelGui {
             + " &8| &7先赢 &f" + db.winsNeeded()
             + " &8| &7道具 &f" + db.onOff(db.powerups())
             + " &8| &7绝杀 &f" + db.onOff(db.frenzy()));
-         info.add("&72–16 人 · 红蓝雪球对战 · 接球反杀");
+         info.add("&72–16 人 · 不能越线 · 前线补球 · 接球反弹");
       } else if (room.isDigToDeath()) {
          var dg = room.digToDeathSettings();
          info.add("&7变体 &f" + dg.variant().label() + " &8| &7层数 &f" + dg.layers());
@@ -145,8 +166,10 @@ public final class RoomPanelGui {
          info.add("&7场景 &f" + yb.scene().label()
             + " &8| &7建造 &f" + yb.buildSeconds() + "s"
             + " &8| &7自测 &f" + yb.selfSeconds() + "s");
-         info.add("&7方块 &f" + yb.blockLimit() + " &8| &7交换生命 &f" + yb.lives()
-            + " &8| &72–8 人");
+         info.add("&7交换 &f" + yb.runSeconds() + "s"
+            + " &8| &7方块 &f" + yb.blockLimit()
+            + " &8| &7生命 &f" + yb.lives()
+            + " &8| &72–32 人");
       } else if (room.isPushTheButton()) {
          var pb = room.pushTheButtonSettings();
          info.add("&7外星人 &f" + pb.alienCountLabel()
@@ -154,6 +177,36 @@ public final class RoomPanelGui {
             + " &8| &7绘画 &f" + pb.onOff(pb.drawing())
             + " &8| &7扫描 &f" + pb.onOff(pb.bio()));
          info.add("&74–10 人 · 飞船社交推理 · 拍按钮送气闸");
+      } else if (room.isSkyWorld()) {
+         var sw = room.skyWorldSettings();
+         info.add("&7宝箱 &f" + sw.chestTier().label()
+            + " &8| &7保护 &f" + sw.pvpGraceSeconds() + "s"
+            + " &8| &7组队 &f" + sw.onOff(sw.teams())
+            + (sw.teams() ? " &8| &7每队 &f" + sw.teamSize() : "")
+            + " &8| &7补箱 &f" + (sw.refill() ? sw.refillSeconds() + "s" : "关"));
+         info.add("&72–32 人 · 空岛生存 · 死亡旁观 · 最后存活获胜");
+      } else if (room.isSituationPuzzle()) {
+         var sp = room.situationPuzzleSettings();
+         String providerLabel = (sp.aiProviderName() == null || sp.aiProviderName().isBlank()) ? "默认" : sp.aiProviderName();
+         info.add("&7来源 &f" + sp.puzzleSource().label()
+            + " &8| &7难度 &f" + sp.difficulty().label() + " " + sp.difficulty().stars()
+            + " &8| &7单人 &f" + (sp.soloMode() ? "开" : "关")
+            + " &8| &7AI 辅助 &f" + (sp.aiAssistHost() ? "开" : "关")
+            + " &8| &7AI &f" + providerLabel);
+         boolean aiMode = sp.soloMode() || sp.puzzleSource() == net.exmo.sreGame.games.situationpuzzle.SituationPuzzleSettings.PuzzleSource.AI;
+         boolean pw = !ctx.aiConfig().aiPassword().isEmpty() && aiMode;
+         info.add("&71–64 人 · 情景推理 · 聊天提问是/不是/无关" + (pw ? " &8| &cAI 模式需密码" : ""));
+      } else if (room.isNameTagWar()) {
+         var ntw = room.nameTagWarSettings();
+         info.add("&7时限 &f" + ntw.maxSeconds() + "s"
+            + " &8| &7默认 &f" + ntw.defaultRipMode().label()
+            + " &8| &7双剪 &f" + ntw.onOff(ntw.giveBothRippers())
+            + " &8| &7组队 &f" + ntw.onOff(ntw.teams())
+            + (ntw.teams() ? " &8| &7每队 &f" + ntw.teamSize() : ""));
+         info.add("&7边界 &f" + (ntw.border() ? ntw.borderSize() + " / " + ntw.shrinkDelaySeconds() + "s" : "关")
+            + " &8| &7距离 &f" + ntw.maxDistance()
+            + " &8| &7移动打断 &f" + ntw.onOff(ntw.interruptOnMove())
+            + " &8| &7受击打断 &f" + ntw.onOff(ntw.interruptOnDamage()));
       } else if (room.duelSettings().gamemode() != null) {
          info.add("&7决斗模式： &f" + room.duelSettings().gamemode()
             + " &8| &7" + room.duelSettings().queueType().name()
@@ -167,12 +220,12 @@ public final class RoomPanelGui {
       }
       container.setItem(4, GuiItems.named("beacon", "&f" + room.displayName(), info));
       if (room.isBuildStyle()) {
-         placeMembers(ctx, container, room, player, host);
+         placeMembers(ctx, container, room, player, host, page);
       } else {
          container.setItem(9, GuiItems.named("red_wool", "&c红队", List.of("&7左键头颅换边")));
          container.setItem(18, GuiItems.named("blue_wool", "&9蓝队", List.of("&7左键头颅换边")));
-         placeTeam(ctx, container, room, player, room.duelSettings().team1(), TEAM1_SLOTS, host);
-         placeTeam(ctx, container, room, player, room.duelSettings().team2(), TEAM2_SLOTS, host);
+         placeTeam(ctx, container, room, player, room.duelSettings().team1(), TEAM1_SLOTS, host, page);
+         placeTeam(ctx, container, room, player, room.duelSettings().team2(), TEAM2_SLOTS, host, page);
       }
 
       boolean ready = room.isReady(player.getUUID());
@@ -192,31 +245,38 @@ public final class RoomPanelGui {
          container.setItem(41, GuiItems.action(room.publicRoom() ? "lime_dye" : "gray_dye",
             room.publicRoom() ? "&a公开" : "&8私密", List.of("&e点击切换可见性"), "visibility"));
          container.setItem(42, GuiItems.action("player_head", "&f人数上限 &e" + room.maxPlayers(),
-            List.of(room.isChickenHorse() ? "&e点击切换 2/4/8/12/16/20/24/30"
-               : room.isDontDo() ? "&e点击切换 2/4/8/12/16"
-               : room.isLuckyPillar() || room.isDodgeball() || room.isDigToDeath() ? "&e点击切换 2/4/8/12/16"
-               : room.isYouBuildRun() ? "&e点击切换 2/4/6/8"
-               : room.isPushTheButton() ? "&e点击切换 4–10"
-               : room.isPillarPummel() ? "&e点击切换 4/8/12/16"
-               : room.isFraudMaster() || room.isFakeHuman() ? "&e点击切换 4–8"
-               : room.isCaveGuess() ? "&e点击切换 2/3/8/12/16"
-               : "&e点击切换 2/3/8/12/16/20"), "max"));
+            List.of("&e点击切换上限"), "max"));
       }
       container.setItem(45, GuiItems.action("oak_door", "&c离开房间", List.of(), "leave"));
+      int total = listedCount(room);
+      int pages = Math.max(1, (total + perPage(room) - 1) / perPage(room));
+      if (page > 0) {
+         container.setItem(47, GuiItems.action("arrow", "&e上一页",
+            List.of("&7第 &f" + (page + 1) + "&7/&f" + pages + " &7页"), "prev"));
+      }
       container.setItem(49, GuiItems.action("barrier", "&7返回大厅", List.of(), "back"));
+      if ((page + 1) * perPage(room) < total) {
+         container.setItem(51, GuiItems.action("arrow", "&e下一页",
+            List.of("&7第 &f" + (page + 1) + "&7/&f" + pages + " &7页", "&7共 &f" + total + " &7人"), "next"));
+      }
       if (host) {
          container.setItem(53, GuiItems.action("tnt", "&4解散房间", List.of("&c将踢出所有成员"), "disband"));
       }
    }
 
-   private static void placeMembers(GameContext ctx, SimpleContainer container, GameRoom room, ServerPlayer viewer, boolean host) {
-      placeTeam(ctx, container, room, viewer, room.members(), MEMBER_SLOTS, host);
+   private static void placeMembers(GameContext ctx, SimpleContainer container, GameRoom room, ServerPlayer viewer, boolean host, int page) {
+      placeTeam(ctx, container, room, viewer, room.members(), MEMBER_SLOTS, host, page);
    }
 
    private static void placeTeam(GameContext ctx, SimpleContainer container, GameRoom room, ServerPlayer viewer,
-                                 List<UUID> team, int[] slots, boolean hostViewer) {
-      for (int i = 0; i < slots.length && i < team.size(); i++) {
-         UUID uuid = team.get(i);
+                                 List<UUID> team, int[] slots, boolean hostViewer, int page) {
+      int from = page * slots.length;
+      for (int i = 0; i < slots.length; i++) {
+         int index = from + i;
+         if (index >= team.size()) {
+            break;
+         }
+         UUID uuid = team.get(index);
          ServerPlayer member = ctx.player(uuid);
          List<String> lore = new ArrayList<>();
          lore.add(room.isHost(uuid) ? "&6房主" : "&7成员");
@@ -239,11 +299,13 @@ public final class RoomPanelGui {
    private static final class Menu extends ProtectedChestMenu {
       private final GameContext ctx;
       private final SimpleContainer container;
+      private int page;
 
-      Menu(int syncId, Inventory playerInv, SimpleContainer container, GameContext ctx, ServerPlayer viewer) {
+      Menu(int syncId, Inventory playerInv, SimpleContainer container, GameContext ctx, ServerPlayer viewer, int page) {
          super(syncId, playerInv, container, 6, viewer);
          this.ctx = ctx;
          this.container = container;
+         this.page = page;
       }
 
       @Override
@@ -256,6 +318,14 @@ public final class RoomPanelGui {
          }
          switch (action) {
             case "back" -> MainMenuGui.open(this.ctx, player);
+            case "prev" -> {
+               this.page = Math.max(0, this.page - 1);
+               this.refresh(player, room);
+            }
+            case "next" -> {
+               this.page = clampPage(room, this.page + 1);
+               this.refresh(player, room);
+            }
             case "leave" -> {
                this.ctx.rooms().leave(player);
                player.closeContainer();
@@ -263,58 +333,7 @@ public final class RoomPanelGui {
             case "disband" -> {
                if (room.isHost(player.getUUID())) {
                   if (room.activeMatchId() != null) {
-                     var bw = this.ctx.buildWar().getById(room.activeMatchId());
-                     if (bw != null) {
-                        bw.endNow();
-                     }
-                     var yg = this.ctx.youGuess().getById(room.activeMatchId());
-                     if (yg != null) {
-                        yg.endNow();
-                     }
-                     var fm = this.ctx.fraudMaster().getById(room.activeMatchId());
-                     if (fm != null) {
-                        fm.endNow();
-                     }
-                     var fh = this.ctx.fakeHuman().getById(room.activeMatchId());
-                     if (fh != null) {
-                        fh.endNow();
-                     }
-                     var cg = this.ctx.caveGuess().getById(room.activeMatchId());
-                     if (cg != null) {
-                        cg.endNow();
-                     }
-                     var ch = this.ctx.chickenHorse().getById(room.activeMatchId());
-                     if (ch != null) {
-                        ch.endNow();
-                     }
-                     var dd = this.ctx.dontDo().getById(room.activeMatchId());
-                     if (dd != null) {
-                        dd.endNow();
-                     }
-                     var lp = this.ctx.luckyPillar().getById(room.activeMatchId());
-                     if (lp != null) {
-                        lp.endNow();
-                     }
-                     var pp = this.ctx.pillarPummel().getById(room.activeMatchId());
-                     if (pp != null) {
-                        pp.endNow();
-                     }
-                     var db = this.ctx.dodgeball().getById(room.activeMatchId());
-                     if (db != null) {
-                        db.endNow();
-                     }
-                     var dg = this.ctx.digToDeath().getById(room.activeMatchId());
-                     if (dg != null) {
-                        dg.endNow();
-                     }
-                     var yb = this.ctx.youBuildRun().getById(room.activeMatchId());
-                     if (yb != null) {
-                        yb.endNow();
-                     }
-                     var pb = this.ctx.pushTheButton().getById(room.activeMatchId());
-                     if (pb != null) {
-                        pb.endNow();
-                     }
+                     this.ctx.rooms().endMatchById(room, room.activeMatchId());
                   }
                   this.ctx.rooms().disband(room, "&c房主解散了房间。");
                   MainMenuGui.open(this.ctx, player);
@@ -325,13 +344,13 @@ public final class RoomPanelGui {
                   return;
                }
                room.toggleReady(player.getUUID());
-               fill(this.ctx, player, this.container, room);
+               fill(this.ctx, player, this.container, room, this.page);
             }
             case "start" -> {
                if (this.ctx.rooms().start(player)) {
                   player.closeContainer();
                } else {
-                  fill(this.ctx, player, this.container, room);
+                  fill(this.ctx, player, this.container, room, this.page);
                }
             }
             case "minigame" -> {
@@ -354,19 +373,23 @@ public final class RoomPanelGui {
             case "visibility" -> {
                if (room.isHost(player.getUUID()) && room.state() == RoomState.WAITING) {
                   room.setPublicRoom(!room.publicRoom());
-                  fill(this.ctx, player, this.container, room);
+                  fill(this.ctx, player, this.container, room, this.page);
                }
             }
             case "max" -> {
                if (room.isHost(player.getUUID()) && room.state() == RoomState.WAITING) {
                   int[] cycle = (room.isFraudMaster() || room.isFakeHuman())
-                     ? new int[] {4, 5, 6, 7, 8}
-                     : room.isChickenHorse() ? new int[] {2, 4, 8, 12, 16, 20, 24, 30}
-                     : room.isDontDo() || room.isLuckyPillar() || room.isDodgeball() || room.isDigToDeath() ? new int[] {2, 4, 8, 12, 16}
-                     : room.isYouBuildRun() ? new int[] {2, 4, 6, 8}
+                     ? new int[] {4, 8, 16, 24, 32}
+                     : room.isChickenHorse() ? new int[] {2, 8, 16, 32, 48, 64, 80, 96, 120}
+                     : room.isDontDo() || room.isLuckyPillar() || room.isDodgeball() || room.isDigToDeath() ? new int[] {2, 8, 16, 32, 48, 64}
+                     : room.isYouBuildRun() ? new int[] {2, 8, 16, 24, 32}
+                     : room.isSkyWorld() ? new int[] {2, 8, 16, 24, 32}
                      : room.isPushTheButton() ? new int[] {4, 5, 6, 7, 8, 9, 10}
-                     : room.isPillarPummel() ? new int[] {4, 8, 12, 16}
-                     : room.isCaveGuess() ? new int[] {2, 3, 8, 12, 16} : new int[] {2, 3, 8, 12, 16, 20};
+                     : room.isPillarPummel() ? new int[] {4, 8, 16, 32, 48, 64}
+                     : room.isCaveGuess() ? new int[] {2, 8, 16, 32, 48, 64}
+                     : room.isSituationPuzzle() ? new int[] {1, 2, 8, 16, 32, 48, 64}
+                     : room.isNameTagWar() ? new int[] {2, 8, 16, 32, 48, 64}
+                     : new int[] {2, 8, 16, 32, 48, 64, 80};
                   int next = 2;
                   for (int i = 0; i < cycle.length; i++) {
                      if (cycle[i] == room.maxPlayers()) {
@@ -379,7 +402,7 @@ public final class RoomPanelGui {
                   } else {
                      room.setMaxPlayers(next);
                   }
-                  fill(this.ctx, player, this.container, room);
+                  fill(this.ctx, player, this.container, room, this.page);
                }
             }
             case "member" -> {
@@ -395,18 +418,24 @@ public final class RoomPanelGui {
                   this.ctx.rooms().kick(player, target);
                   GameRoom updated = this.ctx.rooms().getByPlayer(player.getUUID());
                   if (updated != null) {
-                     fill(this.ctx, player, this.container, updated);
+                     this.page = clampPage(updated, this.page);
+                     fill(this.ctx, player, this.container, updated, this.page);
                   }
                   return;
                }
                if (!room.isBuildStyle()) {
                   room.duelSettings().swapTeam(target);
                }
-               fill(this.ctx, player, this.container, room);
+               fill(this.ctx, player, this.container, room, this.page);
             }
             default -> {
             }
          }
+      }
+
+      private void refresh(ServerPlayer player, GameRoom room) {
+         this.page = clampPage(room, this.page);
+         fill(this.ctx, player, this.container, room, this.page);
       }
    }
 }
