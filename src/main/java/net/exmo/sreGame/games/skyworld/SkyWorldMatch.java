@@ -26,6 +26,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
@@ -34,6 +35,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
@@ -175,6 +177,7 @@ public final class SkyWorldMatch {
          int sec = this.ticksLeft / 20;
          this.forEachOnline((player, fighter) -> this.title(player, "&e" + sec, "&7即将开战"));
       }
+      if (this.phase == Phase.INTRO && this.ticksLeft % 20 == 0) this.clearIntroDrops();
       this.enforce();
       if (this.phase == Phase.FIGHT) {
          this.tickFight();
@@ -319,7 +322,7 @@ public final class SkyWorldMatch {
       this.fightTicks = 0;
       this.graceTicks = this.settings.pvpGraceSeconds() * 20;
       this.refillTicks = this.settings.refill() ? this.settings.refillSeconds() * 20 : Integer.MAX_VALUE;
-      this.borderRadius = this.settings.borderSize();
+      this.borderRadius = Math.max(this.settings.borderSize(), this.arena.requiredBorderRadius());
       this.shrinkWaitTicks = this.settings.border() ? this.settings.shrinkDelaySeconds() * 20 : Integer.MAX_VALUE;
       this.setTimer(Integer.MAX_VALUE);
       this.removeCages();
@@ -327,9 +330,8 @@ public final class SkyWorldMatch {
       this.forEachOnline((player, fighter) -> {
          player.setGameMode(GameType.SURVIVAL);
          player.getInventory().clearContent();
-         fighter.kit.give(player);
-         player.removeAllEffects();
          this.heal(player);
+         fighter.kit.give(player);
          this.returnToPad(player, fighter);
          this.title(player, "&c开战", this.graceTicks > 0 ? "&7保护 " + (this.graceTicks / 20) + "s" : "&7活到最后");
       });
@@ -368,7 +370,40 @@ public final class SkyWorldMatch {
             this.shrinkAccum++;
             if (this.shrinkAccum >= this.settings.ticksPerShrinkBlock() && this.borderRadius > MIN_BORDER) {
                this.shrinkAccum = 0;
+               int previousRadius = this.borderRadius;
                this.borderRadius--;
+               this.clearShrunkenBorder(previousRadius);
+            }
+         }
+      }
+   }
+
+   /** Removes the ring which has just fallen outside the active border. */
+   private void clearShrunkenBorder(int previousRadius) {
+      ServerLevel level = this.level();
+      if (level == null || previousRadius <= this.borderRadius) {
+         return;
+      }
+      int centerX = this.arena.centerX();
+      int centerZ = this.arena.centerZ();
+      int minY = this.arena.voidY();
+      int maxY = this.arena.fillMaxY() + 16;
+      double previousSquared = previousRadius * (double) previousRadius;
+      double currentSquared = this.borderRadius * (double) this.borderRadius;
+      BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+      for (int x = centerX - previousRadius; x <= centerX + previousRadius; x++) {
+         double dx = x - centerX;
+         for (int z = centerZ - previousRadius; z <= centerZ + previousRadius; z++) {
+            double dz = z - centerZ;
+            double distanceSquared = dx * dx + dz * dz;
+            if (distanceSquared <= currentSquared || distanceSquared > previousSquared) {
+               continue;
+            }
+            for (int y = minY; y <= maxY; y++) {
+               pos.set(x, y, z);
+               if (!level.getBlockState(pos).isAir()) {
+                  level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+               }
             }
          }
       }
@@ -417,6 +452,14 @@ public final class SkyWorldMatch {
       this.ctx.skyWorld().arenas().release(this.arena);
       this.ctx.rooms().onMatchEnded(this.id);
       this.ctx.skyWorld().remove(this);
+   }
+
+   private void clearIntroDrops() {
+      ServerLevel level = this.level();
+      if (level == null) return;
+      AABB box = new AABB(this.arena.origin().getX(), this.arena.voidY(), this.arena.origin().getZ(),
+         this.arena.origin().getX() + SkyArena.STRIDE, this.arena.fillMaxY() + 16, this.arena.origin().getZ() + SkyArena.STRIDE);
+      for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, box, entity -> true)) item.discard();
    }
 
    private void enforce() {

@@ -38,7 +38,7 @@ public final class PushTheButtonMiniGame implements net.exmo.sreGame.game.MiniGa
 
    @Override
    public int maxPlayers() {
-      return 10;
+      return 24;
    }
 
    @Override

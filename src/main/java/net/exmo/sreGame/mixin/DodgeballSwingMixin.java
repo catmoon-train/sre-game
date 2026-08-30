@@ -24,6 +24,8 @@ public abstract class DodgeballSwingMixin {
       var ctx = SreGame.getContext();
       if (ctx != null) {
          ctx.dodgeball().handleSwing(this.player);
+         ctx.football().handleSwing(this.player);
+         ctx.partyGames().handleLeftClick(this.player);
       }
    }
 }

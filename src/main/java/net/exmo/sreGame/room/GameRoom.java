@@ -20,6 +20,7 @@ import net.exmo.sreGame.games.dig.DigToDeathMiniGame;
 import net.exmo.sreGame.games.dig.DigToDeathSettings;
 import net.exmo.sreGame.games.dodgeball.DodgeballMiniGame;
 import net.exmo.sreGame.games.dodgeball.DodgeballSettings;
+import net.exmo.sreGame.games.football.FootballMiniGame;
 import net.exmo.sreGame.games.draw.DrawGuessMiniGame;
 import net.exmo.sreGame.games.draw.DrawWarMiniGame;
 import net.exmo.sreGame.games.fakehuman.FakeHumanMiniGame;
@@ -37,12 +38,21 @@ import net.exmo.sreGame.games.pillarpummel.PillarPummelMiniGame;
 import net.exmo.sreGame.games.pillarpummel.PillarPummelSettings;
 import net.exmo.sreGame.games.pushthebutton.PushTheButtonMiniGame;
 import net.exmo.sreGame.games.pushthebutton.PushTheButtonSettings;
+import net.exmo.sreGame.games.rhythm.RhythmMiniGame;
+import net.exmo.sreGame.games.rhythm.RhythmSettings;
 import net.exmo.sreGame.games.skyworld.SkyWorldMiniGame;
 import net.exmo.sreGame.games.skyworld.SkyWorldSettings;
+import net.exmo.sreGame.games.blockedcombat.BlockedCombatMiniGame;
+import net.exmo.sreGame.games.blockedcombat.BlockedCombatSettings;
+import net.exmo.sreGame.games.tunnelrats.TunnelRatsMiniGame;
+import net.exmo.sreGame.games.tunnelrats.TunnelRatsSettings;
 import net.exmo.sreGame.games.situationpuzzle.SituationPuzzleMiniGame;
 import net.exmo.sreGame.games.situationpuzzle.SituationPuzzleSettings;
 import net.exmo.sreGame.games.youguess.YouGuessMiniGame;
 import net.exmo.sreGame.games.youguess.YouGuessSettings;
+import net.exmo.sreGame.games.partygames.PartyGameSettings;
+import net.exmo.sreGame.games.partygames.PartyGameType;
+import net.exmo.sreGame.games.hypixelsays.HypixelSaysMiniGame;
 
 public final class GameRoom {
    private final String id;
@@ -54,6 +64,8 @@ public final class GameRoom {
    private String password;
    private boolean publicRoom = true;
    private boolean autoReady = true;
+   /** Whether players return to the MCRPVPDuel lobby spawn after this room's match. */
+   private boolean returnToDuelSpawn = true;
    private int maxPlayers = 2;
    private String miniGameId = "mcrpvp_duel";
    private final DuelSettings duelSettings = new DuelSettings();
@@ -71,9 +83,13 @@ public final class GameRoom {
    private final YouBuildRunSettings youBuildRunSettings = new YouBuildRunSettings();
    private final PushTheButtonSettings pushTheButtonSettings = new PushTheButtonSettings();
    private final SkyWorldSettings skyWorldSettings = new SkyWorldSettings();
+   private final BlockedCombatSettings blockedCombatSettings = new BlockedCombatSettings();
+   private final TunnelRatsSettings tunnelRatsSettings = new TunnelRatsSettings();
    private final SituationPuzzleSettings situationPuzzleSettings = new SituationPuzzleSettings();
    private final NameTagWarSettings nameTagWarSettings = new NameTagWarSettings();
    private final FillInTheWallSettings fillInTheWallSettings = new FillInTheWallSettings();
+   private final RhythmSettings rhythmSettings = new RhythmSettings();
+   private final PartyGameSettings partyGameSettings = new PartyGameSettings();
    private final List<String> activeWords = new CopyOnWriteArrayList<>();
    private String wordPackLabel = "服务器默认";
    private RoomState state = RoomState.WAITING;
@@ -225,6 +241,18 @@ public final class GameRoom {
       return YouGuessMiniGame.ID.equals(this.miniGameId);
    }
 
+   public boolean returnToDuelSpawn() {
+      return this.returnToDuelSpawn;
+   }
+
+   public void setReturnToDuelSpawn(boolean returnToDuelSpawn) {
+      this.returnToDuelSpawn = returnToDuelSpawn;
+   }
+
+   public boolean isHypixelSays() {
+      return HypixelSaysMiniGame.ID.equals(this.miniGameId);
+   }
+
    public boolean isDrawGuess() {
       return DrawGuessMiniGame.ID.equals(this.miniGameId);
    }
@@ -273,6 +301,10 @@ public final class GameRoom {
       return DodgeballMiniGame.ID.equals(this.miniGameId);
    }
 
+   public boolean isFootball() {
+      return FootballMiniGame.ID.equals(this.miniGameId);
+   }
+
    public boolean isDigToDeath() {
       return DigToDeathMiniGame.ID.equals(this.miniGameId);
    }
@@ -289,6 +321,14 @@ public final class GameRoom {
       return SkyWorldMiniGame.ID.equals(this.miniGameId);
    }
 
+   public boolean isBlockedCombat() {
+      return BlockedCombatMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isTunnelRats() {
+      return TunnelRatsMiniGame.ID.equals(this.miniGameId);
+   }
+
    public boolean isSituationPuzzle() {
       return SituationPuzzleMiniGame.ID.equals(this.miniGameId);
    }
@@ -301,12 +341,26 @@ public final class GameRoom {
       return FillInTheWallMiniGame.ID.equals(this.miniGameId);
    }
 
+   public boolean isRhythm() {
+      return RhythmMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isQuake() {
+      return net.exmo.sreGame.games.quakechasm.QuakeMiniGame.ID.equals(this.miniGameId)
+         || net.exmo.sreGame.games.quakechasm.QuakeTDMMiniGame.ID.equals(this.miniGameId)
+         || net.exmo.sreGame.games.quakechasm.QuakeCTFMiniGame.ID.equals(this.miniGameId);
+   }
+
+   public boolean isPartyGame() {
+      return PartyGameType.byId(this.miniGameId) != null;
+   }
+
    public boolean isBuildStyle() {
       return this.isBuildWarFamily() || this.isYouGuessFamily() || this.isFraudMaster() || this.isFakeHuman()
          || this.isCaveGuess() || this.isChickenHorse() || this.isDontDo() || this.isLuckyPillar()
          || this.isPillarPummel() || this.isDodgeball() || this.isDigToDeath() || this.isYouBuildRun()
-         || this.isPushTheButton() || this.isSkyWorld() || this.isSituationPuzzle() || this.isNameTagWar()
-         || this.isFillInTheWall();
+         || this.isPushTheButton() || this.isSkyWorld() || this.isBlockedCombat() || this.isSituationPuzzle() || this.isNameTagWar()
+         || this.isFillInTheWall() || this.isRhythm() || this.isPartyGame();
    }
 
    public void setMiniGameId(String miniGameId) {
@@ -335,6 +389,12 @@ public final class GameRoom {
          } else if (this.maxPlayers < 2) {
             this.maxPlayers = 8;
          }
+      } else if (this.isBlockedCombat()) {
+         if (this.maxPlayers > 24) {
+            this.maxPlayers = 24;
+         } else if (this.maxPlayers < 1) {
+            this.maxPlayers = 4;
+         }
       } else if (this.isYouBuildRun()) {
          if (this.maxPlayers > 32) {
             this.maxPlayers = 32;
@@ -352,7 +412,7 @@ public final class GameRoom {
             }
          }
       } else if (this.isPushTheButton()) {
-         if (this.maxPlayers < 4 || this.maxPlayers > 10) {
+         if (this.maxPlayers < 4 || this.maxPlayers > 24) {
             this.maxPlayers = 8;
          }
       } else if (this.isNameTagWar()) {
@@ -378,6 +438,23 @@ public final class GameRoom {
             this.maxPlayers = 8;
          } else if (this.maxPlayers > 64) {
             this.maxPlayers = 64;
+         }
+      } else if (this.isRhythm()) {
+         if (this.maxPlayers > 4) {
+            this.maxPlayers = 4;
+         } else if (this.maxPlayers < 1) {
+            this.maxPlayers = 1;
+         }
+      } else if (this.isFootball()) {
+         if (this.maxPlayers > 24) {
+            this.maxPlayers = 24;
+         } else if (this.maxPlayers < 2) {
+            this.maxPlayers = 2;
+         }
+      } else if (this.isPartyGame()) {
+         PartyGameType type = PartyGameType.byId(this.miniGameId);
+         if (type != null && (this.maxPlayers < 2 || this.maxPlayers > type.maxPlayers())) {
+            this.maxPlayers = Math.min(8, type.maxPlayers());
          }
       } else if (this.isBuildStyle() && this.maxPlayers < 3) {
          this.maxPlayers = 8;
@@ -444,6 +521,14 @@ public final class GameRoom {
       return this.skyWorldSettings;
    }
 
+   public BlockedCombatSettings blockedCombatSettings() {
+      return this.blockedCombatSettings;
+   }
+
+   public TunnelRatsSettings tunnelRatsSettings() {
+      return this.tunnelRatsSettings;
+   }
+
    public SituationPuzzleSettings situationPuzzleSettings() {
       return this.situationPuzzleSettings;
    }
@@ -454,6 +539,14 @@ public final class GameRoom {
 
    public FillInTheWallSettings fillInTheWallSettings() {
       return this.fillInTheWallSettings;
+   }
+
+   public RhythmSettings rhythmSettings() {
+      return this.rhythmSettings;
+   }
+
+   public PartyGameSettings partyGameSettings() {
+      return this.partyGameSettings;
    }
 
    public boolean hasCustomWords() {

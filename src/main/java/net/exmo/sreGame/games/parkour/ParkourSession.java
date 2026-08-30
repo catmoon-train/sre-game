@@ -1,7 +1,9 @@
 package net.exmo.sreGame.games.parkour;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import net.exmo.sreGame.GameContext;
 import net.exmo.sreGame.gui.GuiItems;
 import net.exmo.sreGame.util.TextUtil;
@@ -31,6 +33,7 @@ public final class ParkourSession {
    private final ParkourDirector director;
    private final List<BlockPos> history = new ArrayList<>();
    private final List<ExtraBlock> extras = new ArrayList<>();
+   private final Map<BlockPos, Integer> historyIndex = new HashMap<>();
    private final List<ItemStack> savedItems = new ArrayList<>();
    private final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> savedDim;
    private final Vec3 savedPos;
@@ -44,6 +47,7 @@ public final class ParkourSession {
    private double templateDifficulty = 0.5;
    private int templateCooldown;
    private int recoverGrace;
+   private int clearedUpTo;
    private int headingX = 1;
    private int headingZ = 0;
    private int lastIndex;
@@ -185,9 +189,11 @@ public final class ParkourSession {
    public void destroy(ServerLevel level) {
       this.active = false;
       for (BlockPos pos : this.history) {
-         level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+         level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
       }
       this.history.clear();
+      this.historyIndex.clear();
+      this.clearedUpTo = 0;
       this.clearExtras(level);
       this.clearStartArea(level);
    }
@@ -222,6 +228,7 @@ public final class ParkourSession {
       }
       this.score = 0;
       this.lastIndex = 0;
+      this.clearedUpTo = 0;
       this.firstScoreAt = 0L;
       this.elapsedMs = 0L;
       this.lastSpecial = null;
@@ -230,11 +237,15 @@ public final class ParkourSession {
       this.headingZ = 0;
       this.clearExtras(level);
       for (int i = 1; i < this.history.size(); i++) {
-         level.setBlock(this.history.get(i), Blocks.AIR.defaultBlockState(), 2);
+         level.setBlock(this.history.get(i), Blocks.AIR.defaultBlockState(), 3);
       }
       if (!this.history.isEmpty()) {
          this.history.subList(1, this.history.size()).clear();
          this.lastStanding = this.history.get(0);
+      }
+      this.historyIndex.clear();
+      if (!this.history.isEmpty()) {
+         this.historyIndex.put(this.history.get(0), 0);
       }
       this.player.setDeltaMovement(Vec3.ZERO);
       this.player.hurtMarked = true;
@@ -330,7 +341,10 @@ public final class ParkourSession {
       }
       int flags = kind == ParkourJumps.Special.PANE || kind == ParkourJumps.Special.FENCE ? 3 : 2;
       level.setBlock(next, this.stateFor(kind), flags);
-      this.history.add(next);
+      BlockPos placed = next.immutable();
+      this.history.add(placed);
+      this.historyIndex.put(placed, this.history.size() - 1);
+      this.extras.removeIf(e -> placed.equals(e.pos));
       this.lastSpecial = kind;
    }
 
@@ -390,6 +404,8 @@ public final class ParkourSession {
          level.setBlock(pos, template.state(cell, this.style, this.headingX, this.headingZ), flags);
          if (template.walkable(cell)) {
             this.history.add(pos);
+            this.historyIndex.put(pos, this.history.size() - 1);
+            this.extras.removeIf(e -> pos.equals(e.pos));
             last = specialOf(cell.kind());
          } else {
             newExtras.add(pos);
@@ -432,23 +448,35 @@ public final class ParkourSession {
 
    private void clearTrail(ServerLevel level) {
       int keep = Math.max(0, this.lastIndex - TRAIL);
-      for (int i = 1; i < keep && i < this.history.size(); i++) {
+      int from = Math.max(1, this.clearedUpTo);
+      for (int i = from; i < keep && i < this.history.size(); i++) {
          BlockPos pos = this.history.get(i);
-         if (pos != null && !level.getBlockState(pos).isAir()) {
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+         if (pos == null) {
+            continue;
+         }
+         Integer current = this.historyIndex.get(pos);
+         if (current != null && current == i) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
          }
       }
-      for (ExtraBlock extra : this.extras) {
-         if (extra.untilIndex < keep && extra.pos != null && !level.getBlockState(extra.pos).isAir()) {
-            level.setBlock(extra.pos, Blocks.AIR.defaultBlockState(), 2);
+      this.clearedUpTo = Math.max(this.clearedUpTo, keep);
+      final int fence = keep;
+      this.extras.removeIf(extra -> {
+         if (extra.untilIndex >= fence || extra.pos == null) {
+            return false;
          }
-      }
+         Integer reused = this.historyIndex.get(extra.pos);
+         if (reused == null || reused <= extra.untilIndex) {
+            level.setBlock(extra.pos, Blocks.AIR.defaultBlockState(), 3);
+         }
+         return true;
+      });
    }
 
    private void clearExtras(ServerLevel level) {
       for (ExtraBlock extra : this.extras) {
          if (extra.pos != null) {
-            level.setBlock(extra.pos, Blocks.AIR.defaultBlockState(), 2);
+            level.setBlock(extra.pos, Blocks.AIR.defaultBlockState(), 3);
          }
       }
       this.extras.clear();
@@ -483,12 +511,8 @@ public final class ParkourSession {
    }
 
    private int indexOf(BlockPos pos) {
-      for (int i = 0; i < this.history.size(); i++) {
-         if (this.history.get(i).equals(pos)) {
-            return i;
-         }
-      }
-      return -1;
+      Integer idx = this.historyIndex.get(pos);
+      return idx == null ? -1 : idx;
    }
 
    private void buildIsland(ServerLevel level) {
@@ -497,12 +521,13 @@ public final class ParkourSession {
       for (int x = -ISLAND; x <= ISLAND; x++) {
          for (int z = -ISLAND; z <= ISLAND; z++) {
             pos.set(this.center.getX() + x, y, this.center.getZ() + z);
-            level.setBlock(pos, Blocks.SMOOTH_QUARTZ.defaultBlockState(), 2);
+            level.setBlock(pos, Blocks.SMOOTH_QUARTZ.defaultBlockState(), 3);
          }
       }
       BlockPos start = new BlockPos(this.center.getX() + 3, y, this.center.getZ());
-      level.setBlock(start, this.style.randomBlock().defaultBlockState(), 2);
+      level.setBlock(start, this.style.randomBlock().defaultBlockState(), 3);
       this.history.add(start.immutable());
+      this.historyIndex.put(start.immutable(), 0);
       this.lastStanding = start;
    }
 
@@ -514,7 +539,7 @@ public final class ParkourSession {
             for (int dy = -8; dy <= 8; dy++) {
                pos.set(this.center.getX() + x, y + dy, this.center.getZ() + z);
                if (!level.getBlockState(pos).isAir()) {
-                  level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+                  level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
                }
             }
          }

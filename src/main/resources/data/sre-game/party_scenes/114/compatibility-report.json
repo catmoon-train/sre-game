@@ -1,0 +1,38 @@
+{
+  "sourceVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "palette": [
+    "minecraft:air",
+    "minecraft:andesite",
+    "minecraft:cave_air",
+    "minecraft:cobblestone",
+    "minecraft:cracked_stone_bricks",
+    "minecraft:damaged_anvil",
+    "minecraft:dirt",
+    "minecraft:grass_block",
+    "minecraft:iron_bars",
+    "minecraft:iron_chain",
+    "minecraft:light",
+    "minecraft:red_candle",
+    "minecraft:smooth_stone",
+    "minecraft:smooth_stone_slab",
+    "minecraft:stone",
+    "minecraft:stone_bricks",
+    "minecraft:stonecutter",
+    "minecraft:tnt",
+    "minecraft:tuff",
+    "minecraft:tuff_brick_wall",
+    "minecraft:tuff_bricks",
+    "minecraft:waxed_exposed_copper_trapdoor"
+  ],
+  "removedControlBlocks": 0,
+  "removedDynamicEntities": 0,
+  "forbiddenBlocks": [
+    "minecraft:command_block",
+    "minecraft:structure_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:jigsaw"
+  ],
+  "targetCheck": "Target 1.21.1 performs the final block/property compatibility check before enabling this game."
+}

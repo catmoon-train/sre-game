@@ -1,0 +1,97 @@
+{
+  "format": 1,
+  "gameId": "105",
+  "minecraftVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "size": [
+    36,
+    31,
+    51
+  ],
+  "anchors": {
+    "blue_spawn": [
+      23.0,
+      10.0,
+      25.5
+    ],
+    "red_spawn": [
+      23.0,
+      10.0,
+      25.5
+    ]
+  },
+  "shards": [
+    {
+      "file": "shard_0_0_0.nbt",
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        32,
+        31,
+        32
+      ],
+      "blockCount": 31744,
+      "blockEntityCount": 39,
+      "entityCount": 0,
+      "sha256": "800085d677bfd57e4a3f76afc8f3216b7b30bfb22c221e99b1937855b6770f0e"
+    },
+    {
+      "file": "shard_0_0_32.nbt",
+      "offset": [
+        0,
+        0,
+        32
+      ],
+      "size": [
+        32,
+        31,
+        19
+      ],
+      "blockCount": 18848,
+      "blockEntityCount": 2,
+      "entityCount": 0,
+      "sha256": "96ddaea75ab7059e7db89c9e19ee1d4768310f1463218084feba08bc9e7a7e3f"
+    },
+    {
+      "file": "shard_32_0_0.nbt",
+      "offset": [
+        32,
+        0,
+        0
+      ],
+      "size": [
+        4,
+        31,
+        32
+      ],
+      "blockCount": 3968,
+      "blockEntityCount": 1,
+      "entityCount": 0,
+      "sha256": "df6c9dba8122e520dcae27756bbab33af0bc6b1f9a1ffeeb0c6e2fbcb2fb1389"
+    },
+    {
+      "file": "shard_32_0_32.nbt",
+      "offset": [
+        32,
+        0,
+        32
+      ],
+      "size": [
+        4,
+        31,
+        19
+      ],
+      "blockCount": 2356,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "65ab588c4cbc2eff66e32cd3e1a5764fe255c4fef6dae6936037d349827ecdaf"
+    }
+  ],
+  "blockCount": 56916,
+  "blockEntityCount": 42,
+  "entityCount": 0,
+  "sha256": "cf6519d979676e398a5de306c6b538d4fc7227553d683a195428c28bdaeac041"
+}

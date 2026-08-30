@@ -18,11 +18,16 @@ import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -60,6 +65,7 @@ public final class NameTagWarMatch {
    private final Map<UUID, Integer> lastHurtTick = new ConcurrentHashMap<>();
    private final SidebarBoard board;
    private final ServerBossEvent boss;
+   private final Map<UUID, ServerBossEvent> staminaBars = new ConcurrentHashMap<>();
    private Phase phase = Phase.INTRO;
    private int ticksLeft;
    private int phaseMaxTicks;
@@ -119,6 +125,10 @@ public final class NameTagWarMatch {
          this.saved.put(uuid, Saved.capture(player));
          this.board.create(player, "&6撕名牌");
          this.boss.addPlayer(player);
+         ServerBossEvent stamina = new ServerBossEvent(TextUtil.color("&a体力 &f100%"), BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
+         stamina.setProgress(1.0F);
+         stamina.addPlayer(player);
+         this.staminaBars.put(uuid, stamina);
          player.setGameMode(GameType.SURVIVAL);
          player.getInventory().clearContent();
          player.closeContainer();
@@ -133,7 +143,8 @@ public final class NameTagWarMatch {
       this.ctx.broadcast(this.room, "&8&m----------------");
       this.ctx.broadcast(this.room, "&6&l撕名牌");
       this.ctx.broadcast(this.room, "&7每人背部一张名牌，用 &f剪刀 &7对准敌人背部持续撕取。");
-      this.ctx.broadcast(this.room, "&7速撕 &b0.35s &7严格背刺 · 稳撕 &e0.8s &7侧后有效。");
+      this.ctx.broadcast(this.room, "&7速撕 &b0.25s &7背后即可 · 稳撕 &e0.5s &7侧前即可。");
+      this.ctx.broadcast(this.room, "&7场地为 &f3 层竞技场建筑 &7· 四墙中点楼梯连通各层。");
       this.ctx.broadcast(this.room, "&7&l本局禁止互相攻击 &7· 只有撕下名牌才会淘汰。");
       if (this.settings.teams()) {
          this.ctx.broadcast(this.room, "&7组队 &f" + this.settings.teamSize() + "人一组。");
@@ -155,6 +166,7 @@ public final class NameTagWarMatch {
       this.ticksLeft--;
       this.boardTicks++;
       this.enforce();
+      this.tickStamina();
       this.tickRip();
       if (this.totalTicks % 20 == 0) {
          this.cleanupStrayTags();
@@ -211,6 +223,8 @@ public final class NameTagWarMatch {
       this.ripSessions.remove(uuid);
       this.lastHurtTick.remove(uuid);
       this.removeTag(uuid);
+      ServerBossEvent stamina = this.staminaBars.remove(uuid);
+      if (stamina != null) stamina.removeAllPlayers();
       ServerPlayer player = this.ctx.player(uuid);
       if (player != null) {
          this.restore(player);
@@ -287,6 +301,28 @@ public final class NameTagWarMatch {
       this.ctx.send(attacker, "&e开始撕取 &f" + this.ctx.name(target.getUUID()) + " &e的名牌…");
       this.ctx.send(target, "&c&l⚠ &e" + this.ctx.name(attacker.getUUID()) + " &c正在撕你的名牌！");
       return true;
+   }
+
+   public net.minecraft.world.InteractionResult usePowerup(ServerPlayer player, ItemStack stack) {
+      if (this.phase != Phase.FIGHT || stack == null || stack.isEmpty()) return net.minecraft.world.InteractionResult.PASS;
+      CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+      if (data == null) return net.minecraft.world.InteractionResult.PASS;
+      String kind = data.copyTag().getString("ntw_powerup");
+      if (kind == null || kind.isEmpty()) return net.minecraft.world.InteractionResult.PASS;
+      switch (kind) {
+         case "grapple" -> {
+            Vec3 look = player.getLookAngle();
+            Vec3 horizontal = new Vec3(look.x, 0.0, look.z).normalize();
+            player.push(horizontal.x * 1.25, 0.48, horizontal.z * 1.25);
+            player.hurtMarked = true;
+         }
+         case "jump" -> player.addEffect(new MobEffectInstance(MobEffects.JUMP, 20 * 12, 1, true, false, true));
+         case "speed" -> player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 12, 1, true, false, true));
+         default -> { return net.minecraft.world.InteractionResult.PASS; }
+      }
+      stack.shrink(1);
+      player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.8F, 1.35F);
+      return net.minecraft.world.InteractionResult.FAIL;
    }
 
    private NameTagWarSettings.RipMode ripperMode(ServerPlayer player) {
@@ -422,10 +458,12 @@ public final class NameTagWarMatch {
          player.removeAllEffects();
          this.title(player, "&c开战", "&7撕下别人的名牌");
       });
+      for (int i = 0; i < 3; i++) this.spawnPowerup();
       this.ctx.broadcast(this.room, "&c战斗开始！");
    }
 
    private void tickFight() {
+      if (this.totalTicks % (20 * 15) == 0) this.spawnPowerup();
       if (this.settings.border()) {
          if (!this.shrinking) {
             this.shrinkWaitTicks--;
@@ -441,6 +479,57 @@ public final class NameTagWarMatch {
             }
          }
       }
+   }
+
+   private void tickStamina() {
+      for (Fighter fighter : this.fighters.values()) {
+         ServerPlayer player = this.ctx.player(fighter.uuid);
+         ServerBossEvent bar = this.staminaBars.get(fighter.uuid);
+         if (player == null || bar == null) continue;
+         boolean boosting = this.phase == Phase.FIGHT && fighter.alive && player.isShiftKeyDown()
+            && fighter.stamina > 0;
+         if (boosting) {
+            Vec3 look = player.getLookAngle();
+            Vec3 horizontal = new Vec3(look.x, 0.0, look.z);
+            if (horizontal.lengthSqr() > 1.0E-5) {
+               horizontal = horizontal.normalize();
+               // Shift should feel like an immediate dash, not a slowly building nudge.
+               player.setDeltaMovement(player.getDeltaMovement().add(horizontal.x * 0.09, 0.0, horizontal.z * 0.09));
+               player.hurtMarked = true;
+            }
+            // Minecraft uses a zero-based amplifier: 3 is the visible Speed IV effect.
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 5, 3, true, false, true));
+            fighter.stamina = Math.max(0, fighter.stamina - 2);
+         } else {
+            fighter.stamina = Math.min(100, fighter.stamina + 1);
+         }
+         bar.setName(TextUtil.color((fighter.stamina > 25 ? "&a体力 " : "&c体力 ") + "&f" + fighter.stamina + "%"));
+         bar.setProgress(fighter.stamina / 100.0F);
+      }
+   }
+
+   private void spawnPowerup() {
+      ServerLevel level = this.level();
+      if (level == null) return;
+      int border = this.settings.borderSize();
+      double x = this.arena.minX(border) + 4 + java.util.concurrent.ThreadLocalRandom.current().nextDouble(Math.max(1, border - 8));
+      double z = this.arena.minZ(border) + 4 + java.util.concurrent.ThreadLocalRandom.current().nextDouble(Math.max(1, border - 8));
+      int roll = java.util.concurrent.ThreadLocalRandom.current().nextInt(3);
+      ItemStack item = switch (roll) {
+         case 0 -> powerup(Items.FISHING_ROD, "grapple", "&b勾爪");
+         case 1 -> powerup(Items.RABBIT_FOOT, "jump", "&a跳跃提升");
+         default -> powerup(Items.SUGAR, "speed", "&e速度提升");
+      };
+      ItemEntity entity = new ItemEntity(level, x, this.arena.floorY() + 1.0, z, item);
+      entity.setPickUpDelay(10);
+      level.addFreshEntity(entity);
+   }
+
+   private ItemStack powerup(net.minecraft.world.item.Item item, String kind, String name) {
+      ItemStack stack = new ItemStack(item);
+      stack.set(DataComponents.CUSTOM_DATA, CustomData.EMPTY.update(tag -> tag.putString("ntw_powerup", kind)));
+      stack.set(DataComponents.CUSTOM_NAME, TextUtil.color(name));
+      return stack;
    }
 
    private void shrinkOnce() {
@@ -580,6 +669,8 @@ public final class NameTagWarMatch {
       }
       this.ctx.broadcast(this.room, "&8&m----------------");
       this.boss.removeAllPlayers();
+      for (ServerBossEvent stamina : this.staminaBars.values()) stamina.removeAllPlayers();
+      this.staminaBars.clear();
       this.board.removeAll();
       for (UUID uuid : this.seats) {
          this.removeTag(uuid);
@@ -719,7 +810,7 @@ public final class NameTagWarMatch {
       ItemStack stack = new ItemStack(Items.SHEARS);
       stack.set(DataComponents.CUSTOM_DATA, CustomData.EMPTY.update(tag -> tag.putString("ntw_rip_mode", mode.name())));
       stack.set(DataComponents.UNBREAKABLE, new net.minecraft.world.item.component.Unbreakable(true));
-      String name = mode == NameTagWarSettings.RipMode.FAST ? "&b速撕剪刀 &7(0.35s)" : "&e稳撕剪刀 &7(0.8s)";
+      String name = mode == NameTagWarSettings.RipMode.FAST ? "&b速撕剪刀 &7(0.25s)" : "&e稳撕剪刀 &7(0.5s)";
       stack.set(DataComponents.CUSTOM_NAME, TextUtil.color(name));
       return stack;
    }
@@ -809,6 +900,8 @@ public final class NameTagWarMatch {
       player.removeAllEffects();
       this.board.remove(player);
       this.boss.removePlayer(player);
+      ServerBossEvent stamina = this.staminaBars.remove(player.getUUID());
+      if (stamina != null) stamina.removeAllPlayers();
       Saved state = this.saved.get(player.getUUID());
       if (state != null) {
          state.apply(player, this.ctx);
@@ -880,6 +973,7 @@ public final class NameTagWarMatch {
       final UUID uuid;
       int team;
       boolean alive = true;
+      int stamina = 100;
 
       Fighter(UUID uuid) {
          this.uuid = uuid;

@@ -13,18 +13,26 @@
     "DontDoJumpMixin",
     "DontDoDropMixin",
     "DodgeballSwingMixin",
+    "PartyInputMixin",
     "LuckyPillarFishingMixin",
     "SnowballMixin",
     "MatchContainerDropMixin",
     "MatchCreativeDropMixin",
     "MatchDropLockMixin",
+    "PlayerGameProfileAccessor",
     "RoomChatMixin",
     "RoomChatSendMixin",
     "SreForceKillMixin",
+    "ServerPlayerWorldInventoryMixin",
     "TrackedEntityAccessor",
-    "QuakeLivingAccessor"
+    "QuakeLivingAccessor",
+    "DisplayTransformationInvoker",
+    "BlockDisplayStateInvoker",
+    "RhythmInputMixin",
+    "KeepInventoryOnJoinMixin"
   ],
   "client": [
+    "RhythmRightClickDelayMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,0 +1,29 @@
+{
+  "sourceVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "palette": [
+    "minecraft:air",
+    "minecraft:barrier",
+    "minecraft:brown_terracotta",
+    "minecraft:cave_air",
+    "minecraft:dark_oak_fence",
+    "minecraft:dark_oak_planks",
+    "minecraft:dead_bush",
+    "minecraft:light_gray_terracotta",
+    "minecraft:orange_terracotta",
+    "minecraft:red_carpet",
+    "minecraft:red_terracotta",
+    "minecraft:terracotta",
+    "minecraft:white_terracotta"
+  ],
+  "removedControlBlocks": 0,
+  "removedDynamicEntities": 0,
+  "forbiddenBlocks": [
+    "minecraft:command_block",
+    "minecraft:structure_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:jigsaw"
+  ],
+  "targetCheck": "Target 1.21.1 performs the final block/property compatibility check before enabling this game."
+}

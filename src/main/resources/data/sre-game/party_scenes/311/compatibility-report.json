@@ -1,0 +1,27 @@
+{
+  "sourceVersion": "1.21.10",
+  "sourceDimension": "minecraft:the_nether",
+  "palette": [
+    "minecraft:air",
+    "minecraft:ancient_debris",
+    "minecraft:basalt",
+    "minecraft:blackstone",
+    "minecraft:cave_air",
+    "minecraft:glowstone",
+    "minecraft:lava",
+    "minecraft:magma_block",
+    "minecraft:nether_gold_ore",
+    "minecraft:nether_quartz_ore",
+    "minecraft:netherrack"
+  ],
+  "removedControlBlocks": 0,
+  "removedDynamicEntities": 0,
+  "forbiddenBlocks": [
+    "minecraft:command_block",
+    "minecraft:structure_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:jigsaw"
+  ],
+  "targetCheck": "Target 1.21.1 performs the final block/property compatibility check before enabling this game."
+}

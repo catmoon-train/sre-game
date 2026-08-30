@@ -37,9 +37,13 @@ public final class MainMenuGui {
          || ctx.caveGuess().openIfPlaying(player) || ctx.chickenHorse().openIfPlaying(player)
          || ctx.dontDo().openIfPlaying(player) || ctx.luckyPillar().openIfPlaying(player)
          || ctx.pillarPummel().openIfPlaying(player) || ctx.dodgeball().openIfPlaying(player)
+         || ctx.football().openIfPlaying(player)
          || ctx.digToDeath().openIfPlaying(player)          || ctx.youBuildRun().openIfPlaying(player)
          || ctx.pushTheButton().openIfPlaying(player)
          || ctx.skyWorld().openIfPlaying(player)
+         || ctx.blockedCombat().openIfPlaying(player)
+         || ctx.tunnelRats().openIfPlaying(player)
+         || ctx.rhythm().openIfPlaying(player)
          || ctx.parkour().openIfPlaying(player)) {
          return;
       }
@@ -75,6 +79,11 @@ public final class MainMenuGui {
          "&7等待中也可玩，对局开始自动退出",
          "&e点击加入 · /parkour"
       ), "parkour"));
+      if (player.hasPermissions(2)) {
+         container.setItem(47, GuiItems.action("redstone", "&4&l派对小游戏管理", List.of(
+            "&7启用或禁用派对小游戏", "&e仅管理员可见"
+         ), "party-admin"));
+      }
       container.setItem(49, GuiItems.named("compass", "&f指令", List.of(
          "&e/sregame &7打开本菜单",
          "&e/parkour &7无限跑酷",
@@ -136,6 +145,7 @@ public final class MainMenuGui {
                player.closeContainer();
                this.ctx.parkour().join(player);
             }
+            case "party-admin" -> PartyGameAdminGui.open(this.ctx, player);
             case "ranked" -> {
                if (duel != null) {
                   QueueSelectorGui.open(duel, player, QueueType.RANKED);

@@ -157,6 +157,9 @@ public final class RoomPanelGui {
             + " &8| &7道具 &f" + db.onOff(db.powerups())
             + " &8| &7绝杀 &f" + db.onOff(db.frenzy()));
          info.add("&72–16 人 · 不能越线 · 前线补球 · 接球反弹");
+      } else if (room.isFootball()) {
+         info.add("&74 分钟 · 自动红蓝分队 · 进球多者胜");
+         info.add("&72–24 人 · 撞球带球 · 左键射门 · 二段跳");
       } else if (room.isDigToDeath()) {
          var dg = room.digToDeathSettings();
          info.add("&7变体 &f" + dg.variant().label() + " &8| &7层数 &f" + dg.layers());
@@ -185,6 +188,13 @@ public final class RoomPanelGui {
             + (sw.teams() ? " &8| &7每队 &f" + sw.teamSize() : "")
             + " &8| &7补箱 &f" + (sw.refill() ? sw.refillSeconds() + "s" : "关"));
          info.add("&72–32 人 · 空岛生存 · 死亡旁观 · 最后存活获胜");
+      } else if (room.isTunnelRats()) {
+         var tr = room.tunnelRatsSettings();
+         info.add("&7矿层 &f" + tr.arenaLength()
+            + " &8| &7复活 &f" + tr.respawnSeconds() + "s"
+            + " &8| &7友伤 &f" + tr.onOff(tr.friendlyFire())
+            + " &8| &7夜视 &f" + tr.onOff(tr.nightVision()));
+         info.add("&72–32 人 · 两队挖掘破床 · 床毁后死亡淘汰");
       } else if (room.isSituationPuzzle()) {
          var sp = room.situationPuzzleSettings();
          String providerLabel = (sp.aiProviderName() == null || sp.aiProviderName().isBlank()) ? "默认" : sp.aiProviderName();
@@ -389,7 +399,9 @@ public final class RoomPanelGui {
                      : room.isCaveGuess() ? new int[] {2, 8, 16, 32, 48, 64}
                      : room.isSituationPuzzle() ? new int[] {1, 2, 8, 16, 32, 48, 64}
                      : room.isNameTagWar() ? new int[] {2, 8, 16, 32, 48, 64}
-                     : new int[] {2, 8, 16, 32, 48, 64, 80};
+                     : room.isBlockedCombat() ? new int[] {1, 2, 8, 16, 24}
+                     : room.isPartyGame() ? new int[] {2, 8, 16, 24}
+                     : new int[] {2, 8, 16, 24, 32, 48, 64, 80};
                   int next = 2;
                   for (int i = 0; i < cycle.length; i++) {
                      if (cycle[i] == room.maxPlayers()) {

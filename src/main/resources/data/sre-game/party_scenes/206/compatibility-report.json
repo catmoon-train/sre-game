@@ -1,0 +1,37 @@
+{
+  "sourceVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "palette": [
+    "minecraft:air",
+    "minecraft:barrel",
+    "minecraft:barrier",
+    "minecraft:dirt",
+    "minecraft:grass_block",
+    "minecraft:ice",
+    "minecraft:light",
+    "minecraft:light_blue_concrete",
+    "minecraft:orange_concrete",
+    "minecraft:packed_ice",
+    "minecraft:player_head",
+    "minecraft:player_wall_head",
+    "minecraft:podzol",
+    "minecraft:pumpkin",
+    "minecraft:smoker",
+    "minecraft:smooth_stone_slab",
+    "minecraft:snow",
+    "minecraft:snow_block",
+    "minecraft:spruce_leaves",
+    "minecraft:spruce_log",
+    "minecraft:water"
+  ],
+  "removedControlBlocks": 0,
+  "removedDynamicEntities": 0,
+  "forbiddenBlocks": [
+    "minecraft:command_block",
+    "minecraft:structure_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:jigsaw"
+  ],
+  "targetCheck": "Target 1.21.1 performs the final block/property compatibility check before enabling this game."
+}

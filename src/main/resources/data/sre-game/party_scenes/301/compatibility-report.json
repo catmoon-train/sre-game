@@ -1,0 +1,31 @@
+{
+  "sourceVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "palette": [
+    "minecraft:air",
+    "minecraft:bedrock",
+    "minecraft:chiseled_stone_bricks",
+    "minecraft:dirt",
+    "minecraft:glass",
+    "minecraft:gold_block",
+    "minecraft:grass_block",
+    "minecraft:gravel",
+    "minecraft:iron_bars",
+    "minecraft:lever",
+    "minecraft:oak_leaves",
+    "minecraft:oak_wood",
+    "minecraft:orange_concrete_powder",
+    "minecraft:stone",
+    "minecraft:stone_bricks"
+  ],
+  "removedControlBlocks": 0,
+  "removedDynamicEntities": 0,
+  "forbiddenBlocks": [
+    "minecraft:command_block",
+    "minecraft:structure_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:jigsaw"
+  ],
+  "targetCheck": "Target 1.21.1 performs the final block/property compatibility check before enabling this game."
+}

@@ -118,7 +118,7 @@ public final class FillInTheWallMatch {
          this.giveKit(player);
          if (level != null) {
             Vec3 spawn = this.spawnVec(uuid);
-            player.teleportTo(level, spawn.x, spawn.y, spawn.z, 180.0F, 0.0F);
+            player.teleportTo(level, spawn.x, spawn.y, spawn.z, 90.0F, 0.0F);
          }
       }
       this.timedTicksRemaining = this.settings.durationSeconds() * 20;
@@ -254,7 +254,7 @@ public final class FillInTheWallMatch {
          this.perfectWalls++;
          gained += totalHoles;
          this.hardenedCount = Math.max(0, this.hardenedCount - 2);
-      } else if (percent >= 0.5 && extra <= Math.max(1, totalHoles / 2)) {
+      } else if (filled == totalHoles || percent >= 0.5) {
          j = Judgement.COOL;
          this.hardenedCount = Math.max(0, this.hardenedCount - 1);
       } else {
@@ -388,7 +388,7 @@ public final class FillInTheWallMatch {
       Vec3 spawn = this.spawnVec(player.getUUID());
       ServerLevel level = this.level();
       if (level != null) {
-         player.teleportTo(level, spawn.x, spawn.y, spawn.z, 180.0F, 0.0F);
+         player.teleportTo(level, spawn.x, spawn.y, spawn.z, 90.0F, 0.0F);
       }
       return true;
    }

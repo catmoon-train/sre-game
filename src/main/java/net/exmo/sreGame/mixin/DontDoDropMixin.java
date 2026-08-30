@@ -28,6 +28,7 @@ public abstract class DontDoDropMixin {
       ServerPlayer player = (ServerPlayer) (Object) this;
       if (SreGame.getContext() != null) {
          SreGame.getContext().dontDo().handleDrop(player);
+         SreGame.getContext().partyGames().handleDrop(player, stack.copy());
       }
    }
 }

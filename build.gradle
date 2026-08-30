@@ -36,6 +36,10 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     // Compile against Simple Voice Chat; runtime is optional (suggests in fabric.mod.json).
     modCompileOnly "maven.modrinth:simple-voice-chat:fabric-${project.voicechat_version}"
 
@@ -48,6 +52,10 @@ dependencies {
     } else if (mcrpvpduelDevJar.exists()) {
         modImplementation files(mcrpvpduelDevJar)
     }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 processResources {

@@ -1,0 +1,43 @@
+{
+  "sourceVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "palette": [
+    "minecraft:air",
+    "minecraft:barrier",
+    "minecraft:blackstone",
+    "minecraft:chiseled_red_sandstone",
+    "minecraft:coal_ore",
+    "minecraft:cobbled_deepslate",
+    "minecraft:cobblestone_stairs",
+    "minecraft:crying_obsidian",
+    "minecraft:cut_red_sandstone",
+    "minecraft:cut_sandstone",
+    "minecraft:deepslate",
+    "minecraft:deepslate_coal_ore",
+    "minecraft:fire",
+    "minecraft:iron_bars",
+    "minecraft:iron_trapdoor",
+    "minecraft:light",
+    "minecraft:nether_brick_wall",
+    "minecraft:netherrack",
+    "minecraft:obsidian",
+    "minecraft:polished_andesite",
+    "minecraft:polished_diorite",
+    "minecraft:red_sandstone",
+    "minecraft:red_sandstone_stairs",
+    "minecraft:sandstone",
+    "minecraft:stone",
+    "minecraft:stone_brick_stairs",
+    "minecraft:stone_bricks"
+  ],
+  "removedControlBlocks": 0,
+  "removedDynamicEntities": 0,
+  "forbiddenBlocks": [
+    "minecraft:command_block",
+    "minecraft:structure_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:jigsaw"
+  ],
+  "targetCheck": "Target 1.21.1 performs the final block/property compatibility check before enabling this game."
+}

@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.exmo.sreGame.SreGame;
+import net.exmo.sreGame.games.partygames.PartyGameType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -53,6 +54,10 @@ public final class GameConfig {
    }
 
    private void putDefaults() {
+      this.values.put("server.hide-join-leave-notifications", "false");
+      // The dimension used for minigames. Its player inventory is kept separate
+      // from minecraft:overworld (the hub/survival inventory).
+      this.values.put("inventory.game-world", "minecraft:game");
       this.values.put("build-war.world", "minecraft:overworld");
       this.values.put("build-war.origin-x", "20000");
       this.values.put("build-war.origin-y", "64");
@@ -78,6 +83,9 @@ public final class GameConfig {
       this.values.put("dodgeball.origin-x", "20000");
       this.values.put("dodgeball.origin-z", "48000");
       this.values.put("dodgeball.pregen", "4");
+      this.values.put("football.origin-x", "20000");
+      this.values.put("football.origin-z", "52000");
+      this.values.put("football.pregen", "4");
       this.values.put("dig-to-death.origin-x", "20000");
       this.values.put("dig-to-death.origin-z", "56000");
       this.values.put("dig-to-death.pregen", "4");
@@ -98,6 +106,21 @@ public final class GameConfig {
       this.values.put("fill-in-the-wall.origin-x", "20000");
       this.values.put("fill-in-the-wall.origin-z", "104000");
       this.values.put("fill-in-the-wall.pregen", "4");
+      this.values.put("rhythm.origin-x", "10000");
+      this.values.put("rhythm.origin-y", "200");
+      this.values.put("rhythm.origin-z", "100000");
+      this.values.put("party-games.world", "minecraft:overworld");
+      this.values.put("party-games.origin-x", "20000");
+      this.values.put("party-games.origin-z", "112000");
+      this.values.put("party-games.blocks-per-tick", "9000");
+      this.values.put("hypixel-says.world", "minecraft:overworld");
+      this.values.put("hypixel-says.origin-x", "20000");
+      this.values.put("hypixel-says.origin-z", "120000");
+      this.values.put("hypixel-says.pregen", "4");
+      this.values.put("blocked-combat.origin-x", "20000");
+      this.values.put("blocked-combat.origin-z", "140000");
+      this.values.put("tunnel-rats.origin-x", "20000");
+      this.values.put("tunnel-rats.origin-z", "148000");
    }
 
    private String dump() {
@@ -153,6 +176,15 @@ public final class GameConfig {
       }
       ServerLevel level = server.getLevel(ResourceKey.create(Registries.DIMENSION, loc));
       return level != null ? level : server.overworld();
+   }
+
+   /** Whether this is the dedicated minigame dimension whose inventory is isolated. */
+   public boolean isGameWorld(ServerLevel level) {
+      if (level == null) {
+         return false;
+      }
+      ResourceLocation gameWorld = ResourceLocation.tryParse(this.getString("inventory.game-world", "minecraft:game"));
+      return gameWorld != null && level.dimension().location().equals(gameWorld);
    }
 
    public int originX() {
@@ -251,6 +283,18 @@ public final class GameConfig {
       return Math.max(1, Math.min(8, this.getInt("dodgeball.pregen", 4)));
    }
 
+   public int footballOriginX() {
+      return this.getInt("football.origin-x", 20000);
+   }
+
+   public int footballOriginZ() {
+      return this.getInt("football.origin-z", 52000);
+   }
+
+   public int footballPregen() {
+      return Math.max(1, Math.min(8, this.getInt("football.pregen", 4)));
+   }
+
    public int digToDeathOriginX() {
       return this.getInt("dig-to-death.origin-x", 20000);
    }
@@ -329,5 +373,78 @@ public final class GameConfig {
 
    public int fillInTheWallPregen() {
       return Math.max(1, Math.min(8, this.getInt("fill-in-the-wall.pregen", 4)));
+   }
+
+   public int rhythmOriginX() {
+      return this.getInt("rhythm.origin-x", 10000);
+   }
+
+   public int rhythmOriginY() {
+      return this.getInt("rhythm.origin-y", 200);
+   }
+
+   public int rhythmOriginZ() {
+      return this.getInt("rhythm.origin-z", 100000);
+   }
+
+   public ServerLevel partyGamesWorld(MinecraftServer server) {
+      if (server == null) return null;
+      String raw = this.getString("party-games.world", this.getString("build-war.world", "minecraft:overworld"));
+      ResourceLocation loc = ResourceLocation.tryParse(raw);
+      if (loc == null) return this.world(server);
+      ServerLevel level = server.getLevel(ResourceKey.create(Registries.DIMENSION, loc));
+      return level == null ? this.world(server) : level;
+   }
+
+   public int partyGamesOriginX() { return this.getInt("party-games.origin-x", 20000); }
+   public int partyGamesOriginZ() { return this.getInt("party-games.origin-z", 112000); }
+   public int partyGamesBlocksPerTick() { return Math.max(1000, Math.min(30000, this.getInt("party-games.blocks-per-tick", 9000))); }
+   /** Global switch used by the OP party-game catalogue. Defaults to enabled so upgrades do not hide existing games. */
+   public boolean partyGameEnabled(PartyGameType type) {
+      return Boolean.parseBoolean(this.getString("party-games.enabled." + type.id(), "true"));
+   }
+
+   public void setPartyGameEnabled(PartyGameType type,
+                                     boolean enabled) {
+      this.values.put("party-games.enabled." + type.id(), String.valueOf(enabled));
+      this.save();
+   }
+
+   /** Generic per-game enable switch covering every registered MiniGame, not just party games. Defaults to enabled. */
+   public boolean isGameEnabled(String id) {
+      return Boolean.parseBoolean(this.getString("games.enabled." + id, "true"));
+   }
+
+   public void setGameEnabled(String id, boolean enabled) {
+      this.values.put("games.enabled." + id, String.valueOf(enabled));
+      this.save();
+   }
+
+   public ServerLevel hypixelSaysWorld(MinecraftServer server) {
+      if (server == null) return null;
+      String raw = this.getString("hypixel-says.world", "minecraft:overworld");
+      ResourceLocation loc = ResourceLocation.tryParse(raw);
+      if (loc == null) return this.world(server);
+      ServerLevel level = server.getLevel(ResourceKey.create(Registries.DIMENSION, loc));
+      return level == null ? this.world(server) : level;
+   }
+
+   public int hypixelSaysOriginX() { return this.getInt("hypixel-says.origin-x", 20000); }
+   public int hypixelSaysOriginZ() { return this.getInt("hypixel-says.origin-z", 120000); }
+   public int hypixelSaysPregen() { return Math.max(1, Math.min(8, this.getInt("hypixel-says.pregen", 4))); }
+
+   public int blockedCombatOriginX() { return this.getInt("blocked-combat.origin-x", 20000); }
+   public int blockedCombatOriginZ() { return this.getInt("blocked-combat.origin-z", 140000); }
+
+   public int tunnelRatsOriginX() { return this.getInt("tunnel-rats.origin-x", 20000); }
+   public int tunnelRatsOriginZ() { return this.getInt("tunnel-rats.origin-z", 148000); }
+
+   public boolean hideJoinLeaveNotifications() {
+      return Boolean.parseBoolean(this.getString("server.hide-join-leave-notifications", "false"));
+   }
+
+   public void setHideJoinLeaveNotifications(boolean hide) {
+      this.values.put("server.hide-join-leave-notifications", String.valueOf(hide));
+      this.save();
    }
 }

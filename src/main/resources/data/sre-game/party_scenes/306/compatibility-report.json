@@ -1,0 +1,41 @@
+{
+  "sourceVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "palette": [
+    "minecraft:air",
+    "minecraft:barrier",
+    "minecraft:blue_concrete",
+    "minecraft:blue_terracotta",
+    "minecraft:brown_carpet",
+    "minecraft:cyan_stained_glass",
+    "minecraft:cyan_wool",
+    "minecraft:dark_prismarine",
+    "minecraft:emerald_block",
+    "minecraft:green_carpet",
+    "minecraft:light",
+    "minecraft:light_blue_stained_glass",
+    "minecraft:light_blue_wool",
+    "minecraft:magenta_wool",
+    "minecraft:oak_planks",
+    "minecraft:prismarine",
+    "minecraft:prismarine_brick_stairs",
+    "minecraft:prismarine_bricks",
+    "minecraft:prismarine_stairs",
+    "minecraft:purple_wool",
+    "minecraft:red_carpet",
+    "minecraft:red_wool",
+    "minecraft:stripped_warped_hyphae",
+    "minecraft:white_carpet",
+    "minecraft:yellow_concrete"
+  ],
+  "removedControlBlocks": 0,
+  "removedDynamicEntities": 0,
+  "forbiddenBlocks": [
+    "minecraft:command_block",
+    "minecraft:structure_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:jigsaw"
+  ],
+  "targetCheck": "Target 1.21.1 performs the final block/property compatibility check before enabling this game."
+}

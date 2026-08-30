@@ -56,6 +56,9 @@ public final class BuildSafety {
          if (world.isClientSide() || !(player instanceof ServerPlayer sp)) {
             return InteractionResultHolder.pass(stack);
          }
+         if (ctx.rhythm().isPlaying(sp)) {
+            return InteractionResultHolder.fail(stack);
+         }
          if (net.exmo.sreGame.games.draw.DrawKit.tryUse(ctx, sp, stack, null)) {
             return InteractionResultHolder.fail(stack);
          }
@@ -112,6 +115,17 @@ public final class BuildSafety {
                return InteractionResultHolder.fail(stack);
             }
             return InteractionResultHolder.pass(stack);
+         }
+         if (ctx.football().isPlaying(sp)) {
+            return InteractionResultHolder.fail(stack);
+         }
+         if (ctx.blockedCombat().isPlaying(sp)) {
+            InteractionResult result = ctx.blockedCombat().handleUseItem(sp, stack);
+            return result == InteractionResult.FAIL ? InteractionResultHolder.fail(stack) : InteractionResultHolder.pass(stack);
+         }
+         if (ctx.tunnelRats().isPlaying(sp)) {
+            InteractionResult result = ctx.tunnelRats().handleUseItem(sp, stack);
+            return result == InteractionResult.FAIL ? InteractionResultHolder.fail(stack) : InteractionResultHolder.pass(stack);
          }
          if (ctx.parkour().isPlaying(sp)) {
             ctx.parkour().handleUseItem(sp, stack);
@@ -209,6 +223,12 @@ public final class BuildSafety {
             return InteractionResult.PASS;
          }
          ItemStack stack = sp.getItemInHand(hand);
+         if (ctx.partyGames().isPlaying(sp)) {
+            return ctx.partyGames().handleUseBlock(sp, hit, stack);
+         }
+         if (ctx.rhythm().isPlaying(sp)) {
+            return InteractionResult.FAIL;
+         }
          if (net.exmo.sreGame.games.draw.DrawKit.tryUse(ctx, sp, stack, hit)) {
             return InteractionResult.FAIL;
          }
@@ -257,8 +277,17 @@ public final class BuildSafety {
          if (ctx.dodgeball().isPlaying(sp)) {
             return ctx.dodgeball().handleUseBlock(sp, hit, stack);
          }
+         if (ctx.football().isPlaying(sp)) {
+            return InteractionResult.FAIL;
+         }
          if (ctx.skyWorld().isPlaying(sp)) {
             return ctx.skyWorld().handleUseBlock(sp, hit, stack);
+         }
+         if (ctx.blockedCombat().isPlaying(sp)) {
+            return ctx.blockedCombat().handleUseBlock(sp, hit, stack);
+         }
+         if (ctx.tunnelRats().isPlaying(sp)) {
+            return ctx.tunnelRats().handleUseBlock(sp, hit, stack);
          }
          if (ctx.parkour().isPlaying(sp)) {
             return InteractionResult.FAIL;
@@ -340,6 +369,9 @@ public final class BuildSafety {
          if (world.isClientSide() || !(player instanceof ServerPlayer sp)) {
             return InteractionResult.PASS;
          }
+         if (ctx.rhythm().isPlaying(sp)) {
+            return InteractionResult.FAIL;
+         }
          if (ctx.fakeHuman().isPlaying(sp)) {
             if (entity instanceof ServerPlayer target) {
                ctx.fakeHuman().handleUseEntity(sp, target, sp.getItemInHand(hand));
@@ -361,10 +393,16 @@ public final class BuildSafety {
          if (ctx.skyWorld().isPlaying(sp)) {
             return InteractionResult.PASS;
          }
+         if (ctx.blockedCombat().isPlaying(sp)) {
+            return InteractionResult.PASS;
+         }
          if (ctx.pillarPummel().isPlaying(sp)) {
             return InteractionResult.PASS;
          }
          if (ctx.dodgeball().isPlaying(sp)) {
+            return InteractionResult.FAIL;
+         }
+         if (ctx.football().isPlaying(sp)) {
             return InteractionResult.FAIL;
          }
          if (ctx.nameTagWar().isPlaying(sp)) {
@@ -398,6 +436,15 @@ public final class BuildSafety {
          if (world.isClientSide() || !(player instanceof ServerPlayer sp)) {
             return true;
          }
+         if (ctx.partyGames().isPlaying(sp)) {
+            return ctx.partyGames().tryBreak(sp, pos, state);
+         }
+         if (ctx.hypixelSays().isPlaying(sp)) {
+            return ctx.hypixelSays().tryBreak(sp, pos, state);
+         }
+         if (ctx.rhythm().isPlaying(sp)) {
+            return false;
+         }
          if (ctx.fakeHuman().isPlaying(sp) || ctx.fraudMaster().isPlaying(sp)) {
             return false;
          }
@@ -425,8 +472,17 @@ public final class BuildSafety {
          if (ctx.dodgeball().isPlaying(sp)) {
             return false;
          }
+         if (ctx.football().isPlaying(sp)) {
+            return false;
+         }
          if (ctx.skyWorld().isPlaying(sp)) {
             return ctx.skyWorld().tryBreak(sp, pos);
+         }
+         if (ctx.blockedCombat().isPlaying(sp)) {
+            return ctx.blockedCombat().tryBreak(sp, pos);
+         }
+         if (ctx.tunnelRats().isPlaying(sp)) {
+            return ctx.tunnelRats().tryBreak(sp, pos);
          }
          if (ctx.parkour().isPlaying(sp)) {
             return false;
@@ -487,6 +543,7 @@ public final class BuildSafety {
          if (entity instanceof PrimedTnt || entity instanceof MinecartTNT) {
             if (ctx.luckyPillar().containsEntity(entity) || ctx.pillarPummel().containsEntity(entity)
                || ctx.dodgeball().containsEntity(entity) || ctx.digToDeath().containsEntity(entity)
+               || ctx.football().containsEntity(entity)
                || ctx.skyWorld().containsEntity(entity) || ctx.nameTagWar().containsEntity(entity)
                || ctx.fillInTheWall().containsEntity(entity)) {
                return;

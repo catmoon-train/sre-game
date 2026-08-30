@@ -1,0 +1,35 @@
+{
+  "sourceVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "palette": [
+    "minecraft:air",
+    "minecraft:andesite",
+    "minecraft:black_wall_banner",
+    "minecraft:blue_ice",
+    "minecraft:cobblestone",
+    "minecraft:dark_prismarine",
+    "minecraft:glow_lichen",
+    "minecraft:ice",
+    "minecraft:light",
+    "minecraft:light_blue_wall_banner",
+    "minecraft:obsidian",
+    "minecraft:packed_ice",
+    "minecraft:pointed_dripstone",
+    "minecraft:prismarine_bricks",
+    "minecraft:sandstone",
+    "minecraft:sea_lantern",
+    "minecraft:stone",
+    "minecraft:verdant_froglight",
+    "minecraft:water"
+  ],
+  "removedControlBlocks": 0,
+  "removedDynamicEntities": 0,
+  "forbiddenBlocks": [
+    "minecraft:command_block",
+    "minecraft:structure_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:jigsaw"
+  ],
+  "targetCheck": "Target 1.21.1 performs the final block/property compatibility check before enabling this game."
+}

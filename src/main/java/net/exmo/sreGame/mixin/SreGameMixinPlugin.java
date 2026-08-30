@@ -21,7 +21,9 @@ public final class SreGameMixinPlugin implements IMixinConfigPlugin {
    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
       if (mixinClassName.endsWith("HurricaneEntityMixin")
          || mixinClassName.endsWith("SreForceKillMixin")
-         || mixinClassName.endsWith("FogZoneBlockEntityMixin")) {
+         || mixinClassName.endsWith("FogZoneBlockEntityMixin")
+         || mixinClassName.endsWith("KeepInventoryOnJoinMixin")
+         ) {
          return FabricLoader.getInstance().isModLoaded("starrailexpress");
       }
       return true;

@@ -10,9 +10,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.exmo.sreGame.GameContext;
 import net.exmo.sreGame.SreGame;
 import net.exmo.sreGame.game.MiniGame;
+import net.exmo.sreGame.games.partygames.PartyMiniGame;
 import com.mcrpvp.duel.fabric.api.DuelApi;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.Vec3;
 
 public final class RoomManager {
    private static final String CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -22,6 +30,10 @@ public final class RoomManager {
    private final Map<String, GameRoom> rooms = new ConcurrentHashMap<>();
    private final Map<UUID, String> playerRoom = new ConcurrentHashMap<>();
    private final Map<UUID, CreateDraft> drafts = new ConcurrentHashMap<>();
+   /** Last-resort return snapshots. Individual games still restore themselves, this closes missed end paths. */
+   private final Map<String, Map<UUID, MatchReturnState>> matchReturnStates = new ConcurrentHashMap<>();
+   /** Return states for players whose old entity died before the match could finish restoring it. */
+   private final Map<UUID, MatchReturnState> pendingRespawnReturnStates = new ConcurrentHashMap<>();
 
    public RoomManager(GameContext ctx) {
       this.ctx = ctx;
@@ -169,6 +181,8 @@ public final class RoomManager {
                this.ctx.pillarPummel().onLeave(player);
             } else if (room.isDodgeball()) {
                this.ctx.dodgeball().onLeave(player);
+            } else if (room.isFootball()) {
+               this.ctx.football().onLeave(player);
             } else if (room.isDigToDeath()) {
                this.ctx.digToDeath().onLeave(player);
             } else if (room.isYouBuildRun()) {
@@ -177,12 +191,22 @@ public final class RoomManager {
                this.ctx.pushTheButton().onLeave(player);
             } else if (room.isSkyWorld()) {
                this.ctx.skyWorld().onLeave(player);
+            } else if (room.isBlockedCombat()) {
+               this.ctx.blockedCombat().onLeave(player);
+            } else if (room.isTunnelRats()) {
+               this.ctx.tunnelRats().onLeave(player);
             } else if (room.isSituationPuzzle()) {
                this.ctx.situationPuzzle().onLeave(player);
             } else if (room.isNameTagWar()) {
                this.ctx.nameTagWar().onLeave(player);
             } else if (room.isFillInTheWall()) {
                this.ctx.fillInTheWall().onLeave(player);
+            } else if (room.isRhythm()) {
+               this.ctx.rhythm().onLeave(player);
+            } else if (room.isHypixelSays()) {
+               this.ctx.hypixelSays().onLeave(player);
+            } else if (room.isPartyGame()) {
+               this.ctx.partyGames().onLeave(player);
             } else {
                com.mcrpvp.duel.fabric.api.DuelApi.forceLeave(player);
             }
@@ -228,6 +252,10 @@ public final class RoomManager {
    }
 
    public void disband(GameRoom room, String message) {
+      this.matchReturnStates.remove(room.id());
+      for (UUID member : room.members()) {
+         this.pendingRespawnReturnStates.remove(member);
+      }
       for (UUID member : new ArrayList<>(room.members())) {
          this.playerRoom.remove(member);
          if (message != null) {
@@ -262,18 +290,22 @@ public final class RoomManager {
       boolean inLucky = this.ctx.luckyPillar().isPlaying(player);
       boolean inPummel = this.ctx.pillarPummel().isPlaying(player);
       boolean inDodgeball = this.ctx.dodgeball().isPlaying(player);
+      boolean inFootball = this.ctx.football().isPlaying(player);
       boolean inDig = this.ctx.digToDeath().isPlaying(player);
       boolean inBuildRun = this.ctx.youBuildRun().isPlaying(player);
       boolean inPtb = this.ctx.pushTheButton().isPlaying(player);
       boolean inSky = this.ctx.skyWorld().isPlaying(player);
+      boolean inBlockedCombat = this.ctx.blockedCombat().isPlaying(player);
+      boolean inTunnelRats = this.ctx.tunnelRats().isPlaying(player);
       boolean inSituation = this.ctx.situationPuzzle().isPlaying(player);
       boolean inNameTag = this.ctx.nameTagWar().isPlaying(player);
       boolean inFillWall = this.ctx.fillInTheWall().isPlaying(player);
+      boolean inRhythm = this.ctx.rhythm().isPlaying(player);
       boolean inParkour = this.ctx.parkour().isPlaying(player);
       if (inParkour) {
          this.ctx.parkour().leave(player, false);
       }
-      if (inRoom || inBuildWar || inYouGuess || inFraud || inFake || inCave || inChicken || inDontDo || inLucky || inPummel || inDodgeball || inDig || inBuildRun || inPtb || inSky || inSituation || inNameTag || inFillWall) {
+      if (inRoom || inBuildWar || inYouGuess || inFraud || inFake || inCave || inChicken || inDontDo || inLucky || inPummel || inDodgeball || inFootball || inDig || inBuildRun || inPtb || inSky || inBlockedCombat || inTunnelRats || inSituation || inNameTag || inFillWall || inRhythm) {
          this.leave(player.getUUID(), false);
          this.resetLobbyState(player);
          this.ctx.send(player, "&7已退出房间并回到出生点。");
@@ -290,7 +322,6 @@ public final class RoomManager {
       }
       player.closeContainer();
       player.setInvisible(false);
-      player.getInventory().clearContent();
       player.setGameMode(GameType.ADVENTURE);
       DuelApi.teleportToSpawn(player);
    }
@@ -314,15 +345,21 @@ public final class RoomManager {
          this.ctx.send(host, "&c未选择小游戏。");
          return false;
       }
+      if (!(game instanceof PartyMiniGame) && !this.ctx.config().isGameEnabled(game.id())) {
+         this.ctx.send(host, "&c该小游戏当前已被管理员禁用。");
+         return false;
+      }
       if (!game.canStart(room, host)) {
          return false;
       }
       this.ctx.parkour().leaveAllRoomMembers(room);
+      this.captureMatchReturnStates(room);
       room.setState(RoomState.STARTING);
       this.ctx.broadcast(room, "&a房主开始了 &f" + game.displayName() + " &a对局…");
       try {
          game.start(room, host);
       } catch (Exception e) {
+         this.restoreMatchReturnStates(room);
          room.setState(RoomState.WAITING);
          room.setActiveMatchId(null);
          this.ctx.send(host, "&c开局失败：" + e.getMessage());
@@ -330,6 +367,7 @@ public final class RoomManager {
          return false;
       }
       if (room.state() == RoomState.STARTING && room.activeMatchId() == null) {
+         this.restoreMatchReturnStates(room);
          room.setState(RoomState.WAITING);
          this.ctx.send(host, "&c开局失败：对局未能创建（检查模式人数与场地）。");
          return false;
@@ -342,10 +380,104 @@ public final class RoomManager {
       if (room == null) {
          return;
       }
+      this.restoreMatchReturnStates(room);
       room.setActiveMatchId(null);
       room.setState(RoomState.WAITING);
       room.clearReadyExceptHost();
       this.ctx.broadcast(room, "&a对局结束。房主可以再开一局，或解散房间。");
+   }
+
+   private void captureMatchReturnStates(GameRoom room) {
+      Map<UUID, MatchReturnState> states = new ConcurrentHashMap<>();
+      for (UUID uuid : room.members()) {
+         ServerPlayer player = this.ctx.player(uuid);
+         if (player != null) {
+            states.put(uuid, MatchReturnState.capture(player));
+         }
+      }
+      this.matchReturnStates.put(room.id(), states);
+   }
+
+   private void restoreMatchReturnStates(GameRoom room) {
+      Map<UUID, MatchReturnState> states = this.matchReturnStates.remove(room.id());
+      if (states == null) {
+         return;
+      }
+      for (Map.Entry<UUID, MatchReturnState> entry : states.entrySet()) {
+         ServerPlayer player = this.ctx.player(entry.getKey());
+         if (player != null && this.getByPlayer(player.getUUID()) == room) {
+            if (player.isAlive()) {
+               entry.getValue().apply(player, this.ctx, room.returnToDuelSpawn());
+            } else {
+               this.pendingRespawnReturnStates.put(player.getUUID(), entry.getValue());
+            }
+         }
+      }
+   }
+
+   /** Called after Minecraft has created a new player entity following a death. */
+   public void onPlayerRespawn(ServerPlayer player) {
+      if (player == null) {
+         return;
+      }
+      MatchReturnState state = this.pendingRespawnReturnStates.remove(player.getUUID());
+      GameRoom room = this.getByPlayer(player.getUUID());
+      if (state != null && room != null) {
+         // MCRPVPDuel's respawn handler runs first; run on the server queue so this
+         // room's original inventory and return destination are the final state.
+         this.ctx.server().execute(() -> {
+            if (this.getByPlayer(player.getUUID()) == room) {
+               state.apply(player, this.ctx, room.returnToDuelSpawn());
+            }
+         });
+      }
+   }
+
+   private record MatchReturnState(ResourceKey<Level> dimension, Vec3 pos, float yaw, float pitch,
+                                   GameType gameType, boolean invisible, List<ItemStack> items,
+                                   ItemStack head, ItemStack chest, ItemStack legs, ItemStack feet, ItemStack offhand) {
+      static MatchReturnState capture(ServerPlayer player) {
+         List<ItemStack> items = new ArrayList<>();
+         Inventory inventory = player.getInventory();
+         for (int i = 0; i < inventory.getContainerSize(); i++) {
+            items.add(inventory.getItem(i).copy());
+         }
+         return new MatchReturnState(player.level().dimension(), player.position(), player.getYRot(), player.getXRot(),
+            player.gameMode.getGameModeForPlayer(), player.isInvisible(), items,
+            player.getItemBySlot(EquipmentSlot.HEAD).copy(), player.getItemBySlot(EquipmentSlot.CHEST).copy(),
+            player.getItemBySlot(EquipmentSlot.LEGS).copy(), player.getItemBySlot(EquipmentSlot.FEET).copy(),
+            player.getItemBySlot(EquipmentSlot.OFFHAND).copy());
+      }
+
+      void apply(ServerPlayer player, GameContext ctx, boolean returnToDuelSpawn) {
+         ServerLevel level = ctx.server().getLevel(this.dimension);
+         if (level == null) {
+            level = ctx.server().overworld();
+         }
+         player.closeContainer();
+         if (returnToDuelSpawn) {
+            DuelApi.teleportToSpawn(player);
+            player.setGameMode(GameType.ADVENTURE);
+            player.setInvisible(false);
+         } else {
+            player.teleportTo(level, this.pos.x, this.pos.y, this.pos.z, this.yaw, this.pitch);
+            // A finished room must never restore a stale spectator mode.
+            player.setGameMode(this.gameType == GameType.SPECTATOR ? GameType.ADVENTURE : this.gameType);
+            player.setInvisible(this.invisible);
+         }
+         player.setDeltaMovement(Vec3.ZERO);
+         player.fallDistance = 0.0F;
+         Inventory inventory = player.getInventory();
+         inventory.clearContent();
+         for (int i = 0; i < Math.min(inventory.getContainerSize(), this.items.size()); i++) {
+            inventory.setItem(i, this.items.get(i).copy());
+         }
+         player.setItemSlot(EquipmentSlot.HEAD, this.head.copy());
+         player.setItemSlot(EquipmentSlot.CHEST, this.chest.copy());
+         player.setItemSlot(EquipmentSlot.LEGS, this.legs.copy());
+         player.setItemSlot(EquipmentSlot.FEET, this.feet.copy());
+         player.setItemSlot(EquipmentSlot.OFFHAND, this.offhand.copy());
+      }
    }
 
    /** 房主在游戏过程中强制终止当前对局（通用，按房间当前小游戏分发）。 */
@@ -396,6 +528,8 @@ public final class RoomManager {
          var m = this.ctx.pillarPummel().getById(matchId); if (m != null) m.endNow();
       } else if (room.isDodgeball()) {
          var m = this.ctx.dodgeball().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isFootball()) {
+         var m = this.ctx.football().getById(matchId); if (m != null) m.endNow();
       } else if (room.isDigToDeath()) {
          var m = this.ctx.digToDeath().getById(matchId); if (m != null) m.endNow();
       } else if (room.isYouBuildRun()) {
@@ -404,12 +538,25 @@ public final class RoomManager {
          var m = this.ctx.pushTheButton().getById(matchId); if (m != null) m.endNow();
       } else if (room.isSkyWorld()) {
          var m = this.ctx.skyWorld().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isBlockedCombat()) {
+         var m = this.ctx.blockedCombat().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isTunnelRats()) {
+         var m = this.ctx.tunnelRats().getById(matchId); if (m != null) m.endNow();
       } else if (room.isSituationPuzzle()) {
          var m = this.ctx.situationPuzzle().getById(matchId); if (m != null) m.endNow();
       } else if (room.isNameTagWar()) {
          var m = this.ctx.nameTagWar().getById(matchId); if (m != null) m.endNow();
       } else if (room.isFillInTheWall()) {
          var m = this.ctx.fillInTheWall().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isRhythm()) {
+         var m = this.ctx.rhythm().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isHypixelSays()) {
+         var m = this.ctx.hypixelSays().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isPartyGame()) {
+         var m = this.ctx.partyGames().getById(matchId); if (m != null) m.endNow();
+      } else if (room.isQuake()) {
+         var m = net.exmo.sreGame.games.quakechasm.QuakeManager.INSTANCE.getById(matchId);
+         if (m != null) m.end();
       }
    }
 

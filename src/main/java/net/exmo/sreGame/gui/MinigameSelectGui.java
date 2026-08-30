@@ -1,9 +1,11 @@
 package net.exmo.sreGame.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import net.exmo.sreGame.GameContext;
 import net.exmo.sreGame.game.MiniGame;
+import net.exmo.sreGame.games.partygames.PartyMiniGame;
 import net.exmo.sreGame.room.CreateDraft;
 import net.exmo.sreGame.room.GameRoom;
 import net.exmo.sreGame.room.RoomState;
@@ -15,45 +17,85 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 
 public final class MinigameSelectGui {
+   private static final int[] GAME_SLOTS = {
+      19, 20, 21, 22, 23, 24, 25,
+      28, 29, 30, 31, 32, 33, 34,
+      37, 38, 39, 40, 41, 42, 43
+   };
+
    private MinigameSelectGui() {
    }
 
    public static void open(GameContext ctx, ServerPlayer player, boolean forDraft) {
+      open(ctx, player, forDraft, 0);
+   }
+
+   private static void open(GameContext ctx, ServerPlayer player, boolean forDraft, int page) {
       SimpleContainer container = new SimpleContainer(54);
-      fill(ctx, container);
+      int safePage = clampPage(ctx, page);
+      fill(ctx, container, safePage);
       player.openMenu(new SimpleMenuProvider(
-         (syncId, inv, p) -> new Menu(syncId, inv, container, ctx, player, forDraft),
-         TextUtil.color("&d✦ &f选择小游戏")
+         (syncId, inv, p) -> new Menu(syncId, inv, container, ctx, player, forDraft, safePage),
+         TextUtil.color("&d✦ &f选择小游戏 &8(" + (safePage + 1) + "/" + totalPages(ctx) + ")")
       ));
    }
 
-   private static void fill(GameContext ctx, SimpleContainer container) {
+   private static int totalPages(GameContext ctx) {
+      int count = selectableGames(ctx).size();
+      return Math.max(1, (count + GAME_SLOTS.length - 1) / GAME_SLOTS.length);
+   }
+
+   private static List<MiniGame> selectableGames(GameContext ctx) {
+      List<MiniGame> games = new ArrayList<>(ctx.games().all());
+      games.removeIf(game -> {
+         if (game instanceof PartyMiniGame party) {
+            return !ctx.partyGames().isEnabled(party.type());
+         }
+         return !ctx.config().isGameEnabled(game.id());
+      });
+      return games;
+   }
+
+   private static int clampPage(GameContext ctx, int page) {
+      return Math.max(0, Math.min(page, totalPages(ctx) - 1));
+   }
+
+   private static void fill(GameContext ctx, SimpleContainer container, int page) {
       ItemStackPane.fill(container);
-      int slot = 19;
-      for (MiniGame game : ctx.games().all()) {
-         container.setItem(slot, GuiItems.action(game.icon(), "&f" + game.displayName(), List.of(
+      List<MiniGame> games = selectableGames(ctx);
+      int from = page * GAME_SLOTS.length;
+      for (int i = 0; i < GAME_SLOTS.length && from + i < games.size(); i++) {
+         MiniGame game = games.get(from + i);
+         container.setItem(GAME_SLOTS[i], GuiItems.action(game.icon(), "&f" + game.displayName(), List.of(
             "&7人数： &f" + game.minPlayers() + "&7-&f" + game.maxPlayers(),
             "&e点击选择"
          ), "pick", "id", game.id()));
-         slot++;
-         if (slot % 9 == 8) {
-            slot += 2;
-         }
-         if (slot >= 44) {
-            break;
-         }
+      }
+      int pages = totalPages(ctx);
+      if (page > 0) {
+         container.setItem(47, GuiItems.action("arrow", "&e上一页",
+            List.of("&7第 &f" + (page + 1) + "&7/&f" + pages + " &7页"), "prev"));
       }
       container.setItem(49, GuiItems.action("barrier", "&c返回", List.of(), "back"));
+      if (page + 1 < pages) {
+         container.setItem(51, GuiItems.action("arrow", "&e下一页",
+            List.of("&7第 &f" + (page + 1) + "&7/&f" + pages + " &7页"), "next"));
+      }
    }
 
    private static final class Menu extends ProtectedChestMenu {
       private final GameContext ctx;
+      private final SimpleContainer container;
       private final boolean forDraft;
+      private int page;
 
-      Menu(int syncId, Inventory playerInv, SimpleContainer container, GameContext ctx, ServerPlayer viewer, boolean forDraft) {
+      Menu(int syncId, Inventory playerInv, SimpleContainer container, GameContext ctx, ServerPlayer viewer,
+           boolean forDraft, int page) {
          super(syncId, playerInv, container, 6, viewer);
          this.ctx = ctx;
+         this.container = container;
          this.forDraft = forDraft;
+         this.page = page;
       }
 
       @Override
@@ -69,6 +111,16 @@ public final class MinigameSelectGui {
             } else {
                RoomPanelGui.open(this.ctx, player);
             }
+            return;
+         }
+         if ("prev".equals(action)) {
+            this.page = clampPage(this.ctx, this.page - 1);
+            fill(this.ctx, this.container, this.page);
+            return;
+         }
+         if ("next".equals(action)) {
+            this.page = clampPage(this.ctx, this.page + 1);
+            fill(this.ctx, this.container, this.page);
             return;
          }
          if ("pick".equals(action)) {
@@ -106,16 +158,25 @@ public final class MinigameSelectGui {
                if ("dodgeball".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 64)) {
                   draft.maxPlayers = 8;
                }
+               if ("football".equals(game.id()) && (draft.maxPlayers < 16 || draft.maxPlayers > 24)) {
+                  draft.maxPlayers = 24;
+               }
                if ("dig_to_death".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 64)) {
                   draft.maxPlayers = 8;
                }
                if ("you_build_run".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 32)) {
                   draft.maxPlayers = 8;
                }
-               if ("push_the_button".equals(game.id()) && (draft.maxPlayers < 4 || draft.maxPlayers > 10)) {
+               if ("push_the_button".equals(game.id()) && (draft.maxPlayers < 4 || draft.maxPlayers > 24)) {
                   draft.maxPlayers = 8;
                }
                if ("skyworld".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 32)) {
+                  draft.maxPlayers = 8;
+               }
+               if ("blocked_combat".equals(game.id()) && (draft.maxPlayers < 1 || draft.maxPlayers > 16)) {
+                  draft.maxPlayers = 4;
+               }
+               if ("tunnel_rats".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 32)) {
                   draft.maxPlayers = 8;
                }
                if ("situation_puzzle".equals(game.id()) && (draft.maxPlayers < 1 || draft.maxPlayers > 64)) {
@@ -126,6 +187,12 @@ public final class MinigameSelectGui {
                }
                if ("fill_in_the_wall".equals(game.id()) && (draft.maxPlayers < 1 || draft.maxPlayers > 32)) {
                   draft.maxPlayers = 4;
+               }
+               if ("rhythm_game".equals(game.id()) && (draft.maxPlayers < 1 || draft.maxPlayers > 4)) {
+                  draft.maxPlayers = 1;
+               }
+               if ("hypixel_says".equals(game.id()) && (draft.maxPlayers < 2 || draft.maxPlayers > 16)) {
+                  draft.maxPlayers = 8;
                }
                CreateRoomGui.open(this.ctx, player);
             } else {

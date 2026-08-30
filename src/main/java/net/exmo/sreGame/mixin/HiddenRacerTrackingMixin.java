@@ -1,6 +1,7 @@
 package net.exmo.sreGame.mixin;
 
 import net.exmo.sreGame.games.chicken.ChickenHorseVisibility;
+import net.exmo.sreGame.player.PlayerVisibility;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Final;
@@ -21,7 +22,8 @@ public abstract class HiddenRacerTrackingMixin {
 
    @Inject(method = "updatePlayer", at = @At("HEAD"), cancellable = true)
    private void sre$hideOtherRacers(ServerPlayer player, CallbackInfo ci) {
-      if (ChickenHorseVisibility.hiddenFrom(player, this.entity)) {
+      if (ChickenHorseVisibility.hiddenFrom(player, this.entity)
+         || PlayerVisibility.isHiddenFrom(player, this.entity)) {
          this.removePlayer(player);
          ci.cancel();
       }

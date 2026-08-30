@@ -83,7 +83,7 @@ public class QuakeUserState {
 
     public void initRespawn() {
         // give machinegun
-        ItemStack mg = new ItemStack(Items.CARROT_ON_A_STICK);
+        ItemStack mg = new ItemStack(WeaponType.ITEMS[WeaponType.MACHINEGUN]);
         mg.set(DataComponents.CUSTOM_DATA, CustomData.EMPTY.update(t -> t.putInt("qc_weapon", WeaponType.MACHINEGUN)));
         mg.set(DataComponents.CUSTOM_NAME, TextUtil.color(QuakeTranslator.t("pickup.weapon.machinegun")));
         player.getInventory().setItem(0, mg);
@@ -106,6 +106,8 @@ public class QuakeUserState {
 
     /** Called every server tick by QuakeManager. */
     public void tick() {
+        // 未在比赛中（未开始/已结束/普通玩家）时不刷 Quake HUD、不禁饥饿、不 strafe
+        if (currentMatch == null) return;
         weaponState.tick(player);
 
         for (int i = activePowerups.size() - 1; i >= 0; i--) {

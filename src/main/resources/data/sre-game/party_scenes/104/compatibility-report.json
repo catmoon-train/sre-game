@@ -1,0 +1,36 @@
+{
+  "sourceVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "palette": [
+    "minecraft:air",
+    "minecraft:blue_concrete",
+    "minecraft:blue_ice",
+    "minecraft:cyan_concrete",
+    "minecraft:diamond_block",
+    "minecraft:dirt",
+    "minecraft:jungle_wood",
+    "minecraft:light",
+    "minecraft:lime_concrete",
+    "minecraft:mangrove_log",
+    "minecraft:mangrove_planks",
+    "minecraft:mangrove_slab",
+    "minecraft:mangrove_stairs",
+    "minecraft:red_stained_glass",
+    "minecraft:sea_lantern",
+    "minecraft:smooth_quartz_stairs",
+    "minecraft:spruce_wood",
+    "minecraft:stone",
+    "minecraft:stone_brick_slab",
+    "minecraft:stone_bricks"
+  ],
+  "removedControlBlocks": 0,
+  "removedDynamicEntities": 0,
+  "forbiddenBlocks": [
+    "minecraft:command_block",
+    "minecraft:structure_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:jigsaw"
+  ],
+  "targetCheck": "Target 1.21.1 performs the final block/property compatibility check before enabling this game."
+}

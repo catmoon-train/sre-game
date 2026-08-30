@@ -55,12 +55,13 @@ public final class CreateRoomGui {
          : ("dont_do".equals(miniGameId) || "lucky_pillar".equals(miniGameId) || "pillar_pummel".equals(miniGameId)
             || "dodgeball".equals(miniGameId) || "dig_to_death".equals(miniGameId))
             ? new int[] {2, 8, 16, 32, 48, 64}
+         : "football".equals(miniGameId) ? new int[] {16, 20, 24}
          : "you_build_run".equals(miniGameId) ? new int[] {2, 8, 16, 24, 32}
          : "skyworld".equals(miniGameId) ? new int[] {2, 8, 16, 24, 32}
          : ("fraud_master".equals(miniGameId) || "who_is_fake".equals(miniGameId))
             ? new int[] {4, 8, 16, 24, 32}
             : "cave_guess".equals(miniGameId) ? new int[] {2, 8, 16, 32, 48, 64}
-            : "push_the_button".equals(miniGameId) ? new int[] {4, 5, 6, 7, 8, 9, 10}
+            : "push_the_button".equals(miniGameId) ? new int[] {4, 8, 16, 24}
             : MAX_CYCLE;
       for (int i = 0; i < cycle.length; i++) {
          if (cycle[i] == current) {

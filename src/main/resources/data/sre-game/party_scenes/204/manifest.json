@@ -1,0 +1,192 @@
+{
+  "format": 1,
+  "gameId": "204",
+  "minecraftVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "size": [
+    66,
+    21,
+    91
+  ],
+  "anchors": {
+    "blue_spawn": [
+      8.0,
+      10.0,
+      13.0
+    ],
+    "red_spawn": [
+      20.0,
+      10.0,
+      73.0
+    ],
+    "blue_flag": [
+      9.0,
+      10.0,
+      13.0
+    ],
+    "red_flag": [
+      13.0,
+      10.0,
+      68.0
+    ]
+  },
+  "shards": [
+    {
+      "file": "shard_0_0_0.nbt",
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        32,
+        21,
+        32
+      ],
+      "blockCount": 21504,
+      "blockEntityCount": 1,
+      "entityCount": 0,
+      "sha256": "c27636775a41bf4d9a1e2bd41526a7818b2593bf5bcc6d3d12d9142d186f5c04"
+    },
+    {
+      "file": "shard_0_0_32.nbt",
+      "offset": [
+        0,
+        0,
+        32
+      ],
+      "size": [
+        32,
+        21,
+        32
+      ],
+      "blockCount": 21504,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "b9ffcf62866c4d3785a5bacd59591b18b9247aa59f623f027ec6f6a16a803c5b"
+    },
+    {
+      "file": "shard_0_0_64.nbt",
+      "offset": [
+        0,
+        0,
+        64
+      ],
+      "size": [
+        32,
+        21,
+        27
+      ],
+      "blockCount": 18144,
+      "blockEntityCount": 1,
+      "entityCount": 0,
+      "sha256": "31606253a838ea3a3e2d92931f0bfd9286828a666e872e33ece759c388091cca"
+    },
+    {
+      "file": "shard_32_0_0.nbt",
+      "offset": [
+        32,
+        0,
+        0
+      ],
+      "size": [
+        32,
+        21,
+        32
+      ],
+      "blockCount": 21504,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "052cc911a913441fb89b6ac7383aac20be4a56808e0b8cea60dabdb43f553b26"
+    },
+    {
+      "file": "shard_32_0_32.nbt",
+      "offset": [
+        32,
+        0,
+        32
+      ],
+      "size": [
+        32,
+        21,
+        32
+      ],
+      "blockCount": 21504,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "db0d4f9c26727760164134dbbbe92fbb46b10bb6a1f2d09d7256f56f60fbbf96"
+    },
+    {
+      "file": "shard_32_0_64.nbt",
+      "offset": [
+        32,
+        0,
+        64
+      ],
+      "size": [
+        32,
+        21,
+        27
+      ],
+      "blockCount": 18144,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "793c0445880dca0dd92a940a90bce268922b644818902f29bab3383ab174b999"
+    },
+    {
+      "file": "shard_64_0_0.nbt",
+      "offset": [
+        64,
+        0,
+        0
+      ],
+      "size": [
+        2,
+        21,
+        32
+      ],
+      "blockCount": 1344,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "821c3ca542cc4f8d5e8afc204713591b2d1e0d6290d93831c57a1d39427067c1"
+    },
+    {
+      "file": "shard_64_0_32.nbt",
+      "offset": [
+        64,
+        0,
+        32
+      ],
+      "size": [
+        2,
+        21,
+        32
+      ],
+      "blockCount": 1344,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "165c073d084a56a979cc30dd00bd25613c2fc3c1c8bf7e11334569456b210b1b"
+    },
+    {
+      "file": "shard_64_0_64.nbt",
+      "offset": [
+        64,
+        0,
+        64
+      ],
+      "size": [
+        2,
+        21,
+        27
+      ],
+      "blockCount": 1134,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "7e19b436d61c56a8434fdd8151715cb8cae5ccaf0470ce37a535f52b9c4e1290"
+    }
+  ],
+  "blockCount": 126126,
+  "blockEntityCount": 2,
+  "entityCount": 0,
+  "sha256": "6d9c7eb47cc907d3156a8caee7c353149d18ce69e08b5b1a991a819d3b9e9c00"
+}

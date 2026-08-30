@@ -27,10 +27,14 @@ import net.exmo.sreGame.games.luckypillar.LuckyPillarMiniGame;
 import net.exmo.sreGame.games.nametagwar.NameTagWarMiniGame;
 import net.exmo.sreGame.games.pillarpummel.PillarPummelMiniGame;
 import net.exmo.sreGame.games.pushthebutton.PushTheButtonMiniGame;
+import net.exmo.sreGame.games.rhythm.RhythmMiniGame;
 import net.exmo.sreGame.games.skyworld.SkyWorldMiniGame;
+import net.exmo.sreGame.games.blockedcombat.BlockedCombatMiniGame;
+import net.exmo.sreGame.games.tunnelrats.TunnelRatsMiniGame;
 import net.exmo.sreGame.games.situationpuzzle.SituationPuzzleMiniGame;
 import net.exmo.sreGame.room.GameRoom;
 import net.exmo.sreGame.games.youguess.YouGuessMiniGame;
+import net.exmo.sreGame.games.partygames.PartyGameType;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class SettingsProfiles {
@@ -111,6 +115,9 @@ public final class SettingsProfiles {
 
    static Map<String, Object> snapshotOf(GameRoom room) {
       String id = room.miniGameId();
+      if (PartyGameType.byId(id) != null) {
+         return room.partyGameSettings().snapshot();
+      }
       if (BuildWarMiniGame.ID.equals(id) || DrawWarMiniGame.ID.equals(id)) {
          return room.buildWarSettings().snapshot();
       }
@@ -153,6 +160,12 @@ public final class SettingsProfiles {
       if (SkyWorldMiniGame.ID.equals(id)) {
          return room.skyWorldSettings().snapshot();
       }
+      if (BlockedCombatMiniGame.ID.equals(id)) {
+         return room.blockedCombatSettings().snapshot();
+      }
+      if (TunnelRatsMiniGame.ID.equals(id)) {
+         return room.tunnelRatsSettings().snapshot();
+      }
       if (SituationPuzzleMiniGame.ID.equals(id)) {
          return room.situationPuzzleSettings().snapshot();
       }
@@ -162,11 +175,18 @@ public final class SettingsProfiles {
       if (FillInTheWallMiniGame.ID.equals(id)) {
          return room.fillInTheWallSettings().snapshot();
       }
+      if (RhythmMiniGame.ID.equals(id)) {
+         return room.rhythmSettings().snapshot();
+      }
       return room.duelSettings().snapshot();
    }
 
    static void applyTo(GameRoom room, Map<String, Object> data) {
       String id = room.miniGameId();
+      if (PartyGameType.byId(id) != null) {
+         room.partyGameSettings().apply(data);
+         return;
+      }
       if (BuildWarMiniGame.ID.equals(id) || DrawWarMiniGame.ID.equals(id)) {
          room.buildWarSettings().apply(data);
       } else if (YouGuessMiniGame.ID.equals(id) || DrawGuessMiniGame.ID.equals(id)) {
@@ -195,12 +215,18 @@ public final class SettingsProfiles {
          room.pushTheButtonSettings().apply(data);
       } else if (SkyWorldMiniGame.ID.equals(id)) {
          room.skyWorldSettings().apply(data);
+      } else if (BlockedCombatMiniGame.ID.equals(id)) {
+         room.blockedCombatSettings().apply(data);
+      } else if (TunnelRatsMiniGame.ID.equals(id)) {
+         room.tunnelRatsSettings().apply(data);
       } else if (SituationPuzzleMiniGame.ID.equals(id)) {
          room.situationPuzzleSettings().apply(data);
       } else if (NameTagWarMiniGame.ID.equals(id)) {
          room.nameTagWarSettings().apply(data);
       } else if (FillInTheWallMiniGame.ID.equals(id)) {
          room.fillInTheWallSettings().apply(data);
+      } else if (RhythmMiniGame.ID.equals(id)) {
+         room.rhythmSettings().apply(data);
       } else {
          room.duelSettings().apply(data);
       }

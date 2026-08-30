@@ -25,7 +25,7 @@ public final class QuakeTDMMiniGame implements MiniGame {
     @Override public String displayName() { return "Quake 团队死斗"; }
     @Override public String icon() { return "iron_sword"; }
     @Override public int minPlayers() { return 2; }
-    @Override public int maxPlayers() { return 16; }
+    @Override public int maxPlayers() { return 24; }
 
     @Override public void openSetup(ServerPlayer host, GameRoom room) {
         ctx.send(host, "&6[Quake TDM] &7红蓝两队对抗，人数自动平衡。准备后开始。");
@@ -33,7 +33,7 @@ public final class QuakeTDMMiniGame implements MiniGame {
 
     @Override
     public boolean canStart(GameRoom room, ServerPlayer actor) {
-        if (room.size() < minPlayers()) { ctx.send(actor, "&cQuake TDM 需要至少 " + minPlayers() + " 人。"); return false; }
+        if (room.size() < minPlayers() || room.size() > maxPlayers()) { ctx.send(actor, "&cQuake TDM 需要 " + minPlayers() + "–" + maxPlayers() + " 人。"); return false; }
         if (!room.allReady()) { ctx.send(actor, "&c还有玩家未准备。"); return false; }
         return true;
     }
@@ -47,6 +47,9 @@ public final class QuakeTDMMiniGame implements MiniGame {
                 new ArrayList<>(), new ArrayList<>(List.of(MatchMode.TDM)), 2);
         TDMMatch match = new TDMMatch(map);
         QuakeManager.INSTANCE.matches.add(match);
+        room.setActiveMatchId(match.matchId);
+        room.setState(net.exmo.sreGame.room.RoomState.PLAYING);
+        match.cleanupTriggers(); // 清上局残留 spawner，避免堆积
         QuakeMiniGame.spawnPickups(level, p);
         for (UUID id : room.members()) {
             ServerPlayer mp = ctx.server().getPlayerList().getPlayer(id);

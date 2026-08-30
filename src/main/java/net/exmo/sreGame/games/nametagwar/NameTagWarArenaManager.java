@@ -193,7 +193,7 @@ public final class NameTagWarArenaManager {
                used++;
                this.advanceClear();
             } else {
-               BlockState want = this.want();
+               BlockState want = this.arena.structureWant(this.x, this.y, this.z, this.layout.borderSize());
                if (level.getBlockState(pos.set(this.x, this.y, this.z)).getBlock() != want.getBlock()) {
                   level.setBlock(pos, want, 2);
                }
@@ -238,26 +238,6 @@ public final class NameTagWarArenaManager {
                }
             }
          }
-      }
-
-      private BlockState want() {
-         int size = this.layout.borderSize();
-         int x0 = this.arena.minX(size);
-         int z0 = this.arena.minZ(size);
-         int x1 = this.arena.maxX(size);
-         int z1 = this.arena.maxZ(size);
-         int ly = this.y;
-         if (ly == this.arena.basinY()) {
-            return NameTagWarArena.BASIN;
-         }
-         boolean wall = this.x == x0 || this.x == x1 || this.z == z0 || this.z == z1;
-         if (wall) {
-            return NameTagWarArena.WALL;
-         }
-         if (ly == this.arena.floorY()) {
-            return NameTagWarArena.FLOOR;
-         }
-         return Blocks.AIR.defaultBlockState();
       }
 
       void finish() {

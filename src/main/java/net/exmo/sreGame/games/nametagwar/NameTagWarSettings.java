@@ -6,8 +6,8 @@ import net.exmo.sreGame.profile.SettingsIo;
 
 public final class NameTagWarSettings {
    public enum RipMode {
-      FAST("&b速撕 &7(0.35s · 严格背刺)", 7, -0.7),
-      STEADY("&e稳撕 &7(0.8s · 侧后有效)", 16, -0.3);
+      FAST("&b速撕 &7(0.25s · 背后即可)", 5, 0.0),
+      STEADY("&e稳撕 &7(0.5s · 侧前即可)", 10, 0.3);
 
       private final String label;
       private final int ticks;
@@ -59,14 +59,14 @@ public final class NameTagWarSettings {
    private boolean friendlyFire;
    private RipMode defaultRipMode = RipMode.FAST;
    private boolean giveBothRippers = true;
-   private int maxSeconds = 240;
+   private int maxSeconds = 180;
    private boolean border = true;
    private int borderSize = 64;
    private int shrinkDelaySeconds = 120;
    private int shrinkTicksPerBlock = 40;
    private boolean interruptOnMove = true;
    private boolean interruptOnDamage = true;
-   private double maxDistance = 2.0;
+   private double maxDistance = 3.0;
    private double horizontalOffset = 0.5;
    private double heightOffset = 1.2;
    private double sneakHeightReduce = 0.2;

@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.exmo.sreGame.games.quakechasm.Chatroom;
 import net.exmo.sreGame.games.quakechasm.QuakeConfig;
@@ -16,6 +17,7 @@ import net.exmo.sreGame.games.quakechasm.QuakeUserState;
 import net.exmo.sreGame.games.quakechasm.combat.DamageCause;
 import net.exmo.sreGame.games.quakechasm.combat.DeathMessages;
 import net.exmo.sreGame.games.quakechasm.combat.WeaponUtil;
+import net.exmo.sreGame.games.quakechasm.entity.Trigger;
 import net.exmo.sreGame.games.quakechasm.util.MiscUtil;
 import net.exmo.sreGame.util.TextUtil;
 
@@ -42,6 +44,11 @@ public abstract class QuakeMatch {
     protected MatchPrivacy privacy = MatchPrivacy.PUBLIC;
     protected String passwordHash;
     protected final HashSet<UUID> invitedPlayers = new HashSet<>();
+
+    /** Unique id for this match; used to link back to the SRE-GAME room via activeMatchId. */
+    public final UUID matchId = UUID.randomUUID();
+
+    public UUID getId() { return matchId; }
 
     public QuakeMatch(QMap map) {
         this(map, null, MatchPrivacy.PUBLIC, null);
@@ -116,8 +123,37 @@ public abstract class QuakeMatch {
             for (ServerPlayer p : List.copyOf(players.keySet())) {
                 cleanup(p);
             }
+            cleanupTriggers();
             QuakeManager.INSTANCE.matches.remove(this);
+            // 通知房间系统：对局已结束，复位房间到 WAITING
+            try {
+                net.exmo.sreGame.SreGame.getContext().rooms().onMatchEnded(matchId);
+            } catch (Throwable ignored) {}
         });
+    }
+
+    /**
+     * Remove all Quake triggers (spawners / jumppads / portals / flags) lying inside
+     * this match's map bounds, so they don't pile up across repeated matches.
+     */
+    public void cleanupTriggers() {
+        MinecraftServer server = QuakeManager.INSTANCE.server();
+        if (server == null) return;
+        ServerLevel level = map.getWorld(server);
+        if (level == null) return;
+        AABB bounds = map.getBounds();
+        var it = QuakeManager.INSTANCE.triggers.iterator();
+        while (it.hasNext()) {
+            Trigger t = it.next();
+            try {
+                if (t.getLevel() == level && bounds.contains(t.getLocation())) {
+                    t.remove();
+                    it.remove();
+                }
+            } catch (Throwable ignored) {
+                it.remove();
+            }
+        }
     }
 
     public void cleanup(ServerPlayer player) {

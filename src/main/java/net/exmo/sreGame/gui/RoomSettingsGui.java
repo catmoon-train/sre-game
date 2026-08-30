@@ -50,6 +50,9 @@ public final class RoomSettingsGui {
       container.setItem(22, GuiItems.action(room.autoReady() ? "lime_dye" : "gray_dye",
          room.autoReady() ? "&a自动准备：开" : "&8自动准备：关",
          List.of("&7加入房间时自动准备", "&7默认开启，仍可手动取消准备", "&e点击切换"), "autoready"));
+      container.setItem(24, GuiItems.action(room.returnToDuelSpawn() ? "ender_pearl" : "compass",
+         room.returnToDuelSpawn() ? "&a结束回决斗出生点：开" : "&8结束回决斗出生点：关",
+         List.of("&7开启时，小游戏结束后所有成员回到", "&7MCRPVPDuel 设置的出生点", "&7默认开启", "&e点击切换"), "returnspawn"));
       container.setItem(31, GuiItems.action("arrow", "&7返回房间", List.of(), "back"));
    }
 
@@ -95,6 +98,15 @@ public final class RoomSettingsGui {
                if (room.state() == RoomState.WAITING) {
                   room.setAutoReady(!room.autoReady());
                   this.ctx.broadcast(room, room.autoReady() ? "&a已开启自动准备。" : "&7已关闭自动准备。");
+                  fill(this.container, room);
+               }
+            }
+            case "returnspawn" -> {
+               if (room.state() == RoomState.WAITING) {
+                  room.setReturnToDuelSpawn(!room.returnToDuelSpawn());
+                  this.ctx.broadcast(room, room.returnToDuelSpawn()
+                     ? "&a小游戏结束后将返回决斗出生点。"
+                     : "&7小游戏结束后将回到开局前的位置。");
                   fill(this.container, room);
                }
             }

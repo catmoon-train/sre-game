@@ -1,0 +1,263 @@
+{
+  "id": "serenade",
+  "name": "小夜曲",
+  "bpm": 100,
+  "notes": [
+    {
+      "t": 1200,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 1672,
+      "lane": "RED",
+      "type": "hold",
+      "duration": 300
+    },
+    {
+      "t": 2270,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 2928,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 3583,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 4181,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 4677,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 5140,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 5655,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 6292,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 6906,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 7616,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 8126,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 8604,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 9087,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 9805,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 10464,
+      "lane": "BLUE",
+      "type": "hold",
+      "duration": 700
+    },
+    {
+      "t": 10926,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 11507,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 12091,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 12636,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 13365,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 14101,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 14778,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 15402,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 16136,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 16861,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 17372,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 17988,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 18707,
+      "lane": "BLUE",
+      "type": "hold",
+      "duration": 700
+    },
+    {
+      "t": 19266,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 19995,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 20692,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 21383,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 21840,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 22581,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 23100,
+      "lane": "BLUE",
+      "type": "hold",
+      "duration": 400
+    },
+    {
+      "t": 23833,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 24557,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 25041,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 25772,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 26251,
+      "lane": "RED",
+      "type": "hold",
+      "duration": 800
+    },
+    {
+      "t": 26786,
+      "lane": "RED",
+      "type": "hold",
+      "duration": 500
+    },
+    {
+      "t": 27497,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 28139,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 28692,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 29427,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 29895,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 30553,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 31074,
+      "lane": "BLUE",
+      "type": "tap"
+    }
+  ]
+}

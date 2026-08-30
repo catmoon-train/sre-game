@@ -1,0 +1,112 @@
+{
+  "format": 1,
+  "gameId": "114",
+  "minecraftVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "size": [
+    43,
+    32,
+    48
+  ],
+  "anchors": {
+    "blue_spawn": [
+      37.0,
+      7.0,
+      27.0
+    ],
+    "red_spawn": [
+      37.0,
+      7.0,
+      19.0
+    ],
+    "blue_platform": [
+      16.0,
+      5.0,
+      38.0
+    ],
+    "red_platform": [
+      16.0,
+      5.0,
+      8.0
+    ],
+    "wall_origin": [
+      3.0,
+      14.0,
+      23.0
+    ]
+  },
+  "shards": [
+    {
+      "file": "shard_0_0_0.nbt",
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        32,
+        32,
+        32
+      ],
+      "blockCount": 32768,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "753b1e64588e0701863fd600225db25e88bbb829cd21eb30295212b2130cbb1f"
+    },
+    {
+      "file": "shard_0_0_32.nbt",
+      "offset": [
+        0,
+        0,
+        32
+      ],
+      "size": [
+        32,
+        32,
+        16
+      ],
+      "blockCount": 16384,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "7692f26db2413b3ecaf00e23cedb48113d37da0482aef7b81b994bc571c0b315"
+    },
+    {
+      "file": "shard_32_0_0.nbt",
+      "offset": [
+        32,
+        0,
+        0
+      ],
+      "size": [
+        11,
+        32,
+        32
+      ],
+      "blockCount": 11264,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "73ea82fd10de39e26d7a65a4cf5464cbcb546e373586d9946708de89e42c41c2"
+    },
+    {
+      "file": "shard_32_0_32.nbt",
+      "offset": [
+        32,
+        0,
+        32
+      ],
+      "size": [
+        11,
+        32,
+        16
+      ],
+      "blockCount": 5632,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "6b1c02c8a85bd14f0b74529301c73737432073b27fc612e96833f4b1da913475"
+    }
+  ],
+  "blockCount": 66048,
+  "blockEntityCount": 0,
+  "entityCount": 0,
+  "sha256": "62c9be9f96e228606ab926a3a256d8d2e506cff1c485486ab5e3a1539af57d7a"
+}

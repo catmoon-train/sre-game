@@ -8,9 +8,11 @@ import net.exmo.sreGame.GameContext;
 import net.exmo.sreGame.SreGame;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.AABB;
@@ -124,7 +126,7 @@ public final class SkyArenaManager {
 
    public void clearEntities(ServerLevel level, SkyArena arena) {
       AABB box = new AABB(
-         arena.origin().getX(), arena.fillMinY() - 2, arena.origin().getZ(),
+         arena.origin().getX(), level.getMinBuildHeight() - 64, arena.origin().getZ(),
          arena.origin().getX() + SkyArena.STRIDE, arena.islandY() + 64,
          arena.origin().getZ() + SkyArena.STRIDE
       );
@@ -270,6 +272,10 @@ public final class SkyArenaManager {
          if (wx >= this.minX && wx <= this.maxX && wy >= this.minY && wy <= this.maxY && wz >= this.minZ && wz <= this.maxZ) {
             pos.set(wx, wy, wz);
             if (!level.getBlockState(pos).isAir()) {
+               BlockEntity be = level.getBlockEntity(pos);
+               if (be instanceof Container container) {
+                  container.clearContent();
+               }
                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
                cost = 1;
             } else {

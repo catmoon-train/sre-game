@@ -1,0 +1,365 @@
+{
+  "id": "pulse",
+  "name": "脉冲",
+  "bpm": 150,
+  "notes": [
+    {
+      "t": 1200,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 1517,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 1794,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 2130,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 2560,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 2918,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 3268,
+      "lane": "BLUE",
+      "type": "hold",
+      "duration": 700
+    },
+    {
+      "t": 3563,
+      "lane": "RED",
+      "type": "hold",
+      "duration": 600
+    },
+    {
+      "t": 3999,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 4439,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 4842,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 5269,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 5735,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 6098,
+      "lane": "BLUE",
+      "type": "hold",
+      "duration": 800
+    },
+    {
+      "t": 6478,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 6882,
+      "lane": "RED",
+      "type": "hold",
+      "duration": 500
+    },
+    {
+      "t": 7302,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 7748,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 8188,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 8505,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 8978,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 9332,
+      "lane": "BLUE",
+      "type": "hold",
+      "duration": 600
+    },
+    {
+      "t": 9651,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 10087,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 10398,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 10822,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 11210,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 11661,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 12053,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 12335,
+      "lane": "RED",
+      "type": "hold",
+      "duration": 500
+    },
+    {
+      "t": 12615,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 13030,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 13491,
+      "lane": "RED",
+      "type": "hold",
+      "duration": 800
+    },
+    {
+      "t": 13955,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 14363,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 14721,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 15200,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 15632,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 15906,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 16367,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 16717,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 17004,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 17312,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 17739,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 18132,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 18533,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 18827,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 19194,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 19542,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 19884,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 20276,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 20642,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 20973,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 21292,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 21594,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 21861,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 22251,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 22676,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 23020,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 23363,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 23837,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 24110,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 24529,
+      "lane": "RED",
+      "type": "hold",
+      "duration": 600
+    },
+    {
+      "t": 24892,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 25163,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 25604,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 25873,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 26326,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 26752,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 27158,
+      "lane": "BLUE",
+      "type": "tap"
+    }
+  ]
+}

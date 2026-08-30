@@ -177,6 +177,15 @@ public abstract class WeaponUtil {
         level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.SAND_PLACE, SoundSource.PLAYERS, 0.4f, 1.8f);
     }
 
+    /** Muzzle flash at the player's eye, ahead in look direction. */
+    public static void muzzleFlash(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        Vec3 eye = player.getEyePosition(1f);
+        Vec3 pos = eye.add(player.getLookAngle().scale(0.8));
+        level.sendParticles(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 4, 0.05, 0.05, 0.05, 0.02);
+        level.sendParticles(ParticleTypes.LARGE_SMOKE, pos.x, pos.y, pos.z, 2, 0.05, 0.05, 0.05, 0);
+    }
+
     public static void lightningImpact(ServerLevel level, Vec3 pos) {
         level.sendParticles(ParticleTypes.ELECTRIC_SPARK, pos.x, pos.y, pos.z, 8, 0, 0, 0, 1);
         level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.BEACON_POWER_SELECT, SoundSource.PLAYERS, 0.4f, 1.6f);
@@ -240,6 +249,7 @@ public abstract class WeaponUtil {
         ServerLevel level = player.serverLevel();
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.ARROW_SHOOT, SoundSource.PLAYERS, 0.5f, 1.8f);
+        muzzleFlash(player);
         fireHitscan(player, 1.4, 2, 256, DamageCause.MACHINEGUN, false);
     }
 
@@ -247,6 +257,7 @@ public abstract class WeaponUtil {
         ServerLevel level = player.serverLevel();
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 0.3f, 2f);
+        muzzleFlash(player);
         for (int i = 0; i < 11; i++) {
             fireHitscan(player, 2, 8, 256, DamageCause.SHOTGUN, false);
         }

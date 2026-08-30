@@ -144,6 +144,8 @@ public final class NameTagWarManager {
       if (match == null) {
          return InteractionResult.PASS;
       }
+      InteractionResult powerup = match.usePowerup(player, stack);
+      if (powerup != InteractionResult.PASS) return powerup;
       if (stack == null || !stack.is(net.minecraft.world.item.Items.SHEARS)) {
          return InteractionResult.PASS;
       }

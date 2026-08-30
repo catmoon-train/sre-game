@@ -1,0 +1,40 @@
+{
+  "sourceVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "palette": [
+    "minecraft:air",
+    "minecraft:andesite",
+    "minecraft:barrel",
+    "minecraft:bedrock",
+    "minecraft:bricks",
+    "minecraft:coal_ore",
+    "minecraft:cobblestone",
+    "minecraft:copper_ore",
+    "minecraft:crafting_table",
+    "minecraft:diamond_ore",
+    "minecraft:diorite",
+    "minecraft:glass",
+    "minecraft:glowstone",
+    "minecraft:granite",
+    "minecraft:gravel",
+    "minecraft:iron_ore",
+    "minecraft:lava",
+    "minecraft:oak_button",
+    "minecraft:oak_log",
+    "minecraft:oak_planks",
+    "minecraft:oak_slab",
+    "minecraft:polished_andesite",
+    "minecraft:smooth_stone",
+    "minecraft:stone"
+  ],
+  "removedControlBlocks": 0,
+  "removedDynamicEntities": 0,
+  "forbiddenBlocks": [
+    "minecraft:command_block",
+    "minecraft:structure_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:jigsaw"
+  ],
+  "targetCheck": "Target 1.21.1 performs the final block/property compatibility check before enabling this game."
+}

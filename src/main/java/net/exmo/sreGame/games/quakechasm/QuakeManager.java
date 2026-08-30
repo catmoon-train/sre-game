@@ -3,6 +3,7 @@ package net.exmo.sreGame.games.quakechasm;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.exmo.sreGame.GameContext;
@@ -106,6 +107,14 @@ public final class QuakeManager {
                 projectiles.remove(i);
             } else {
                 tr.lastPos = proj.position();
+                // 飞行物尾迹粒子
+                ServerLevel lvl = (ServerLevel) proj.level();
+                Vec3 p = tr.lastPos;
+                switch (tr.type) {
+                    case "rocket" -> lvl.sendParticles(ParticleTypes.LARGE_SMOKE, p.x, p.y, p.z, 2, 0.05, 0.05, 0.05, 0.02);
+                    case "plasma" -> lvl.sendParticles(ParticleTypes.END_ROD, p.x, p.y, p.z, 3, 0.05, 0.05, 0.05, 0.06);
+                    case "bfg" -> lvl.sendParticles(ParticleTypes.COMPOSTER, p.x, p.y, p.z, 4, 0.3, 0.3, 0.3, 0.5);
+                }
             }
         }
 
@@ -129,6 +138,13 @@ public final class QuakeManager {
     public QuakeMatch getMatchByOwner(UUID ownerId) {
         for (QuakeMatch m : matches) {
             if (ownerId.equals(m.getOwnerId())) return m;
+        }
+        return null;
+    }
+
+    public QuakeMatch getById(UUID id) {
+        for (QuakeMatch m : matches) {
+            if (id.equals(m.matchId)) return m;
         }
         return null;
     }

@@ -194,8 +194,8 @@ public final class SkyLoot {
 
    private static ItemStack knockbackStick(RegistryAccess access, ThreadLocalRandom random) {
       ItemStack stack = named(new ItemStack(Items.STICK), "&b击飞棍", "&7把人打出岛外");
-      applyEnchant(stack, access, Enchantments.KNOCKBACK, 4 + random.nextInt(4));
-      double knock = 3.0 + random.nextInt(3);
+      applyEnchant(stack, access, Enchantments.KNOCKBACK, 1);
+      double knock = 1.0;
       stack.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.builder()
          .add(
             Attributes.ATTACK_KNOCKBACK,

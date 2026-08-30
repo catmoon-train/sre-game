@@ -30,7 +30,7 @@ public class WeaponSpawner extends Spawner {
     }
 
     public static ItemStack weaponItem(int idx) {
-        ItemStack it = new ItemStack(Items.CARROT_ON_A_STICK);
+        ItemStack it = new ItemStack(WeaponType.ITEMS[idx]);
         it.set(DataComponents.CUSTOM_DATA, CustomData.EMPTY.update(t -> t.putInt("qc_weapon", idx)));
         it.set(DataComponents.CUSTOM_NAME, TextUtil.color(QuakeTranslator.t(WeaponType.NAME_KEYS[idx])));
         return it;

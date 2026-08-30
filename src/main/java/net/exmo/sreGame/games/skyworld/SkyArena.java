@@ -86,7 +86,7 @@ public final class SkyArena {
    }
 
    public int voidY() {
-      return this.origin.getY() + 8;
+      return this.islandY() - 40;
    }
 
    public int fillMinY() {
@@ -115,6 +115,22 @@ public final class SkyArena {
 
    public int islandCount() {
       return this.islandCount;
+   }
+
+   /**
+    * The initial border must cover every generated island.  This prevents a
+    * large match from spawning players outside a configured border radius.
+    */
+   public int requiredBorderRadius() {
+      int radius = CENTER_RADIUS + 2;
+      int centerX = this.centerX();
+      int centerZ = this.centerZ();
+      for (Voxel voxel : this.voxels) {
+         double dx = voxel.pos().getX() - centerX;
+         double dz = voxel.pos().getZ() - centerZ;
+         radius = Math.max(radius, (int) Math.ceil(Math.sqrt(dx * dx + dz * dz)) + 1);
+      }
+      return radius;
    }
 
    public boolean contains(double x, double y, double z) {

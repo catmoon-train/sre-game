@@ -1,0 +1,233 @@
+{
+  "id": "beginner",
+  "name": "入门练习",
+  "bpm": 90,
+  "notes": [
+    {
+      "t": 1200,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 1857,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 2620,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 3229,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 3825,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 4625,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 5152,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 5722,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 6371,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 6999,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 7645,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 8276,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 8996,
+      "lane": "BLUE",
+      "type": "accent"
+    },
+    {
+      "t": 9527,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 10168,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 10923,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 11710,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 12294,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 12996,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 13670,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 14350,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 14944,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 15545,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 16272,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 16883,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 17633,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 18261,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 18880,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 19423,
+      "lane": "BLUE",
+      "type": "gold"
+    },
+    {
+      "t": 20176,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 20929,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 21661,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 22368,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 23145,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 23782,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 24485,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 25205,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 25805,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 26379,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 26915,
+      "lane": "RED",
+      "type": "hold",
+      "duration": 700
+    },
+    {
+      "t": 27636,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 28166,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 28953,
+      "lane": "BLUE",
+      "type": "tap"
+    },
+    {
+      "t": 29709,
+      "lane": "RED",
+      "type": "tap"
+    },
+    {
+      "t": 30374,
+      "lane": "BLUE",
+      "type": "tap"
+    }
+  ]
+}

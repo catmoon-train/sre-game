@@ -404,7 +404,11 @@ public final class YouBuildRunMatch {
    private void beginSwap() {
       List<UUID> alive = this.aliveIds();
       if (alive.size() <= 1) {
-         this.checkWin();
+         if (alive.isEmpty()) {
+            this.finish(null);
+         } else {
+            this.finish(alive.get(0));
+         }
          return;
       }
       this.phase = Phase.SWAP;
@@ -661,6 +665,8 @@ public final class YouBuildRunMatch {
       if (this.phase == Phase.SELF) {
          if (alive.isEmpty()) {
             this.finish(null);
+         } else if (alive.size() == 1) {
+            this.finish(alive.get(0));
          }
          return;
       }

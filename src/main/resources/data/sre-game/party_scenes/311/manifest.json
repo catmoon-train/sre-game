@@ -1,0 +1,165 @@
+{
+  "format": 1,
+  "gameId": "311",
+  "minecraftVersion": "1.21.10",
+  "sourceDimension": "minecraft:the_nether",
+  "size": [
+    41,
+    46,
+    44
+  ],
+  "anchors": {
+    "blue_spawn": [
+      14.0,
+      10.0,
+      16.0
+    ],
+    "red_spawn": [
+      14.0,
+      10.0,
+      20.0
+    ]
+  },
+  "shards": [
+    {
+      "file": "shard_0_0_0.nbt",
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        32,
+        32,
+        32
+      ],
+      "blockCount": 32768,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "ba1c19a580caf64a77c76463bf940af21c02db5ca097f6cce9c1ba8aece6e2ad"
+    },
+    {
+      "file": "shard_0_0_32.nbt",
+      "offset": [
+        0,
+        0,
+        32
+      ],
+      "size": [
+        32,
+        32,
+        12
+      ],
+      "blockCount": 12288,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "3273cd6f11e2330549c20a7f30afc37bf9caba01dca1669ada1b0c4277715e99"
+    },
+    {
+      "file": "shard_0_32_0.nbt",
+      "offset": [
+        0,
+        32,
+        0
+      ],
+      "size": [
+        32,
+        14,
+        32
+      ],
+      "blockCount": 14336,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "a1fcdaa76ba3e3d264cad42793a31e213376459ffad549065972f4fe6500af6a"
+    },
+    {
+      "file": "shard_0_32_32.nbt",
+      "offset": [
+        0,
+        32,
+        32
+      ],
+      "size": [
+        32,
+        14,
+        12
+      ],
+      "blockCount": 5376,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "5b857017706f5b6bb71675b296ce1af520af33ed4253dbe5ac35a77b678fac7f"
+    },
+    {
+      "file": "shard_32_0_0.nbt",
+      "offset": [
+        32,
+        0,
+        0
+      ],
+      "size": [
+        9,
+        32,
+        32
+      ],
+      "blockCount": 9216,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "f3a52b746673b2637b6acae32fb83aeb96a5c3c5e856857c4f640a8b72dfac9c"
+    },
+    {
+      "file": "shard_32_0_32.nbt",
+      "offset": [
+        32,
+        0,
+        32
+      ],
+      "size": [
+        9,
+        32,
+        12
+      ],
+      "blockCount": 3456,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "b3c2ab59b1d2b2fb893505f9e70cc0f3cac050f286c8c66fa27eb40c6b77d97b"
+    },
+    {
+      "file": "shard_32_32_0.nbt",
+      "offset": [
+        32,
+        32,
+        0
+      ],
+      "size": [
+        9,
+        14,
+        32
+      ],
+      "blockCount": 4032,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "5cf865279829d79375f1081f96b7dd3f0b87eef7018ff21f57ef85c65b24e9e8"
+    },
+    {
+      "file": "shard_32_32_32.nbt",
+      "offset": [
+        32,
+        32,
+        32
+      ],
+      "size": [
+        9,
+        14,
+        12
+      ],
+      "blockCount": 1512,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "7a24e409056f7215592f29cf30fc4860e2bca31e9b0704f7d30ab3cbe425a1ce"
+    }
+  ],
+  "blockCount": 82984,
+  "blockEntityCount": 0,
+  "entityCount": 0,
+  "sha256": "42337100589de15144c9c5b012050cae88957f74c79ef5e7e32f142d517d90db"
+}

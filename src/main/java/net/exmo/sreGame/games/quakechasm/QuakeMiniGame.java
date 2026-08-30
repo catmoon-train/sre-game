@@ -38,7 +38,7 @@ public final class QuakeMiniGame implements MiniGame {
     @Override public String displayName() { return "Quake 竞技场"; }
     @Override public String icon() { return "carrot_on_a_stick"; }
     @Override public int minPlayers() { return 2; }
-    @Override public int maxPlayers() { return 16; }
+    @Override public int maxPlayers() { return 24; }
 
     @Override
     public void openSetup(ServerPlayer host, GameRoom room) {
@@ -47,7 +47,7 @@ public final class QuakeMiniGame implements MiniGame {
 
     @Override
     public boolean canStart(GameRoom room, ServerPlayer actor) {
-        if (room.size() < minPlayers()) {
+        if (room.size() < minPlayers() || room.size() > maxPlayers()) {
             ctx.send(actor, "&cQuake 需要 &f" + minPlayers() + "&c 人。");
             return false;
         }
@@ -68,10 +68,13 @@ public final class QuakeMiniGame implements MiniGame {
 
         FFAMatch match = new FFAMatch(map);
         QuakeManager.INSTANCE.matches.add(match);
+        room.setActiveMatchId(match.matchId);
+        room.setState(net.exmo.sreGame.room.RoomState.PLAYING);
         for (UUID id : room.members()) {
             ServerPlayer mp = ctx.server().getPlayerList().getPlayer(id);
             if (mp != null) match.join(mp, null);
         }
+        match.cleanupTriggers(); // 清上局残留 spawner，避免堆积
         spawnPickups(level, p);
         match.warmup();
     }

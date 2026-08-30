@@ -69,6 +69,8 @@ public final class RoomBrowserGui {
          } else if (room.isDodgeball()) {
             lore.add("&7躲避球 &8| &f" + room.dodgeballSettings().roundSeconds() + "s × "
                + room.dodgeballSettings().winsNeeded() + " 胜");
+         } else if (room.isFootball()) {
+            lore.add("&7足球大战 &8| &f4 分钟 · 16–24 人");
          } else if (room.isDigToDeath()) {
             lore.add("&7掘一死战 &8| &f" + room.digToDeathSettings().variant().label());
          } else if (room.isYouBuildRun()) {

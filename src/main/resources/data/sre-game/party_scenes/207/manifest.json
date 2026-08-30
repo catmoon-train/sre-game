@@ -1,0 +1,127 @@
+{
+  "format": 1,
+  "gameId": "207",
+  "minecraftVersion": "1.21.10",
+  "sourceDimension": "minecraft:overworld",
+  "size": [
+    53,
+    21,
+    55
+  ],
+  "anchors": {
+    "blue_spawn": [
+      6.0,
+      8.0,
+      47.0
+    ],
+    "red_spawn": [
+      46.0,
+      8.0,
+      7.0
+    ],
+    "blue_target": [
+      16.0,
+      8.0,
+      27.0
+    ],
+    "blue_target_2": [
+      16.0,
+      8.0,
+      22.0
+    ],
+    "red_target": [
+      36.0,
+      8.0,
+      27.0
+    ],
+    "red_target_2": [
+      36.0,
+      8.0,
+      32.0
+    ],
+    "blue_meet": [
+      26.0,
+      8.0,
+      27.0
+    ],
+    "red_meet": [
+      26.0,
+      8.0,
+      27.0
+    ]
+  },
+  "shards": [
+    {
+      "file": "shard_0_0_0.nbt",
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        32,
+        21,
+        32
+      ],
+      "blockCount": 21504,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "b6370eac0ecabb758a3799f1aaa531383491f37325cd34fa1972a69d1f97918f"
+    },
+    {
+      "file": "shard_0_0_32.nbt",
+      "offset": [
+        0,
+        0,
+        32
+      ],
+      "size": [
+        32,
+        21,
+        23
+      ],
+      "blockCount": 15456,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "3ad48824f6890823819d6979776e1300258030a50cb02dc234ac3e650e64ccc6"
+    },
+    {
+      "file": "shard_32_0_0.nbt",
+      "offset": [
+        32,
+        0,
+        0
+      ],
+      "size": [
+        21,
+        21,
+        32
+      ],
+      "blockCount": 14112,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "f03d4a2e3b459c50c6042987cf9b1fdfb5e842c92b3bae1fd5906868c50bfc51"
+    },
+    {
+      "file": "shard_32_0_32.nbt",
+      "offset": [
+        32,
+        0,
+        32
+      ],
+      "size": [
+        21,
+        21,
+        23
+      ],
+      "blockCount": 10143,
+      "blockEntityCount": 0,
+      "entityCount": 0,
+      "sha256": "16020c9952d1609ceb3ba750d087dcc28de9df4fbbbcc03e676bc7893f550fcb"
+    }
+  ],
+  "blockCount": 61215,
+  "blockEntityCount": 0,
+  "entityCount": 0,
+  "sha256": "4381c86850a6c7b1b7064250a027d955921807c847890a02837913e5d134191f"
+}

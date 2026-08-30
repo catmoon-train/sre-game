@@ -36,14 +36,14 @@ public final class NameTagWarSetupGui {
          "&f友伤 &e" + s.onOff(s.friendlyFire()),
          List.of("&7组队模式下是否允许队友伤害", "&e点击开关"), "friendlyFire"));
       container.setItem(13, GuiItems.action("shears", "&f默认撕取器 &e" + s.defaultRipMode().label(),
-         List.of("&7未标记的剪刀默认模式", "&7速撕 0.35s 严格背刺 · 稳撕 0.8s 侧后", "&e点击切换"), "defaultMode"));
+         List.of("&7未标记的剪刀默认模式", "&7速撕 0.25s 背后即可 · 稳撕 0.5s 侧前", "&e点击切换"), "defaultMode"));
       container.setItem(14, GuiItems.action(s.giveBothRippers() ? "chest" : "paper",
          "&f发放双剪 &e" + s.onOff(s.giveBothRippers()),
          List.of("&7开局同时发放速撕+稳撕两把", "&7关则只发默认模式", "&e点击开关"), "bothRippers"));
       container.setItem(15, GuiItems.action("clock", "&f对局时限 &e" + s.maxSeconds() + "s",
          List.of("&7时间到则平局", "&e点击切换 120 / 180 / 240 / 300 / 600"), "maxSeconds"));
       container.setItem(16, GuiItems.action("compass", "&f最大撕取距离 &e" + s.maxDistance() + " 格",
-         List.of("&7撕名牌时与目标的最大距离", "&7默认 2.0 格"), "distance"));
+         List.of("&7撕名牌时与目标的最大距离", "&7默认 3.0 格"), "distance"));
 
       container.setItem(19, GuiItems.action(s.border() ? "bedrock" : "barrier",
          "&f边界 &e" + s.onOff(s.border()),
@@ -64,7 +64,8 @@ public final class NameTagWarSetupGui {
       container.setItem(40, GuiItems.named("name_tag", "&f规则摘要", List.of(
          "&72–64 人，每人背部一张名牌",
          "&7用剪刀对准敌人背部持续撕取",
-         "&7速撕 0.6s 严格背刺 · 稳撕 1.5s 侧后",
+         "&7速撕 0.25s 背后即可 · 稳撕 0.5s 侧前",
+         "&7场地为 3 层竞技场建筑，四墙楼梯连通",
          "&7名牌被撕即淘汰，旁观至结束",
          "&7最后存活/队伍获胜"
       )));

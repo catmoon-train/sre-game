@@ -13,6 +13,7 @@ import net.exmo.sreGame.games.dontdo.DontDoManager;
 import net.exmo.sreGame.games.buildrun.YouBuildRunManager;
 import net.exmo.sreGame.games.dig.DigToDeathManager;
 import net.exmo.sreGame.games.dodgeball.DodgeballManager;
+import net.exmo.sreGame.games.football.FootballManager;
 import net.exmo.sreGame.games.fakehuman.FakeHumanManager;
 import net.exmo.sreGame.games.fillinthewall.FillInTheWallManager;
 import net.exmo.sreGame.games.fraud.FraudMasterManager;
@@ -22,15 +23,22 @@ import net.exmo.sreGame.games.nametagwar.NameTagWarManager;
 import net.exmo.sreGame.games.parkour.ParkourManager;
 import net.exmo.sreGame.games.pillarpummel.PillarPummelManager;
 import net.exmo.sreGame.profile.SettingsProfiles;
+import net.exmo.sreGame.player.PlayerWhitelist;
 import net.exmo.sreGame.games.pushthebutton.PushTheButtonManager;
+import net.exmo.sreGame.games.rhythm.RhythmManager;
 import net.exmo.sreGame.games.skyworld.SkyWorldManager;
+import net.exmo.sreGame.games.blockedcombat.BlockedCombatManager;
+import net.exmo.sreGame.games.tunnelrats.TunnelRatsManager;
 import net.exmo.sreGame.games.situationpuzzle.SituationPuzzleManager;
 import net.exmo.sreGame.ai.AiConfig;
 import net.exmo.sreGame.ai.AiService;
+import net.exmo.sreGame.command.WhitelistCommands;
 import net.exmo.sreGame.room.RoomManager;
 import net.exmo.sreGame.util.TextUtil;
 import net.exmo.sreGame.words.WordLibrary;
 import net.exmo.sreGame.games.youguess.YouGuessManager;
+import net.exmo.sreGame.games.partygames.PartyGameManager;
+import net.exmo.sreGame.games.hypixelsays.HypixelSaysManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -53,18 +61,26 @@ public final class GameContext {
    private final LuckyPillarManager luckyPillar = new LuckyPillarManager(this);
    private final PillarPummelManager pillarPummel = new PillarPummelManager(this);
    private final DodgeballManager dodgeball = new DodgeballManager(this);
+   private final FootballManager football = new FootballManager(this);
    private final DigToDeathManager digToDeath = new DigToDeathManager(this);
    private final YouBuildRunManager youBuildRun = new YouBuildRunManager(this);
    private final PushTheButtonManager pushTheButton = new PushTheButtonManager(this);
    private final SkyWorldManager skyWorld = new SkyWorldManager(this);
+   private final BlockedCombatManager blockedCombat = new BlockedCombatManager(this);
+   private final TunnelRatsManager tunnelRats = new TunnelRatsManager(this);
    private final ParkourManager parkour = new ParkourManager(this);
    private final SituationPuzzleManager situationPuzzle = new SituationPuzzleManager(this);
    private final NameTagWarManager nameTagWar = new NameTagWarManager(this);
    private final FillInTheWallManager fillInTheWall = new FillInTheWallManager(this);
+   private final RhythmManager rhythm = new RhythmManager(this);
+   private final PartyGameManager partyGames = new PartyGameManager(this);
+   private final HypixelSaysManager hypixelSays = new HypixelSaysManager(this);
    private final AiConfig aiConfig = new AiConfig(this.configDir);
    private final AiService aiService = new AiService(this.aiConfig);
    private final SettingsProfiles profiles = new SettingsProfiles(this.configDir);
+   private final PlayerWhitelist whitelist = new PlayerWhitelist(this.configDir);
    private MinecraftServer server;
+   private int whitelistCheckTicks;
 
    public GameConfig config() {
       return this.config;
@@ -134,6 +150,10 @@ public final class GameContext {
       return this.dodgeball;
    }
 
+   public FootballManager football() {
+      return this.football;
+   }
+
    public DigToDeathManager digToDeath() {
       return this.digToDeath;
    }
@@ -148,6 +168,14 @@ public final class GameContext {
 
    public SkyWorldManager skyWorld() {
       return this.skyWorld;
+   }
+
+   public BlockedCombatManager blockedCombat() {
+      return this.blockedCombat;
+   }
+
+   public TunnelRatsManager tunnelRats() {
+      return this.tunnelRats;
    }
 
    public ParkourManager parkour() {
@@ -166,6 +194,22 @@ public final class GameContext {
       return this.fillInTheWall;
    }
 
+   public RhythmManager rhythm() {
+      return this.rhythm;
+   }
+
+   public PartyGameManager partyGames() {
+      return this.partyGames;
+   }
+
+   public HypixelSaysManager hypixelSays() {
+      return this.hypixelSays;
+   }
+
+   public Path configDir() {
+      return this.configDir;
+   }
+
    public AiConfig aiConfig() {
       return this.aiConfig;
    }
@@ -178,6 +222,10 @@ public final class GameContext {
       return this.profiles;
    }
 
+   public PlayerWhitelist whitelist() {
+      return this.whitelist;
+   }
+
    public MinecraftServer server() {
       return this.server;
    }
@@ -188,6 +236,7 @@ public final class GameContext {
       this.library.load();
       this.caveWords.load();
       this.profiles.load();
+      this.whitelist.load();
       this.luckyPillar.items().load();
       this.plots.pregen();
       this.fakeHuman.houses().pregen();
@@ -195,13 +244,19 @@ public final class GameContext {
       this.luckyPillar.arenas().pregen();
       this.pillarPummel.arenas().pregen();
       this.dodgeball.arenas().pregen();
+      this.football.arenas().pregen();
       this.digToDeath.arenas().pregen();
       this.youBuildRun.tracks().pregen();
       this.pushTheButton.ships().pregen();
       this.skyWorld.arenas().pregen();
+      this.blockedCombat.arenas().pregen();
+      this.tunnelRats.arenas().pregen();
       this.nameTagWar.arenas().pregen();
       this.fillInTheWall.arenas().pregen();
       this.parkour.load();
+      this.rhythm.load();
+      this.partyGames.load();
+      this.hypixelSays.pregen();
       this.aiConfig.load();
    }
 
@@ -216,19 +271,29 @@ public final class GameContext {
       this.luckyPillar.endAll();
       this.pillarPummel.endAll();
       this.dodgeball.endAll();
+      this.football.endAll();
       this.digToDeath.endAll();
       this.youBuildRun.endAll();
       this.pushTheButton.endAll();
       this.skyWorld.endAll();
+      this.blockedCombat.endAll();
+      this.tunnelRats.endAll();
       this.parkour.endAll();
       this.situationPuzzle.endAll();
       this.nameTagWar.endAll();
       this.fillInTheWall.endAll();
+      this.rhythm.endAll();
+      this.partyGames.endAll();
+      this.hypixelSays.endAll();
       this.rooms.disbandAll();
       this.server = null;
    }
 
    public void tick() {
+      if (++this.whitelistCheckTicks >= 20) {
+         this.whitelistCheckTicks = 0;
+         WhitelistCommands.enforceOnline(this);
+      }
       this.plots.tick();
       this.buildWar.tick();
       this.youGuess.tick();
@@ -240,14 +305,20 @@ public final class GameContext {
       this.luckyPillar.tick();
       this.pillarPummel.tick();
       this.dodgeball.tick();
+      this.football.tick();
       this.digToDeath.tick();
       this.youBuildRun.tick();
       this.pushTheButton.tick();
       this.skyWorld.tick();
+      this.blockedCombat.tick();
+      this.tunnelRats.tick();
       this.parkour.tick();
       this.situationPuzzle.tick();
       this.nameTagWar.tick();
       this.fillInTheWall.tick();
+      this.rhythm.tick();
+      this.partyGames.tick();
+      this.hypixelSays.tick();
       net.exmo.sreGame.games.draw.DrawKit.tick(this);
    }
 
